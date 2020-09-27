@@ -1,0 +1,51 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  transition: 0.5s;
+}
+
+html {
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+nav {
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  /*border-bottom: 1px solid white;*/
+  font-size: 22px;
+  clear: both;
+}
+
+nav #theme-toggle {
+
+}
+
+nav #theme-toggle:hover {
+  color: white;
+  cursor: pointer;
+}
+
+#field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px 0 50px 0;
+}
+
+#map {
+  background-color: green;
+  border: 1px solid green;
+}
+
+.dark-mode {
+  filter: invert(100%);
+}
