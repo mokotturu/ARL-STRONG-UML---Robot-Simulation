@@ -10,13 +10,20 @@
   <body>
     <nav>
       <div id="title">TITLE</div>
-      <div id="theme-toggle" onclick="toggleDarkMode()">Toggle theme</div>
     </nav>
 
-    <div id="field">
-      <canvas width="600" height="700" id="map"></canvas>
-      <div id="settings">
-
+    <div id="simulation">
+      <canvas width="500" height="500" id="map"></canvas>
+      <div class="side-panel">
+        <div id="instructions">
+          <p>Use the arrow keys to navigate the map. Click on a cell to make it a wall.</p>
+        </div>
+        <div id="settings">
+          <p>Enter a positive integer for the number of rows and columns:</p>
+          Rows: <input type="text" id="rows" value="30" /><br><br>
+          Columns: <input type="text" id="columns" value="30" /><br><br>
+          <button onclick="modifyMap()">Create New Map</button>
+        </div>
       </div>
     </div>
 

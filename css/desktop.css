@@ -2,7 +2,6 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  transition: 0.5s;
 }
 
 html {
@@ -19,33 +18,25 @@ nav {
   justify-content: space-between;
   align-items: center;
   font-family: 'Roboto', sans-serif;
-  /*border-bottom: 1px solid white;*/
   font-size: 22px;
-  clear: both;
 }
 
-nav #theme-toggle {
-
-}
-
-nav #theme-toggle:hover {
-  color: white;
-  cursor: pointer;
-}
-
-#field {
+#simulation {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  width: 100%;
-  padding: 20px 0 50px 0;
+  padding: 20px 20px 50px 20px;
+  flex-wrap: wrap;
 }
 
 #map {
   background-color: green;
   border: 1px solid green;
+  margin: 0 10px;
 }
 
-.dark-mode {
-  filter: invert(100%);
+.side-panel {
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  padding: 0 10px;
 }
