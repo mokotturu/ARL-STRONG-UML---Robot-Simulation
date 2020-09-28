@@ -13,10 +13,15 @@ var cellColor = "black";
 var botColor = "blue";
 
 var map = [];
+let botIndex = 0;
 
 createMap();
 drawMap();
-var bot = map[Math.floor(Math.random() * map.length)];
+// to prevent spawning on top of a wall
+do {
+  botIndex = Math.floor(Math.random() * map.length);
+} while(map[botIndex].isWall);
+var bot = map[botIndex];
 spawnBot(bot.x, bot.y);
 
 // creates an array containing cells with x and y positions and wall details
