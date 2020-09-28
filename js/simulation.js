@@ -69,7 +69,7 @@ function modifyMap() {
   refreshMap();
 }
 
-// makes a cell a wall
+// creates/removes wall on the clicked cell
 function createWall(canvas, e) {
   var rect = canvas.getBoundingClientRect();
   var x = event.clientX - rect.left;
@@ -79,10 +79,6 @@ function createWall(canvas, e) {
   let walledCellY = (y - (y % (canvasHeight/rows)));
 
   let i = 0;
-  /*while (((Math.floor(map[i].x) != walledCellX) || (Math.floor(map[i].y) != walledCellY))) {
-    i++;
-  }*/
-
   i = Math.round((walledCellX/(canvasWidth/columns)) + columns*(walledCellY/(canvasHeight/rows)));
   console.log(walledCellX, walledCellY, i);
 
