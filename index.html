@@ -4,7 +4,7 @@
     <meta name="author" content="Monish Reddy Kotturu">
     <title>ARL STRONG UMass Lowell | Robot Simulation</title>
     <link rel="stylesheet" href="css/desktop.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
   </head>
 
   <body>
@@ -13,16 +13,20 @@
     </nav>
 
     <div id="simulation">
-      <canvas width="500" height="500" id="map"></canvas>
+      <canvas id="map"></canvas>
       <div class="side-panel">
         <div id="instructions">
-          <p>Use the arrow keys to navigate the map. Click on a cell to make it a wall.</p>
+          <p>The blue colored cell represents the robot that can be controlled by the user. The red colored cell represents the robot that moves autonomously. Use the arrow keys to move the user controlled robot. Click on a cell on the map to put/remove a wall.</p>
         </div>
+        <br />
         <div id="settings">
-          <p>Enter a positive integer for the number of rows and columns:</p>
-          Rows: <input type="text" id="rows" value="30" /><br><br>
-          Columns: <input type="text" id="columns" value="30" /><br><br>
-          <button onclick="modifyMap()">Create New Map</button>
+          <p>Enter the values for the number of rows and columns:</p>
+          Rows: <input type="text" id="rows" value="30" /><br /><br />
+          Columns: <input type="text" id="columns" value="30" /><br /><br />
+          <button onclick="modifyMap()">Create New Map</button><br /><br /><br />
+          <p>Enter a value to set the speed of the autonomous robot (lower = faster):</p>
+          Speed: <input type="text" id="speed" value="4" /><br /><br />
+          <button onclick="setSpeed()">Set Speed</button>
         </div>
       </div>
     </div>
