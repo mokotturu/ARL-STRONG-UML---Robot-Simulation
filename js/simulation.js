@@ -194,7 +194,7 @@ function getRandomLoc() {
 
 // document arrow keys event listener
 document.addEventListener('keydown', function(e) {
-  if (e.which === 37) {
+  if (e.keyCode === 37) {
     e.preventDefault();
     if (Math.floor(map[userBot.loc].x) != 1 && !map[userBot.loc - 1].isWall && !map[userBot.loc - 1].isOccupied) {
       map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
@@ -202,7 +202,7 @@ document.addEventListener('keydown', function(e) {
       userBot.dir = 4;
       refreshMap();
     }
-  } else if (e.which === 38) {
+  } else if (e.keyCode === 38) {
     e.preventDefault();
     if (Math.floor(map[userBot.loc].y) != 1 && !map[userBot.loc - columns].isWall && !map[userBot.loc - columns].isOccupied) {
       map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
@@ -210,7 +210,7 @@ document.addEventListener('keydown', function(e) {
       userBot.dir = 1;
       refreshMap();
     }
-  } else if (e.which === 39) {
+  } else if (e.keyCode === 39) {
     e.preventDefault();
     if (Math.floor(map[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !map[userBot.loc + 1].isWall && !map[userBot.loc + 1].isOccupied) {
       map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
@@ -218,7 +218,7 @@ document.addEventListener('keydown', function(e) {
       userBot.dir = 2;
       refreshMap();
     }
-  } else if (e.which === 40) {
+  } else if (e.keyCode === 40) {
     e.preventDefault();
     if (Math.floor(map[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !map[userBot.loc + columns].isWall && !map[userBot.loc + columns].isOccupied) {
       map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;

@@ -21,7 +21,7 @@ html, body {
     letter-spacing: 4px;
 }
 
-div, input, button {
+div, input, button, select {
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   font-weight: bold;
@@ -72,7 +72,7 @@ input {
   color: white;
 }
 
-button {
+button, select, option {
   padding: 5px 10px;
   background-color: white;
   border-radius: 30px;
@@ -84,5 +84,12 @@ button:hover {
   background-color: black;
   border: 2px solid white;
   color: white;
+  cursor: pointer;
+}
+
+select:hover, option {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
   cursor: pointer;
 }
