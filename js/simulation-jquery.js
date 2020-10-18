@@ -30,7 +30,7 @@ $(document).ready(function() {
       switch (e.keyCode) {
         case 37:  // left arrow key
           e.preventDefault();
-          if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall && !grid[userBot.loc - rows].isOccupied) {
+          if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall/*  && !grid[userBot.loc - rows].isOccupied */) {
             grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
             userBot.loc -= rows;
             userBot.dir = 4;
@@ -39,7 +39,7 @@ $(document).ready(function() {
           break;
         case 38:  // up arrow key
           e.preventDefault();
-          if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall && !grid[userBot.loc - 1].isOccupied) {
+          if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall/*  && !grid[userBot.loc - 1].isOccupied */) {
             grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
             userBot.loc--;
             userBot.dir = 1;
@@ -48,7 +48,7 @@ $(document).ready(function() {
           break;
         case 39:  // right arrow key
           e.preventDefault();
-          if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall && !grid[userBot.loc + rows].isOccupied) {
+          if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall/*  && !grid[userBot.loc + rows].isOccupied */) {
             grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
             userBot.loc += rows;
             userBot.dir = 2;
@@ -57,7 +57,7 @@ $(document).ready(function() {
           break;
         case 40:  // down arrow key
           e.preventDefault();
-          if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall && !grid[userBot.loc + 1].isOccupied) {
+          if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall/*  && !grid[userBot.loc + 1].isOccupied */) {
             grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
             userBot.loc++;
             userBot.dir = 3;
@@ -173,7 +173,7 @@ function createMap(currentPath, cb) {
 function drawMap(grid1) {
   $map.clearCanvas();
   grid1.forEach(item => {
-    if (item.isExplored && !item.isWall) {
+    /* if (item.isExplored && !item.isWall) {
       $map.drawRect({
         fillStyle: EXPLORED_COLOR,
         x: item.x*boxWidth, y: item.y*boxHeight,
@@ -187,7 +187,25 @@ function drawMap(grid1) {
       });
     } else if (!item.isExplored && !item.isWall && item.isInSight) {
       $map.drawRect({
-        fillStyle: 'rgba(255, 255, 0, 0.5)',
+        fillStyle: CELL_COLOR,
+        x: item.x*boxWidth, y: item.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+      $map.drawLine({
+        strokeStyle: 'yellow',
+        x1: item.x*boxWidth, y1: item.y*boxHeight,
+        x2: item.x*boxWidth + boxWidth, y2: item.y*boxHeight + boxHeight
+      });
+    } */
+    if (item.isInSight && item.isWall) {
+      $map.drawRect({
+        fillStyle: 'green',
+        x: item.x*boxWidth, y: item.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else if (item.isInSight && !item.isWall) {
+      $map.drawRect({
+        fillStyle: 'grey',
         x: item.x*boxWidth, y: item.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
@@ -197,12 +215,14 @@ function drawMap(grid1) {
 
 // spawns the bot in its location
 function spawnBot(bot) {
-  $map.drawRect({
-    fillStyle: bot.color,
-    x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
-    width: boxWidth, height: boxHeight
-  });
-  grid[bot.loc].isOccupied = true;
+  if (grid[bot.loc].isInSight) {
+    $map.drawRect({
+      fillStyle: bot.color,
+      x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
+      width: boxWidth - 1, height: boxHeight - 1
+    });
+    grid[bot.loc].isOccupied = true;
+  }
 }
 
 // redraws the map and spawns the bots in their new location
@@ -221,13 +241,86 @@ function findLineOfSight(bot) {
   surroundings = [];
   for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
     for (let y = grid[bot.loc].y - 2; y <= grid[bot.loc].y + 2; y++) {
-      if (x != grid[bot.loc].x || y != grid[bot.loc].y) {
-        surroundings.push(y + x*(rows));
-        grid[y + x*(rows)].isInSight = true;
-      }
+      surroundings.push(y + x*(rows));
+      grid[y + x*(rows)].isInSight = true;
     }
   }
   console.log("surroudings", surroundings);
+
+  let item;
+  let middle = grid[surroundings[Math.floor(surroundings.length/2)]];
+  for (let i = 0; i < surroundings.length; i++) {
+    item = surroundings[i];
+    if (i != middle && !grid[item].isWall) {
+      if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
+        if (grid[item + rows + 1] != middle && (grid[item + 1].isWall || grid[item + rows].isWall || grid[item + rows + 1].isWall)) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
+        if (grid[item - rows + 1] != middle && (grid[item + 1].isWall || grid[item - rows].isWall || grid[item - rows + 1].isWall)) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
+        if (grid[item + rows - 1] != middle && (grid[item - 1].isWall || grid[item + rows - 1].isWall || grid[item + rows].isWall)) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
+        if (grid[item - rows - 1] != middle && (grid[item - 1].isWall || grid[item - rows].isWall || grid[item - rows - 1].isWall)) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
+        if (grid[item + rows].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
+        if (grid[item - rows].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
+        if (grid[item + 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
+        if (grid[item - 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      }
+    } else {
+      if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
+        if ((grid[item + 1].isWall || grid[item + rows].isWall) && grid[item + rows + 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
+        if ((grid[item + 1].isWall || grid[item - rows].isWall) && grid[item - rows + 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
+        if ((grid[item - 1].isWall || grid[item + rows].isWall) && grid[item + rows - 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
+        if ((grid[item - 1].isWall || grid[item - rows].isWall) && grid[item - rows - 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
+        if (grid[item + rows].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
+        if (grid[item - rows].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
+        if (grid[item + 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
+        if (grid[item - 1].isWall) {
+          grid[item].isInSight = false;
+        }
+      }
+    }
+  }
 }
 
 // takes the new grid size and modifies the map
