@@ -17,7 +17,7 @@ const EXPLORED_COLOR = "white";
 var grid = [];
 var surroundings = [];
 var userBot, autoBot;
-var mapPaths = ["src/data.json", "src/data1.json", "src/data3.json", "src/data4.json"];
+var mapPaths = ["src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var currentPath = mapPaths[0];
 
 var count = 0;
@@ -138,6 +138,7 @@ $(window).on("load", function() {
 
 $("#maps").change(function() {
   currentPath = $("#maps option:selected").text();
+  $map.clearCanvas();
   createMap(currentPath);
 });
 
@@ -146,8 +147,8 @@ function createMap(currentPath, cb) {
   grid = [];
 
   $.getJSON(currentPath, function(data) {
-    rows = data.dimensions.rows;
-    columns = data.dimensions.columns;
+    rows = data.dimensions[0].rows;
+    columns = data.dimensions[0].columns;
     boxWidth = canvasWidth/rows;
     boxHeight = canvasHeight/columns;
     $.each(data.map, function(i, value) {
@@ -171,9 +172,10 @@ function createMap(currentPath, cb) {
 
 // renders the map on the screen
 function drawMap(grid1) {
-  $map.clearCanvas();
-  grid1.forEach(item => {
-    /* if (item.isExplored && !item.isWall) {
+  // $map.clearCanvas();
+  /* grid1.forEach(item => {
+    // console.log("drawing...", item);
+    if (item.isExplored && !item.isWall) {
       $map.drawRect({
         fillStyle: EXPLORED_COLOR,
         x: item.x*boxWidth, y: item.y*boxHeight,
@@ -196,7 +198,7 @@ function drawMap(grid1) {
         x1: item.x*boxWidth, y1: item.y*boxHeight,
         x2: item.x*boxWidth + boxWidth, y2: item.y*boxHeight + boxHeight
       });
-    } */
+    }
     if (item.isInSight && item.isWall) {
       $map.drawRect({
         fillStyle: 'green',
@@ -210,7 +212,48 @@ function drawMap(grid1) {
         width: boxWidth - 1, height: boxHeight - 1
       });
     }
-  });
+  }); */
+  let cell;
+  for (let i = 0; i < surroundings.length; i++) {
+    cell = grid[surroundings[i]];
+    /* if (cell.isExplored && !cell.isWall) {
+      $map.drawRect({
+        fillStyle: EXPLORED_COLOR,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else if (!cell.isExplored && !cell.isWall && !cell.isInSight) {
+      $map.drawRect({
+        fillStyle: CELL_COLOR,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else if (!cell.isExplored && !cell.isWall && cell.isInSight) {
+      $map.drawRect({
+        fillStyle: CELL_COLOR,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+      $map.drawLine({
+        strokeStyle: 'yellow',
+        x1: cell.x*boxWidth, y1: cell.y*boxHeight,
+        x2: cell.x*boxWidth + boxWidth, y2: cell.y*boxHeight + boxHeight
+      });
+    } */
+    if (cell.isInSight && cell.isWall) {
+      $map.drawRect({
+        fillStyle: 'green',
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else if (cell.isInSight && !cell.isWall) {
+      $map.drawRect({
+        fillStyle: 'grey',
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    }
+  }
 }
 
 // spawns the bot in its location
@@ -235,9 +278,9 @@ function refreshMap() {
 
 // find line of sight
 function findLineOfSight(bot) {
-  for (let i = 0; i < surroundings.length; i++) {
+  /* for (let i = 0; i < surroundings.length; i++) {
     grid[surroundings[i]].isInSight = false;
-  }
+  } */
   surroundings = [];
   for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
     for (let y = grid[bot.loc].y - 2; y <= grid[bot.loc].y + 2; y++) {
@@ -254,70 +297,102 @@ function findLineOfSight(bot) {
     if (i != middle && !grid[item].isWall) {
       if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
         if (grid[item + rows + 1] != middle && (grid[item + 1].isWall || grid[item + rows].isWall || grid[item + rows + 1].isWall)) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
         if (grid[item - rows + 1] != middle && (grid[item + 1].isWall || grid[item - rows].isWall || grid[item - rows + 1].isWall)) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
         if (grid[item + rows - 1] != middle && (grid[item - 1].isWall || grid[item + rows - 1].isWall || grid[item + rows].isWall)) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
         if (grid[item - rows - 1] != middle && (grid[item - 1].isWall || grid[item - rows].isWall || grid[item - rows - 1].isWall)) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
         if (grid[item + rows].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
         if (grid[item - rows].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
         if (grid[item + 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
         if (grid[item - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       }
     } else {
       if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
         if ((grid[item + 1].isWall || grid[item + rows].isWall) && grid[item + rows + 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
         if ((grid[item + 1].isWall || grid[item - rows].isWall) && grid[item - rows + 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
         if ((grid[item - 1].isWall || grid[item + rows].isWall) && grid[item + rows - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
         if ((grid[item - 1].isWall || grid[item - rows].isWall) && grid[item - rows - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
         if (grid[item + rows].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
         if (grid[item - rows].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
         if (grid[item + 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
         if (grid[item - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+          if (!grid[item].isExplored) {
+            grid[item].isInSight = false;
+          }
+        } else grid[item].isExplored = true;
       }
     }
   }

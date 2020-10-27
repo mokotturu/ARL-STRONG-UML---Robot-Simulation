@@ -17,7 +17,7 @@ const EXPLORED_COLOR = "white";
 var grid = [];
 var surroundings = [];
 var userBot, autoBot;
-var mapPaths = ["src/data.json", "src/data1.json", "src/data3.json", "src/data4.json"];
+var mapPaths = ["src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var currentPath = mapPaths[0];
 
 var count = 0;
@@ -173,7 +173,7 @@ function createMap(currentPath, cb) {
 function drawMap(grid1) {
   $map.clearCanvas();
   grid1.forEach(item => {
-    if (item.isExplored && !item.isWall) {
+    /* if (item.isExplored && !item.isWall) {
       $map.drawRect({
         fillStyle: EXPLORED_COLOR,
         x: item.x*boxWidth, y: item.y*boxHeight,
@@ -196,8 +196,8 @@ function drawMap(grid1) {
         x1: item.x*boxWidth, y1: item.y*boxHeight,
         x2: item.x*boxWidth + boxWidth, y2: item.y*boxHeight + boxHeight
       });
-    }
-    /* if (item.isInSight && item.isWall) {
+    } */
+    if (item.isInSight && item.isWall) {
       $map.drawRect({
         fillStyle: 'green',
         x: item.x*boxWidth, y: item.y*boxHeight,
@@ -209,7 +209,7 @@ function drawMap(grid1) {
         x: item.x*boxWidth, y: item.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
-    } */
+    }
   });
 }
 
@@ -235,9 +235,9 @@ function refreshMap() {
 
 // find line of sight
 function findLineOfSight(bot) {
-  for (let i = 0; i < surroundings.length; i++) {
+  /* for (let i = 0; i < surroundings.length; i++) {
     grid[surroundings[i]].isInSight = false;
-  }
+  } */
   surroundings = [];
   for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
     for (let y = grid[bot.loc].y - 2; y <= grid[bot.loc].y + 2; y++) {
@@ -245,79 +245,63 @@ function findLineOfSight(bot) {
       grid[y + x*(rows)].isInSight = true;
     }
   }
-  console.log("surroudings", surroundings);
+  // console.log("surroudings", surroundings);
 
   let item;
-  let middle = grid[surroundings[Math.floor(surroundings.length/2)]];
-  for (let i = 0; i < surroundings.length; i++) {
-    item = surroundings[i];
-    if (i != middle && !grid[item].isWall) {
-      if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
-        if (grid[item + rows + 1] != middle && (grid[item + 1].isWall || grid[item + rows].isWall || grid[item + rows + 1].isWall)) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
-        if (grid[item - rows + 1] != middle && (grid[item + 1].isWall || grid[item - rows].isWall || grid[item - rows + 1].isWall)) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
-        if (grid[item + rows - 1] != middle && (grid[item - 1].isWall || grid[item + rows - 1].isWall || grid[item + rows].isWall)) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
-        if (grid[item - rows - 1] != middle && (grid[item - 1].isWall || grid[item - rows].isWall || grid[item - rows - 1].isWall)) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
-        if (grid[item + rows].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
-        if (grid[item - rows].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
-        if (grid[item + 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
-        if (grid[item - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+  let middle = surroundings[Math.floor(surroundings.length/2)];
+  let neighbors = findNeighbors(middle);
+  // console.log(middle, neighbors);
+}
+
+// finds the cells touching the bot
+function findNeighbors(center) {
+  /* let neighbors = [];
+  let loc;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      loc = center - rows - 1 + i*rows + j;
+      if (loc != center) neighbors.push(loc);
+    }
+  } */
+  bresenham(3, 2, 15, 5);
+}
+
+function bresenham(x1, y1, x2, y2) {
+  let m_new = 2 * (y2 - y1);
+  let slope_error_new;
+  let x = x1, y = y1;
+  let dy;
+
+  if (y1 <= y2) dy = 1;
+  else dy = -1;
+
+  /* for (x = x1; x <= x2; x += dx) {
+    console.log(m_new, slope_error_new, "(" + x + ", " + y + ")");
+    slope_error_new += Math.abs(m_new);
+    if (slope_error_new >= 0) {
+      y += dy;
+      slope_error_new -= Math.abs(2 * (x2 - x1));
+    }
+  } */
+
+  if (x1 <= x2) {
+    slope_error_new = m_new - (x2 - x1);
+    for (x = x1; x <= x2; x++) {
+      console.log(m_new, slope_error_new, "(" + x + ", " + y + ")");
+      slope_error_new += m_new;
+      if (slope_error_new >= 0) {
+        y += dy;
+        slope_error_new -= 2 * (x2 - x1);
       }
-    } else {
-      if (grid[item].x < middle.x && grid[item].y < middle.y) { // top left
-        if ((grid[item + 1].isWall || grid[item + rows].isWall) && grid[item + rows + 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x > middle.x && grid[item].y < middle.y) {  // top right
-        if ((grid[item + 1].isWall || grid[item - rows].isWall) && grid[item - rows + 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x < middle.x && grid[item].y > middle.y) {  // bottom left
-        if ((grid[item - 1].isWall || grid[item + rows].isWall) && grid[item + rows - 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x > middle.x && grid[item].y > middle.y) {  // bottom right
-        if ((grid[item - 1].isWall || grid[item - rows].isWall) && grid[item - rows - 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].y == middle.y && grid[item].x < middle.x) { // left
-        if (grid[item + rows].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].y == middle.y && grid[item].x > middle.x) { // right
-        if (grid[item - rows].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x == middle.x && grid[item].y < middle.y) { // top
-        if (grid[item + 1].isWall) {
-          grid[item].isInSight = false;
-        }
-      } else if (grid[item].x == middle.x && grid[item].y > middle.y) { // bottom
-        if (grid[item - 1].isWall) {
-          grid[item].isInSight = false;
-        }
+    }
+  } else {
+    slope_error_new = m_new - (x2 - x1);
+    for (x = x1; x >= x2; x--) {
+      console.log(m_new, slope_error_new, "(" + x + ", " + y + ")");
+      slope_error_new += m_new;
+      if (slope_error_new <= 0) {
+        y += dy;
+        slope_error_new -= 2 * (x2 - x1);
       }
     }
   }

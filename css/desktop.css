@@ -52,6 +52,12 @@ nav {
   flex-wrap: wrap;
 }
 
+#map-container {
+  width: 1500px;
+  height: 600px;
+  overflow: auto;
+}
+
 #map {
   background-color: black;
   border: 1px solid green;
