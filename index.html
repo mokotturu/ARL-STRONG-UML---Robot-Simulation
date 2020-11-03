@@ -8,17 +8,18 @@
   </head>
 
   <body>
-    <nav>
+    <!-- <nav>
       <div id="title">TITLE</div>
-    </nav>
+    </nav> -->
+    <div id="timer">0</div>
 
     <div id="simulation">
       <div id="map-container">
-        <canvas width="2000" height="2000" id="map"></canvas>
+        <canvas width="800" height="800" id="map"></canvas>
       </div>
       <div class="side-panel">
         <div id="instructions">
-          <p>The blue colored cell represents the robot that can be controlled by the user. The red colored cell represents the robot that moves autonomously. Use the arrow keys to move the user controlled robot. Click on a cell on the map to put/remove a wall.</p>
+          <p>The blue colored cell represents the robot that can be controlled by the user. The red colored cell represents the robot that moves autonomously. Use the arrow keys to move the user controlled robot. The shaded regions around the robots represent the explored areas.</p>
         </div>
         <br />
         <div id="settings">

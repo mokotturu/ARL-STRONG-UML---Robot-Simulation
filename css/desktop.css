@@ -14,12 +14,12 @@ html, body {
   background: white;
 }
 
-#title {
+/* #title {
     font-family: 'Open Sans', sans-serif;
     font-size: 26px;
     font-weight: bold;
     letter-spacing: 4px;
-}
+} */
 
 div, input, button, select {
   font-family: 'Open Sans', sans-serif;
@@ -44,6 +44,10 @@ nav {
   font-size: 22px;
 }
 
+#timer {
+  color: white;
+}
+
 #simulation {
   display: flex;
   justify-content: space-around;
@@ -54,7 +58,7 @@ nav {
 
 #map-container {
   width: 1500px;
-  height: 600px;
+  height: 800px;
   overflow: auto;
 }
 

@@ -1,4 +1,5 @@
 var $map = $('#map');
+var $timer = $('#timer');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
@@ -16,60 +17,80 @@ const EXPLORED_COLOR = "white";
 
 var grid = [];
 var surroundings = [];
+var botExplored = [];
 var userBot, autoBot;
-var mapPaths = ["src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
-var currentPath = mapPaths[0];
+var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
+var currentPath = mapPaths[3];
 
 var count = 0;
-var waitCount = 10;
+var waitCount = 50;
+var steps = 0;
+var totalSteps = 7;
+var seconds = 0;
+var eventListenersAdded = false;
+var fullMapDrawn = false;
+
+setInterval(updateTime, 1000);
+
+function updateTime() {
+  seconds++;
+  if (seconds % 10 == 0) {
+    seconds = 0;
+    drawExplored();
+  }
+  $timer.text(seconds);
+}
 
 $(document).ready(function() {
   createMap(currentPath, function loop() {
-    // document arrow keys event listener
-    $(document).on('keydown', function(e) {
-      switch (e.keyCode) {
-        case 37:  // left arrow key
-          e.preventDefault();
-          if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall/*  && !grid[userBot.loc - rows].isOccupied */) {
-            grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
-            userBot.loc -= rows;
-            userBot.dir = 4;
-            refreshMap();
-          }
-          break;
-        case 38:  // up arrow key
-          e.preventDefault();
-          if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall/*  && !grid[userBot.loc - 1].isOccupied */) {
-            grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
-            userBot.loc--;
-            userBot.dir = 1;
-            refreshMap();
-          }
-          break;
-        case 39:  // right arrow key
-          e.preventDefault();
-          if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall/*  && !grid[userBot.loc + rows].isOccupied */) {
-            grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
-            userBot.loc += rows;
-            userBot.dir = 2;
-            refreshMap();
-          }
-          break;
-        case 40:  // down arrow key
-          e.preventDefault();
-          if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall/*  && !grid[userBot.loc + 1].isOccupied */) {
-            grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
-            userBot.loc++;
-            userBot.dir = 3;
-            refreshMap();
-          }
-          break;
-        default:  // nothing
-          break;
-      }
-    });
+    if (!eventListenersAdded) {
+      // document arrow keys event listener
+      $(document).on('keydown', function(e) {
+        switch (e.keyCode) {
+          case 37:  // left arrow key
+            e.preventDefault();
+            if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall) {
+              grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
+              userBot.loc -= rows;
+              userBot.dir = 4;
+              refreshMap();
+            }
+            break;
+          case 38:  // up arrow key
+            e.preventDefault();
+            if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall) {
+              grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
+              userBot.loc--;
+              userBot.dir = 1;
+              refreshMap();
+            }
+            break;
+          case 39:  // right arrow key
+            e.preventDefault();
+            if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall) {
+              grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
+              userBot.loc += rows;
+              userBot.dir = 2;
+              refreshMap();
+            }
+            break;
+          case 40:  // down arrow key
+            e.preventDefault();
+            if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall) {
+              grid[userBot.loc].isOccupied = !grid[userBot.loc].isOccupied;
+              userBot.loc++;
+              userBot.dir = 3;
+              refreshMap();
+            }
+            break;
+          default:  // nothing
+            break;
+        }
+      });
+      eventListenersAdded = true;
+    }
 
-    /* requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
 
     // set speed
     if (++count < waitCount) {
@@ -80,42 +101,50 @@ $(document).ready(function() {
 
     switch (autoBot.dir) {
       case 1:
-        if (Math.floor(grid[autoBot.loc].y) != 1 && !grid[autoBot.loc - columns].isWall && !grid[autoBot.loc - columns].isOccupied) {
+        if (steps > 0 && Math.floor(grid[autoBot.loc].y) != 1 && !grid[autoBot.loc - columns].isWall) {
           grid[autoBot.loc].isOccupied = !grid[autoBot.loc].isOccupied;
           grid[autoBot.loc].isExplored = true;
           autoBot.loc -= columns;
+          steps--;
           refreshMap();
         } else {
+          if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
           autoBot.dir = Math.random() < Math.random() ? 4 : 2;
         }
         break;
       case 2:
-        if (Math.floor(grid[autoBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[autoBot.loc + 1].isWall && !grid[autoBot.loc + 1].isOccupied) {
+        if (steps > 0 && Math.floor(grid[autoBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[autoBot.loc + 1].isWall) {
           grid[autoBot.loc].isOccupied = !grid[autoBot.loc].isOccupied;
           grid[autoBot.loc].isExplored = true;
           autoBot.loc++;
+          steps--;
           refreshMap();
         } else {
+          if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
           autoBot.dir = Math.random() < Math.random() ? 1 : 3;
         }
         break;
       case 3:
-        if (Math.floor(grid[autoBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[autoBot.loc + columns].isWall && !grid[autoBot.loc + columns].isOccupied) {
+        if (steps > 0 && Math.floor(grid[autoBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[autoBot.loc + columns].isWall) {
           grid[autoBot.loc].isOccupied = !grid[autoBot.loc].isOccupied;
           grid[autoBot.loc].isExplored = true;
           autoBot.loc += columns;
+          steps--;
           refreshMap();
         } else {
+          if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
           autoBot.dir = Math.random() < Math.random() ? 2 : 4;
         }
         break;
       case 4:
-        if (Math.floor(grid[autoBot.loc].x) != 1 && !grid[autoBot.loc - 1].isWall && !grid[autoBot.loc - 1].isOccupied) {
+        if (steps > 0 && Math.floor(grid[autoBot.loc].x) != 1 && !grid[autoBot.loc - 1].isWall) {
           grid[autoBot.loc].isOccupied = !grid[autoBot.loc].isOccupied;
           grid[autoBot.loc].isExplored = true;
           autoBot.loc--;
+          steps--;
           refreshMap();
         } else {
+          if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
           autoBot.dir = Math.random() < Math.random() ? 3 : 1;
         }
         break;
@@ -123,10 +152,10 @@ $(document).ready(function() {
         // nothing
         break;
     }
+    // console.log(steps);
   });
-
-  requestAnimationFrame(loop); */
-  });
+  requestAnimationFrame(loop);
+  // });
 });
 
 $(window).on("load", function() {
@@ -172,74 +201,38 @@ function createMap(currentPath, cb) {
 
 // renders the map on the screen
 function drawMap(grid1) {
-  // $map.clearCanvas();
-  /* grid1.forEach(item => {
-    // console.log("drawing...", item);
-    if (item.isExplored && !item.isWall) {
-      $map.drawRect({
-        fillStyle: EXPLORED_COLOR,
-        x: item.x*boxWidth, y: item.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (!item.isExplored && !item.isWall && !item.isInSight) {
-      $map.drawRect({
-        fillStyle: CELL_COLOR,
-        x: item.x*boxWidth, y: item.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (!item.isExplored && !item.isWall && item.isInSight) {
-      $map.drawRect({
-        fillStyle: CELL_COLOR,
-        x: item.x*boxWidth, y: item.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-      $map.drawLine({
-        strokeStyle: 'yellow',
-        x1: item.x*boxWidth, y1: item.y*boxHeight,
-        x2: item.x*boxWidth + boxWidth, y2: item.y*boxHeight + boxHeight
-      });
+  /* if (!fullMapDrawn) {
+    let item = grid[0];
+    for (let i = 0; i < grid.length; i++) {
+      item = grid[i];
+      if (!item.isWall) {
+        if (item.isInSight) {
+          $map.drawRect({
+            fillStyle: 'grey',
+            x: item.x*boxWidth, y: item.y*boxHeight,
+            width: boxWidth - 1, height: boxHeight - 1
+          });
+        }/*  else if (item.isExplored) {
+          $map.drawRect({
+            fillStyle: 'yellow',
+            x: item.x*boxWidth, y: item.y*boxHeight,
+            width: boxWidth - 1, height: boxHeight - 1
+          });
+        }  else {
+          $map.drawRect({
+            fillStyle: CELL_COLOR,
+            x: item.x*boxWidth, y: item.y*boxHeight,
+            width: boxWidth - 1, height: boxHeight - 1
+          });
+        }
+      }
     }
-    if (item.isInSight && item.isWall) {
-      $map.drawRect({
-        fillStyle: 'green',
-        x: item.x*boxWidth, y: item.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (item.isInSight && !item.isWall) {
-      $map.drawRect({
-        fillStyle: 'grey',
-        x: item.x*boxWidth, y: item.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    }
-  }); */
+    fullMapDrawn = true;
+  } */
+  
   let cell;
   for (let i = 0; i < surroundings.length; i++) {
     cell = grid[surroundings[i]];
-    /* if (cell.isExplored && !cell.isWall) {
-      $map.drawRect({
-        fillStyle: EXPLORED_COLOR,
-        x: cell.x*boxWidth, y: cell.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (!cell.isExplored && !cell.isWall && !cell.isInSight) {
-      $map.drawRect({
-        fillStyle: CELL_COLOR,
-        x: cell.x*boxWidth, y: cell.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (!cell.isExplored && !cell.isWall && cell.isInSight) {
-      $map.drawRect({
-        fillStyle: CELL_COLOR,
-        x: cell.x*boxWidth, y: cell.y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-      $map.drawLine({
-        strokeStyle: 'yellow',
-        x1: cell.x*boxWidth, y1: cell.y*boxHeight,
-        x2: cell.x*boxWidth + boxWidth, y2: cell.y*boxHeight + boxHeight
-      });
-    } */
     if (cell.isInSight && cell.isWall) {
       $map.drawRect({
         fillStyle: 'green',
@@ -256,9 +249,29 @@ function drawMap(grid1) {
   }
 }
 
+function drawExplored() {
+  let cell;
+  for (let i = 0; i < botExplored.length; i++) {
+    cell = grid[botExplored[i]];
+    if (cell.isInSight && cell.isWall) {
+      $map.drawRect({
+        fillStyle: 'green',
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else if (cell.isInSight && !cell.isWall) {
+      $map.drawRect({
+        fillStyle: 'yellow',
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    }
+  }
+}
+
 // spawns the bot in its location
 function spawnBot(bot) {
-  if (grid[bot.loc].isInSight) {
+  if (true/* grid[bot.loc].isInSight */) {
     $map.drawRect({
       fillStyle: bot.color,
       x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
@@ -270,10 +283,20 @@ function spawnBot(bot) {
 
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
-  findLineOfSight(userBot);
+  surroundings = findLineOfSight(userBot);
+  refreshBotExplored();
   drawMap(grid);
   spawnBot(userBot);
   spawnBot(autoBot);
+}
+
+function refreshBotExplored() {
+  let botSurroundings = findLineOfSight(autoBot);
+  for (let i = 0; i < botSurroundings.length; i++) {
+    if (!botExplored.includes(botSurroundings[i])) {
+      botExplored.push(botSurroundings[i]);
+    }
+  }
 }
 
 // find line of sight
@@ -281,15 +304,30 @@ function findLineOfSight(bot) {
   /* for (let i = 0; i < surroundings.length; i++) {
     grid[surroundings[i]].isInSight = false;
   } */
-  surroundings = [];
+  let surroundings = [];
   for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
     for (let y = grid[bot.loc].y - 2; y <= grid[bot.loc].y + 2; y++) {
       surroundings.push(y + x*(rows));
       grid[y + x*(rows)].isInSight = true;
     }
   }
-  console.log("surroudings", surroundings);
+  // console.log("surroudings", surroundings);
 
+  surroundings = getVisibleArea(surroundings);
+  return surroundings;
+}
+
+function findBotExplored(bot) {
+  let surroundings = [];
+  for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
+    for (let y = grid[bot.loc].y - 2; y <= grid[bot.loc].y + 2; y++) {
+      surroundings.push(y + x*(rows));
+      grid[y + x*(rows)].isInSight = true;
+    }
+  }
+}
+
+function getVisibleArea(surroundings) {
   let item;
   let middle = grid[surroundings[Math.floor(surroundings.length/2)]];
   for (let i = 0; i < surroundings.length; i++) {
@@ -396,6 +434,7 @@ function findLineOfSight(bot) {
       }
     }
   }
+  return surroundings;
 }
 
 // takes the new grid size and modifies the map
