@@ -11,8 +11,8 @@ var boxWidth;
 var boxHeight;
 
 const CELL_COLOR = "black";
-const USER_BOT_COLOR = "blue";
-const AUTO_BOT_COLOR = "red";
+const USER_BOT_COLOR = "#86d7fc";
+const AUTO_BOT_COLOR = "#87fc86";
 const EXPLORED_COLOR = "white";
 
 var grid = [];
@@ -235,13 +235,13 @@ function drawMap(grid1) {
     cell = grid[surroundings[i]];
     if (cell.isInSight && cell.isWall) {
       $map.drawRect({
-        fillStyle: 'green',
+        fillStyle: '#bb86fc',
         x: cell.x*boxWidth, y: cell.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
     } else if (cell.isInSight && !cell.isWall) {
       $map.drawRect({
-        fillStyle: 'grey',
+        fillStyle: '#fc8686',
         x: cell.x*boxWidth, y: cell.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
@@ -255,13 +255,13 @@ function drawExplored() {
     cell = grid[botExplored[i]];
     if (cell.isInSight && cell.isWall) {
       $map.drawRect({
-        fillStyle: 'green',
+        fillStyle: '#bb86fc',
         x: cell.x*boxWidth, y: cell.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
     } else if (cell.isInSight && !cell.isWall) {
       $map.drawRect({
-        fillStyle: 'yellow',
+        fillStyle: '#fc86df',
         x: cell.x*boxWidth, y: cell.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });

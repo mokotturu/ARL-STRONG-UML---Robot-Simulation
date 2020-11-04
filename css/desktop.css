@@ -28,7 +28,7 @@ div, input, button, select {
 }
 
 html {
-  background-color: black;
+  background-color: #121212;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -58,13 +58,13 @@ nav {
 
 #map-container {
   width: 1500px;
-  height: 800px;
+  height: 850px;
   overflow: auto;
 }
 
 #map {
-  background-color: black;
-  border: 1px solid green;
+  background-color: #252525;
+  border: 1px solid #bb86fc;
   margin: 0 10px;
 }
 
