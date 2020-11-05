@@ -46,6 +46,8 @@ nav {
 
 #timer {
   color: white;
+  padding-bottom: 20px;
+  font-size: 20px;
 }
 
 #simulation {
