@@ -12,30 +12,36 @@
       <div id="title">TITLE</div>
     </nav> -->
 
+    <button id="instructions-button" onclick="toggleModal()">Instructions</button>
+    <div id="instructions-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="side-panel">
+          <div id="instructions">
+            <p>The blue colored cell represents the robot that can be controlled by the user. The pink colored cell represents the robot that moves autonomously. The yellow shaded region is the area explored by both the human and the agents. Use the arrow keys to move the user controlled robot. Press S (and hold if needed) to focus on the agent. The shaded regions around the robots represent the explored areas.</p>
+          </div>
+          <br />
+          <div id="settings">
+            <p>Select a map:</p>
+            <select name="maps" id="maps"></select>
+  
+            <p style="color: red">&darr; DISABLED &darr;</p>
+  
+            <p>Enter the values for the number of rows and columns:</p>
+            Rows: <input type="text" id="rows" value="30" /><br /><br />
+            Columns: <input type="text" id="columns" value="30" /><br /><br />
+            <button onclick="modifyMap()" disabled>Create New Map</button><br /><br /><br />
+            <p>Enter a value to set the speed of the autonomous robot (lower = faster):</p>
+            Speed: <input type="text" id="speed" value="4" /><br /><br />
+            <button onclick="setSpeed()" disabled>Set Speed</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="simulation">
       <div id="timer">0</div>
       <div id="map-container">
-        <canvas width="800" height="800" id="map"></canvas>
-      </div>
-      <div class="side-panel">
-        <div id="instructions">
-          <p>The blue colored cell represents the robot that can be controlled by the user. The pink colored cell represents the robot that moves autonomously. The yellow shaded region is the area explored by both the human and the agents. Use the arrow keys to move the user controlled robot. The shaded regions around the robots represent the explored areas.</p>
-        </div>
-        <br />
-        <div id="settings">
-          <p>Select a map:</p>
-          <select name="maps" id="maps"></select>
-
-          <p style="color: red">&darr; DISABLED &darr;</p>
-
-          <p>Enter the values for the number of rows and columns:</p>
-          Rows: <input type="text" id="rows" value="30" /><br /><br />
-          Columns: <input type="text" id="columns" value="30" /><br /><br />
-          <button onclick="modifyMap()" disabled>Create New Map</button><br /><br /><br />
-          <p>Enter a value to set the speed of the autonomous robot (lower = faster):</p>
-          Speed: <input type="text" id="speed" value="4" /><br /><br />
-          <button onclick="setSpeed()" disabled>Set Speed</button>
-        </div>
+        <canvas width="4000" height="4000" id="map"></canvas>
       </div>
     </div>
     

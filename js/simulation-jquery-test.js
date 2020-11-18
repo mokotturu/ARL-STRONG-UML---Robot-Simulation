@@ -1,5 +1,9 @@
+var $mapContainer = $('#map-container');
 var $map = $('#map');
 var $timer = $('#timer');
+var $modal = $('#instructions-modal');
+var $btn = $('#instructions-button');
+var $close = $('.close')[0];
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
@@ -19,13 +23,15 @@ const LIGHT_TEAM_COLOR = "#ffff7f";
 const CELL_COLOR = "black";
 const EXPLORED_COLOR = "white";
 const WALL_COLOR = "black";
+const TEMP_COLOR = "#7f33ff";
+const LIGHT_TEMP_COLOR = "#bf99ff";
 
 var grid = [];
 var surroundings = [];
 var botExplored = [];
 var userBot, autoBot;
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
-var currentPath = mapPaths[3];
+var currentPath = mapPaths[8];
 
 var count = 0;
 var waitCount = 5;
@@ -47,6 +53,7 @@ $(document).ready(function() {
               userBot.loc -= rows;
               userBot.dir = 4;
               refreshMap();
+              updateScrollingPosition(grid[userBot.loc]);
             }
             break;
           case 38:  // up arrow key
@@ -55,6 +62,7 @@ $(document).ready(function() {
               userBot.loc--;
               userBot.dir = 1;
               refreshMap();
+              updateScrollingPosition(grid[userBot.loc]);
             }
             break;
           case 39:  // right arrow key
@@ -63,6 +71,7 @@ $(document).ready(function() {
               userBot.loc += rows;
               userBot.dir = 2;
               refreshMap();
+              updateScrollingPosition(grid[userBot.loc]);
             }
             break;
           case 40:  // down arrow key
@@ -71,7 +80,12 @@ $(document).ready(function() {
               userBot.loc++;
               userBot.dir = 3;
               refreshMap();
+              updateScrollingPosition(grid[userBot.loc]);
             }
+            break;
+          case 83:
+            e.preventDefault();
+            updateScrollingPosition(grid[autoBot.loc]);
             break;
           default:  // nothing
             break;
@@ -157,11 +171,28 @@ $("#maps").change(function() {
   createMap(currentPath);
 });
 
+function toggleModal() {
+  if ($modal.css('display') == 'none') $modal.css('display', 'block');
+  else $modal.css('display', 'none');
+}
+
+function closeModal() {
+  $modal.css('display', 'none');
+}
+
+function updateScrollingPosition(loc) {
+  let x = loc.x * boxWidth;
+  let y = loc.y * boxHeight;
+  $mapContainer.scrollLeft(x - $mapContainer.width()/2);
+  $mapContainer.scrollTop(y - $mapContainer.height()/2);
+}
+
 function updateTime() {
   seconds++;
   if (seconds % 10 == 0) {
     seconds = 0;
-    if (confirm("Do you trust the agent explored region?")) drawExplored();
+    showExplored();
+    /* if (confirm("Do you trust the agent explored region?")) */ drawExplored();
     botExplored = [];
   }
   $timer.text(seconds);
@@ -191,6 +222,7 @@ function createMap(currentPath, cb) {
     spawnBot(userBot);
     spawnBot(autoBot);
 
+    updateScrollingPosition(grid[userBot.loc]);
     setInterval(updateTime, 1000);
 
     cb(grid);
@@ -309,7 +341,12 @@ function drawExplored() {
       }
     }
   }
-  console.log(botExplored);
+  // console.log(botExplored);
+}
+
+function showExplored() {
+  let tempBotExplored = botExplored;
+  
 }
 
 // spawns the bot in its location
