@@ -192,7 +192,7 @@ function updateTime() {
   if (seconds % 10 == 0) {
     seconds = 0;
     showExplored();
-    /* if (confirm("Do you trust the agent explored region?")) */ drawExplored();
+    if (confirm("Do you trust the agent explored region?")) drawExplored();
     botExplored = [];
   }
   $timer.text(seconds);
