@@ -31,24 +31,15 @@ const EXPLORED_COLOR = "white";
 const WALL_COLOR = "black";
 const TEMP_COLOR = "#33ff70";
 const LIGHT_TEMP_COLOR = "#99ffb7";
-const VICTIM_COLOR = "red";
-const HAZARD_COLOR = "yellow";
 
 var grid = [];
-var humanFOV = [];
+var surroundings = [];
 var tempBotExplored = [];
-/* var botExplored = [];
-var humanExplored = []; */
-var botExplored = new Set();
-var humanExplored = new Set();
+var botExplored = [];
 var userBot, autoBot;
-var victim1, victim2, hazard1, hazard2;
-var victims = [];
-var hazards = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var currentPath = mapPaths[8];
 
-var viewRadius = 3;
 var count = 0;
 var waitCount = 5;
 var steps = 0;
@@ -61,10 +52,8 @@ var pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
 var intervalCount = 0;
 var log = [];
-var startTime;
 
 $(document).ready(function() {
-  startTime = new Date();
   createMap(currentPath, function loop() {
     if (!eventListenersAdded) {
       // document arrow keys event listener
@@ -73,7 +62,6 @@ $(document).ready(function() {
           case 65:  // a
           case 37:  // left arrow key
             e.preventDefault();
-            console.log("Left", performance.now());
             if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall) {
               userBot.loc -= rows;
               userBot.dir = 4;
@@ -84,7 +72,6 @@ $(document).ready(function() {
           case 87:  // w
           case 38:  // up arrow key
             e.preventDefault();
-            console.log("Up", performance.now());
             if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall) {
               userBot.loc--;
               userBot.dir = 1;
@@ -95,7 +82,6 @@ $(document).ready(function() {
           case 68:  // d
           case 39:  // right arrow key
             e.preventDefault();
-            console.log("Right", performance.now());
             if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall) {
               userBot.loc += rows;
               userBot.dir = 2;
@@ -106,7 +92,6 @@ $(document).ready(function() {
           case 83:  // s
           case 40:  // down arrow key
             e.preventDefault();
-            console.log("Down", performance.now());
             if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall) {
               userBot.loc++;
               userBot.dir = 3;
@@ -116,7 +101,6 @@ $(document).ready(function() {
             break;
           case 67:  // c
             e.preventDefault();
-            console.log("Shifted focus to agent", performance.now());
             updateScrollingPosition(grid[autoBot.loc]);
             break;
           default:  // nothing
@@ -222,45 +206,24 @@ function showExploredInfo() {
     if (cell.tempBotExplored && !cell.isHumanExplored) {
       if (cell.tempInSight && cell.isWall) {
         $map.drawRect({
-          fillStyle: WALL_COLOR,
-          strokeStyle: TEMP_COLOR,
-          strokeWidth: 1,
-          cornerRadius: 2,
-          x: cell.x*boxWidth, y: cell.y*boxHeight,
-          width: boxWidth - 1, height: boxHeight - 1
+            layer: true,
+            name: 'temporary',
+            fillStyle: WALL_COLOR,
+            strokeStyle: TEMP_COLOR,
+            strokeWidth: 1,
+            cornerRadius: 2,
+            x: cell.x*boxWidth, y: cell.y*boxHeight,
+            width: boxWidth - 1, height: boxHeight - 1
         });
       } else if (cell.tempInSight && !cell.isWall) {
         $map.drawRect({
-          fillStyle: LIGHT_TEMP_COLOR,
-          x: cell.x*boxWidth, y: cell.y*boxHeight,
-          width: boxWidth - 1, height: boxHeight - 1
+            layer: true,
+            name: 'temporary',
+            fillStyle: LIGHT_TEMP_COLOR,
+            x: cell.x*boxWidth, y: cell.y*boxHeight,
+            width: boxWidth - 1, height: boxHeight - 1
         });
       }
-    }
-  }
-
-  if (true) {
-    for (let i = 0; i < victims.length; i++) {
-      $map.drawEllipse({
-        layer: true,
-        name: 'markers',
-        fromCenter: true,
-        fillStyle: victims[i].color,
-        x: grid[victims[i].loc].x*boxWidth, y: grid[victims[i].loc].y*boxHeight,
-        width: (boxWidth - 1)*10, height: (boxHeight - 1)*10
-      });
-    }
-
-    for (let i = 0; i < hazards.length; i++) {
-      $map.drawPolygon({
-        layer: true,
-        name: 'markers',
-        fromCenter: true,
-        fillStyle: hazards[i].color,
-        x: grid[hazards[i].loc].x*boxWidth, y: grid[hazards[i].loc].y*boxHeight,
-        radius: (boxWidth/2)*10,
-        sides: 3
-      });
     }
   }
 
@@ -354,7 +317,6 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function hideExploredInfo() {
-  $map.removeLayer('markers').drawLayers();
   $popupModal.css('visibility', 'visible'); //  changed here
   $popupModal.css('opacity', 0); //  changed here
   // drawMap();
@@ -379,7 +341,6 @@ function confirmExploredArea() {
 }
 
 function undoExploration() {
-  botExplored = tempBotExplored;
   let cell;
   for (let i = 0; i < tempBotExplored; i++) {
     cell = grid[tempBotExplored[i]];
@@ -388,27 +349,15 @@ function undoExploration() {
     cell.tempBotExplored = false;
     cell.isBotExplored = false;
   }
-  for (let i = 0; i < tempBotExplored.length; i++) {
-    cell = grid[tempBotExplored[i]];
-    $map.clearCanvas({
-      x: cell.x*boxWidth - 1, y: cell.y*boxHeight - 1,
-      width: boxWidth + 1, height: boxHeight + 1
-    });
-  }
-
-  /* for (let i = 0; i < tempBotExplored; i++) {
-    cell = grid[tempBotExplored[i]];
-    cell.isExplored = false;
-    cell.tempInSight = false;
-    cell.tempBotExplored = false;
-    cell.isBotExplored = false;
-
+  botExplored = tempBotExplored;
+  /* for (let i = 0; i < tempBotExplored.length; i++) {
     cell = grid[tempBotExplored[i]];
     $map.clearCanvas({
       x: cell.x*boxWidth - 1, y: cell.y*boxHeight - 1,
       width: boxWidth + 1, height: boxHeight + 1
     });
   } */
+  // $map.removeLayer('temporary').drawLayers();
   log.push({interval: intervalCount++, trusted: false});
   hideExploredInfo();
   timeout = setInterval(updateTime, 1000);
@@ -431,9 +380,9 @@ function updateTime() {
       if (confirm("Do you trust the agent explored region?")) confirmExploredArea();
     }, 1000); */
     /* if (confirm("Do you trust the agent explored region?")) 
-      confirmExploredArea();
+      confirmExploredArea(); */
     //} else {
-      else undoExploration(); */
+    //  undoExploration();
     //}
     // $popupModal.css('display', 'none');
 
@@ -461,17 +410,12 @@ function createMap(currentPath, cb) {
   }).done(function() {
     userBot = {id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1};
     autoBot = {id: "agent", loc: getRandomLoc(grid), color: AUTO_BOT_COLOR, dir: 1};
-    victim1 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR};
-    victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR};
-    hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR};
-    hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR};
-    victims.push(victim1, victim2);
-    hazards.push(hazard1, hazard2);
 
-    humanExplored = findLineOfSight(userBot);
-    // drawMap(grid);
+    findLineOfSight(userBot);
+    drawMap(grid);
 
-    spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
+    spawnBot(userBot);
+    spawnBot(autoBot);
 
     updateScrollingPosition(grid[userBot.loc]);
     timeout = setInterval(updateTime, 1000);
@@ -512,8 +456,8 @@ function drawMap(grid1) {
   } */
   
   let cell;
-  for (let i = 0; i < humanFOV.length; i++) {
-    cell = grid[humanFOV[i]];
+  for (let i = 0; i < surroundings.length; i++) {
+    cell = grid[surroundings[i]];
     if (cell.isHumanExplored && !cell.isBotExplored) {
       if (cell.isInSight && cell.isWall) {
         $map.drawRect({
@@ -596,48 +540,24 @@ function drawExplored() {
 }
 
 // spawns the bot in its location
-function spawn(members) {
-  /* if (true grid[bot.loc].isInSight) {
+function spawnBot(bot) {
+  if (true/* grid[bot.loc].isInSight */) {
     $map.drawRect({
       fillStyle: bot.color,
       x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
       width: boxWidth - 1, height: boxHeight - 1
     });
-  } */
-  let bot;
-  for (let i = 0; i < members.length; i++) {
-    bot = members[i]
-    if (bot.id == "human" || bot.id == "agent") {
-      $map.drawRect({
-        fillStyle: bot.color,
-        x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (bot.id == "victim") {
-      $map.drawEllipse({
-        fillStyle: bot.color,
-        x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
-        width: boxWidth - 1, height: boxHeight - 1
-      });
-    } else if (bot.id == "hazard") {
-      $map.drawPolygon({
-        fillStyle: bot.color,
-        x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
-        radius: boxWidth/2,
-        sides: 3
-      });
-    }
   }
 }
 
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
-  humanFOV = findLineOfSight(userBot);
-  humanFOV.forEach(humanExplored.add, humanExplored);
+  surroundings = findLineOfSight(userBot);
   drawMap(grid);
   refreshBotExplored();
-  spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
-  getSetBoundaries(humanFOV, 0);
+  spawnBot(userBot);
+  spawnBot(autoBot);
+  getSetBoundaries(surroundings, 0);
 }
 
 function refreshBotExplored() {
@@ -711,7 +631,10 @@ function scaleImages() {
 }
 
 // find line of sight
-/* function findLineOfSight(bot) {
+function findLineOfSight(bot) {
+  /* for (let i = 0; i < surroundings.length; i++) {
+    grid[surroundings[i]].isInSight = false;
+  } */
   let surroundings = [];
   if (bot.id == "human") {
     for (let x = grid[bot.loc].x - 2; x <= grid[bot.loc].x + 2; x++) {
@@ -742,163 +665,9 @@ function scaleImages() {
   }
 
   return surroundings;
-} */
-
-function findLineOfSight(bot) {
-  let thisSurroundings = [[], [], [], []];
-  let actualLOS = [];
-  let centerX = grid[bot.loc].x;
-  let centerY = grid[bot.loc].y;
-  let i = 0, j = 0;
-
-  // quadrant 1
-  for (let y = centerY; y >= centerY - viewRadius; y--) {
-    for (let x = centerX; x <= centerX + viewRadius; x++) {
-      thisSurroundings[0].push({x: i, y: j, loc: y + x*rows});
-      i++;
-    }
-    i = 0;
-    j++;
-  }
-
-  i = 0, j = 0;
-
-  // quadrant 2
-  for (let y = centerY; y >= centerY - viewRadius; y--) {
-    for (let x = centerX; x >= centerX - viewRadius; x--) {
-      thisSurroundings[1].push({x: i, y: j, loc: y + x*rows});
-      i++;
-    }
-    i = 0;
-    j++;
-  }
-
-  i = 0, j = 0;
-
-  // quadrant 3
-  for (let y = centerY; y <= centerY + viewRadius; y++) {
-    for (let x = centerX; x >= centerX - viewRadius; x--) {
-      thisSurroundings[2].push({x: i, y: j, loc: y + x*rows});
-      i++;
-    }
-    i = 0;
-    j++;
-  }
-
-  i = 0, j = 0;
-
-  //quadrant 4
-  for (let y = centerY; y <= centerY + viewRadius; y++) {
-    for (let x = centerX; x <= centerX + viewRadius; x++) {
-      thisSurroundings[3].push({x: i, y: j, loc: y + x*rows});
-      i++;
-    }
-    i = 0;
-    j++;
-  }
-
-  actualLOS = castRays(thisSurroundings);
-  return actualLOS;
 }
 
-function castRays(arr) {
-  let mySurroundings = [];
-  // quadrant 1
-  for (let i = viewRadius; i < arr[0].length; i += viewRadius + 1) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[0][0], arr[0][i], 1, arr[0]));
-  }
-  for (let i = arr[0].length - viewRadius - 1; i < arr[0].length - 1; i++) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[0][0], arr[0][i], 1, arr[0]));
-  }
-
-  // quadrant 2
-  for (let i = viewRadius; i < arr[1].length; i += viewRadius + 1) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[1][0], arr[1][i], 2, arr[1]));
-  }
-  for (let i = arr[1].length - viewRadius - 1; i < arr[1].length - 1; i++) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[1][0], arr[1][i], 2, arr[1]));
-  }
-
-  // quadrant 3
-  for (let i = viewRadius; i < arr[2].length; i += viewRadius + 1) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[2][0], arr[2][i], 3, arr[2]));
-  }
-  for (let i = arr[2].length - viewRadius - 1; i < arr[2].length - 1; i++) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[2][0], arr[2][i], 3, arr[2]));
-  }
-
-  // quadrant 4
-  for (let i = viewRadius; i < arr[3].length; i += viewRadius + 1) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[3][0], arr[3][i], 4, arr[3]));
-  }
-  for (let i = arr[3].length - viewRadius - 1; i < arr[3].length - 1; i++) {
-    mySurroundings = mySurroundings.concat(bresenhams(arr[3][0], arr[3][i], 4, arr[3]));
-  }
-
-  return mySurroundings;
-}
-
-function getCell(x, y, grid) {
-  for (let i = 0; i < grid.length; i++) {
-    if (grid[i].x == x && grid[i].y == y) return grid[i];
-  }
-  return null;
-}
-
-function bresenhams(cell1, cell2, quad, thisGrid) {
-  let x1 = cell1.x, y1 = cell1.y, x2 = cell2.x, y2 = cell2.y;
-
-  let dx = x2 - x1, dy = y2 - y1;
-  let m = dy/dx;
-  let p;
-
-  let arr = [];
-  arr.push(getCell(x1, y1, thisGrid).loc);
-  if (m >= 0 && m <= 1) {
-    p = (2*dy) - dx;
-    while (x1 < x2) {
-      if (p < 0) {
-        x1++;
-        p += 2*dy;
-        arr.push(getCell(x1, y1, thisGrid).loc)
-        if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
-      } else {
-        x1++;
-        y1++;
-        p += 2*(dy - dx);
-        arr.push(getCell(x1, y1, thisGrid).loc);
-        if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
-      }
-    }
-  } else if (m > 1) {
-    p = (2*dx) - dy;
-    while (y1 < y2) {
-      if (p < 0) {
-        y1++;
-        p += 2*dx;
-        arr.push(getCell(x1, y1, thisGrid).loc);
-        if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
-      } else {
-        x1++;
-        y1++;
-        p += 2*(dx - dy);
-        arr.push(getCell(x1, y1, thisGrid).loc);
-        if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
-      }
-    }
-  }
-  console.log(cell1, cell2, arr, thisGrid);
-  // drawArray(arr, thisGrid, quad);
-  return arr;
-}
-
-function drawArray(arr, color) {
-  arr.forEach(item => function(item) {
-    $map.drawRect();
-  });
-}
-
-/* function getVisibleArea(surroundings) {
+function getVisibleArea(surroundings) {
   let item;
   let middle = grid[surroundings[Math.floor(surroundings.length/2)]];
   for (let i = 0; i < surroundings.length; i++) {
@@ -1116,7 +885,7 @@ function getBotExploredArea(surroundings) {
     }
   }
   return surroundings;
-} */
+}
 
 // takes the new grid size and modifies the map
 function modifyMap() {
