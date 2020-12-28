@@ -216,7 +216,7 @@ function closeModal() {
 }
 
 function showExploredInfo() {
-  let cell;
+  /* let cell;
   for (let i = 0; i < tempBotExplored.length; i++) {
     cell = grid[tempBotExplored[i]];
     if (cell.tempBotExplored && !cell.isHumanExplored) {
@@ -237,32 +237,42 @@ function showExploredInfo() {
         });
       }
     }
+  } */
+
+  /* for (let i = 0; i < victims.length; i++) {
+    $map.drawEllipse({
+      layer: true,
+      name: 'markers',
+      fromCenter: true,
+      fillStyle: victims[i].color,
+      x: grid[victims[i].loc].x*boxWidth, y: grid[victims[i].loc].y*boxHeight,
+      width: (boxWidth - 1)*10, height: (boxHeight - 1)*10
+    });
   }
 
-  if (true) {
-    for (let i = 0; i < victims.length; i++) {
-      $map.drawEllipse({
-        layer: true,
-        name: 'markers',
-        fromCenter: true,
-        fillStyle: victims[i].color,
-        x: grid[victims[i].loc].x*boxWidth, y: grid[victims[i].loc].y*boxHeight,
-        width: (boxWidth - 1)*10, height: (boxHeight - 1)*10
-      });
-    }
+  for (let i = 0; i < hazards.length; i++) {
+    $map.drawPolygon({
+      layer: true,
+      name: 'markers',
+      fromCenter: true,
+      fillStyle: hazards[i].color,
+      x: grid[hazards[i].loc].x*boxWidth, y: grid[hazards[i].loc].y*boxHeight,
+      radius: (boxWidth/2)*10,
+      sides: 3
+    });
+  } */
 
-    for (let i = 0; i < hazards.length; i++) {
-      $map.drawPolygon({
-        layer: true,
-        name: 'markers',
-        fromCenter: true,
-        fillStyle: hazards[i].color,
-        x: grid[hazards[i].loc].x*boxWidth, y: grid[hazards[i].loc].y*boxHeight,
-        radius: (boxWidth/2)*10,
-        sides: 3
-      });
-    }
-  }
+  let i;
+  setTimeout(function() {
+    console.log('hello');   //  your code here
+    i++;                    //  increment the counter
+    if (i < 10) {           //  if the counter < 10, call the loop function
+      myLoop();             //  ..  again which will trigger another 
+    }                       //  ..  setTimeout()
+  }, 1000);
+
+  /* $map.addLayerToGroup('victimmarkers', 'markers');
+  $map.addLayerToGroup('hazardmarkers', 'markers'); */
 
   $popupModal.css('visibility', 'visible');  // changed here
   $popupModal.css('opacity', 1); // changed here
@@ -320,13 +330,42 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 }
 
 function hideExploredInfo() {
-  $map.removeLayer('markers').drawLayers();
+  // $map.removeLayer('markers').drawLayers();
+  // $map.removeLayerGroup('markers').drawLayers();
+  /* humanExplored.forEach(item => function(item) {
+    let cell;
+    cell = grid[item];
+    if (cell.isWall) {
+      $map.drawRect({
+        layer: true,
+        name: 'humanExplored',
+        groups: ['human'],
+        fillStyle: WALL_COLOR,
+        strokeStyle: USER_BOT_COLOR,
+        strokeWidth: 1,
+        cornerRadius: 2,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else {
+      $map.drawRect({
+        layer: true,
+        name: 'humanExplored',
+        groups: ['human'],
+        fillStyle: LIGHT_USER_BOT_COLOR,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    }
+  }); */
+  // refreshMap();
   $popupModal.css('visibility', 'visible');
   $popupModal.css('opacity', 0);
   // drawMap();
   // drawExplored();
   // botExplored = [];
-  tempBotExplored = [];
+  // tempBotExplored = [];
+  clearInterval(timeout);
   timeout = setInterval(updateTime, 1000);
   pause = false;
 }
@@ -425,12 +464,19 @@ function createMap(currentPath, cb) {
   }).done(function() {
     userBot = {id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1};
     autoBot = {id: "agent", loc: getRandomLoc(grid), color: AUTO_BOT_COLOR, dir: 1};
-    victim1 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR};
+    victim1 = {id: "victim", loc: getRandomLoc(grid), color: "#fff"};
     victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR};
-    hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR};
+    hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: "#fff"};
     hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR};
     victims.push(victim1, victim2);
     hazards.push(hazard1, hazard2);
+    $map.drawRect({
+      layer: true,
+      name: 'markers',
+      fillStyle: "#fff",
+      x: 0, y: 0,
+      width: 1, height: 1
+    });
 
     // humanExplored = findLineOfSight(userBot);
     // drawMap(grid);
@@ -573,18 +619,24 @@ function spawn(members) {
     bot = members[i]
     if (bot.id == "human" || bot.id == "agent") {
       $map.drawRect({
+        layer: true,
+        name: 'team',
         fillStyle: bot.color,
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
     } else if (bot.id == "victim") {
       $map.drawEllipse({
+        layer: true,
+        name: 'victim',
         fillStyle: bot.color,
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
     } else if (bot.id == "hazard") {
       $map.drawPolygon({
+        layer: true,
+        name: 'hazard',
         fillStyle: bot.color,
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
         radius: boxWidth/2,
@@ -605,6 +657,9 @@ function refreshMap() {
     cell = grid[humanFOV[i]];
     if (cell.isWall) {
       $map.drawRect({
+        layer: true,
+        name: 'humanExplored',
+        groups: ['human'],
         fillStyle: WALL_COLOR,
         strokeStyle: USER_BOT_COLOR,
         strokeWidth: 1,
@@ -614,6 +669,9 @@ function refreshMap() {
       });
     } else {
       $map.drawRect({
+        layer: true,
+        name: 'humanExplored',
+        groups: ['human'],
         fillStyle: LIGHT_USER_BOT_COLOR,
         x: cell.x*boxWidth, y: cell.y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
