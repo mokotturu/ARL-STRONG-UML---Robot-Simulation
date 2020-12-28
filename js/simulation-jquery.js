@@ -35,11 +35,11 @@ const VICTIM_COLOR = "red";
 const HAZARD_COLOR = "yellow";
 
 var grid = [];
-var humanFOV = [];
-var tempBotExplored = [];
+// var tempBotExplored = [];
 /* var botExplored = [];
 var humanExplored = []; */
 var botExplored = new Set();
+var tempBotExplored = new Set();
 var humanExplored = new Set();
 var userBot, autoBot;
 var victim1, victim2, hazard1, hazard2;
@@ -48,7 +48,7 @@ var hazards = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var currentPath = mapPaths[8];
 
-var viewRadius = 3;
+var viewRadius = 6;
 var count = 0;
 var waitCount = 5;
 var steps = 0;
@@ -283,40 +283,6 @@ function showExploredInfo() {
 
   pause = true;
   clearInterval(timeout);
-  
-  /* $map.addLayer({
-    type: 'function',
-    name: 'temporary',
-    fn: function(ctx) {
-      for (let i = 0; i < tempBotExplored.length; i++) {
-        cell = grid[tempBotExplored[i]];
-        if (cell.isBotExplored && !cell.isHumanExplored) {
-          if (cell.isInSight && cell.isWall) {
-            ctx.fillStyle = WALL_COLOR;
-            ctx.strokeStyle = TEMP_COLOR;
-            // ctx.roundRect(ctx, cell.x*boxWidth, cell.y*boxHeight, boxWidth - 1, boxHeight - 1, 2, true, true);
-            ctx.beginPath();
-            ctx.moveTo(cell.x*boxWidth + 2, cell.y*boxHeight);
-            ctx.lineTo(cell.x*boxWidth + boxWidth - 1 - 2, cell.y*boxHeight);
-            ctx.quadraticCurveTo(cell.x*boxWidth + boxWidth - 1, cell.y*boxHeight, cell.x*boxWidth + boxWidth - 1, cell.y*boxHeight + 2);
-            ctx.lineTo(cell.x*boxWidth + boxWidth - 1, cell.y*boxHeight + boxHeight - 1 - 2);
-            ctx.quadraticCurveTo(cell.x*boxWidth + boxWidth - 1, cell.y*boxHeight + boxHeight - 1, cell.x*boxWidth + boxWidth - 1 - 2, cell.y*boxHeight + boxHeight - 1);
-            ctx.lineTo(cell.x*boxWidth + 2, cell.y*boxHeight + boxHeight - 1);
-            ctx.quadraticCurveTo(cell.x*boxWidth, cell.y*boxHeight + boxHeight - 1, cell.x*boxWidth, cell.y*boxHeight + boxHeight - 1 - 2);
-            ctx.lineTo(cell.x*boxWidth, cell.y*boxHeight + 2);
-            ctx.quadraticCurveTo(cell.x*boxWidth, cell.y*boxHeight, cell.x*boxWidth + 2, cell.y*boxHeight);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-            // ctx.fillRect(cell.x*boxWidth, cell.y*boxHeight, boxWidth - 1, boxHeight - 1);
-          } else if (cell.isInSight && !cell.isWall) {
-            ctx.fillStyle = LIGHT_TEMP_COLOR;
-            ctx.fillRect(cell.x*boxWidth, cell.y*boxHeight, boxWidth - 1, boxHeight - 1);
-          }
-        }
-      }
-    }
-  }).drawLayers(); */
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
@@ -355,12 +321,14 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
 
 function hideExploredInfo() {
   $map.removeLayer('markers').drawLayers();
-  $popupModal.css('visibility', 'visible'); //  changed here
-  $popupModal.css('opacity', 0); //  changed here
+  $popupModal.css('visibility', 'visible');
+  $popupModal.css('opacity', 0);
   // drawMap();
-  drawExplored();
-  botExplored = [];
+  // drawExplored();
+  // botExplored = [];
   tempBotExplored = [];
+  timeout = setInterval(updateTime, 1000);
+  pause = false;
 }
 
 function confirmExploredArea() {
@@ -374,8 +342,6 @@ function confirmExploredArea() {
   botExplored = tempBotExplored;
   log.push({interval: intervalCount++, trusted: true});
   hideExploredInfo();
-  timeout = setInterval(updateTime, 1000);
-  pause = false;
 }
 
 function undoExploration() {
@@ -411,8 +377,6 @@ function undoExploration() {
   } */
   log.push({interval: intervalCount++, trusted: false});
   hideExploredInfo();
-  timeout = setInterval(updateTime, 1000);
-  pause = false;
 }
 
 function updateScrollingPosition(loc) {
@@ -468,7 +432,7 @@ function createMap(currentPath, cb) {
     victims.push(victim1, victim2);
     hazards.push(hazard1, hazard2);
 
-    humanExplored = findLineOfSight(userBot);
+    // humanExplored = findLineOfSight(userBot);
     // drawMap(grid);
 
     spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
@@ -632,12 +596,47 @@ function spawn(members) {
 
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
-  humanFOV = findLineOfSight(userBot);
-  humanFOV.forEach(humanExplored.add, humanExplored);
-  drawMap(grid);
-  refreshBotExplored();
+  // human surroundings
+  let humanFOV = findLineOfSight(userBot);
+  // humanFOV.forEach(humanExplored.add, humanExplored);
+  humanFOV.forEach(item => humanExplored.add(item));
+  let cell;
+  for (let i = 0; i < humanFOV.length; i++) {
+    cell = grid[humanFOV[i]];
+    if (cell.isWall) {
+      $map.drawRect({
+        fillStyle: WALL_COLOR,
+        strokeStyle: USER_BOT_COLOR,
+        strokeWidth: 1,
+        cornerRadius: 2,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    } else {
+      $map.drawRect({
+        fillStyle: LIGHT_USER_BOT_COLOR,
+        x: cell.x*boxWidth, y: cell.y*boxHeight,
+        width: boxWidth - 1, height: boxHeight - 1
+      });
+    }
+  }
+
+  // drawMap(grid);
+  // refreshBotExplored();
+
+  /* let botFOV = findLineOfSight(autoBot);
+  botFOV.forEach(tempBotExplored.add, tempBotExplored);
+  for (let i = 0; i < botFOV.length; i++) {
+    cell = grid[botFOV[i]];
+    $map.drawRect({
+      fillStyle: LIGHT_AUTO_BOT_COLOR,
+      x: cell.x*boxWidth, y: cell.y*boxHeight,
+      width: boxWidth - 1, height: boxHeight - 1
+    });
+  } */
+
   spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
-  getSetBoundaries(humanFOV, 0);
+  // getSetBoundaries(humanExplored, 0);
 }
 
 function refreshBotExplored() {
@@ -746,7 +745,6 @@ function scaleImages() {
 
 function findLineOfSight(bot) {
   let thisSurroundings = [[], [], [], []];
-  let actualLOS = [];
   let centerX = grid[bot.loc].x;
   let centerY = grid[bot.loc].y;
   let i = 0, j = 0;
@@ -797,10 +795,10 @@ function findLineOfSight(bot) {
     j++;
   }
 
-  actualLOS = castRays(thisSurroundings);
-  return actualLOS;
+  return castRays(thisSurroundings);
 }
 
+// arr has quadrant one ([0]), quadrant two ([1]), quadrant three ([2]), quadrant four ([3]).
 function castRays(arr) {
   let mySurroundings = [];
   // quadrant 1
@@ -887,7 +885,7 @@ function bresenhams(cell1, cell2, quad, thisGrid) {
       }
     }
   }
-  console.log(cell1, cell2, arr, thisGrid);
+  // console.log(cell1, cell2, arr, thisGrid);
   // drawArray(arr, thisGrid, quad);
   return arr;
 }
