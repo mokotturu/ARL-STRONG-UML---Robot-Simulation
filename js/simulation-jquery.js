@@ -451,10 +451,10 @@ function createMap(currentPath, cb) {
   }).done(function() {
     userBot = {id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1};
     autoBot = {id: "agent", loc: getRandomLoc(grid), color: AUTO_BOT_COLOR, dir: 1};
-    victim1 = {id: "victim", loc: getRandomLoc(grid), color: "#fff", shape: "circle"};
-    victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, shape: "circle"};
-    hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: "#fff", shape: "triangle"};
-    hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, shape: "triangle"};
+    victim1 = {id: "victim", loc: getRandomLoc(grid), color: "#fff", isFound: false};
+    victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
+    hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: "#fff", isFound: false};
+    hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
     /* victims.push(victim1, victim2);
     hazards.push(hazard1, hazard2); */
     obstacles.push(victim1, victim2, hazard1, hazard2);
@@ -462,7 +462,7 @@ function createMap(currentPath, cb) {
     // humanExplored = findLineOfSight(userBot);
     // drawMap(grid);
 
-    spawn([userBot, autoBot/* , victim1, victim2, hazard1, hazard2 */]);
+    spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
 
     updateScrollingPosition(grid[userBot.loc]);
     timeout = setInterval(updateTime, 1000);
@@ -604,13 +604,13 @@ function spawn(members) {
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
-    } else if (bot.id == "victim") {
+    } else if (bot.id == "victim" && bot.isFound) {
       $map.drawEllipse({
         fillStyle: bot.color,
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
         width: boxWidth - 1, height: boxHeight - 1
       });
-    } else if (bot.id == "hazard") {
+    } else if (bot.id == "hazard" && bot.isFound) {
       $map.drawPolygon({
         fillStyle: bot.color,
         x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
@@ -647,11 +647,12 @@ function refreshMap() {
       });
     }
 
-    for (let i = 0; i < obstacles.length; i++) {
+    for (let j = 0; j < obstacles.length; j++) {
       // console.log(cell.loc, obstacles[i].loc);
-      if (cell.loc == obstacles[i].loc) {
-        alert("found");
-        drawObstacle(obstacles[i]);
+      if (humanFOV[i] == obstacles[j].loc) {
+        console.log("found");
+        // drawObstacle(obstacles[j]);
+        obstacles[j].isFound = true;
       }
     }
   }
@@ -670,7 +671,7 @@ function refreshMap() {
     });
   } */
 
-  spawn([userBot, autoBot/* , victim1, victim2, hazard1, hazard2 */]);
+  spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2]);
   // getSetBoundaries(humanExplored, 0);
 }
 
@@ -681,7 +682,6 @@ function drawObstacle(cell) {
       x: grid[cell.loc].x*boxWidth, y: grid[cell.loc].y*boxHeight,
       width: boxWidth - 1, height: boxHeight - 1
     });
-    alert("found victim");
   } else if (cell.id == "hazard") {
     $map.drawPolygon({
       fillStyle: bot.color,
