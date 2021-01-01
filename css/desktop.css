@@ -37,8 +37,8 @@ nav {
 #instructions-button {
   z-index: 10000;
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 10px;
+  right: 10px;
 }
 
 #instructions-button:hover {
@@ -50,27 +50,32 @@ nav {
 }
 
 #popup-modal {
-  /* display: none; */
-  visibility: hidden;
-  opacity: 0;
+  /* visibility: hidden;
+  opacity: 0; */
+  display: none;
   position: fixed;
   z-index: 1;
   left: 0;
   top: 0;
   padding: 0;
-  margin: 0;
+  margin: 1%;
   width: 100%;
-  height: 90%;
-  transition: visibility 0s, opacity 0.2s linear;
+  height: 100%;
 }
 
+/* #popup-modal-content::-webkit-scrollbar {
+  display: none;
+} */
+
 #popup-modal-content {
-  background-color: rgba(90, 90, 90, .8);
-  padding: 20px 10px;
+  background-color: rgba(90, 90, 90);
+  padding: 20px;
   border: 1px solid white;
-  width: 100%;
-  height: 100vh;
+  width: 95%;
+  height: 90%;
   overflow-y: scroll;
+  border-radius: 7px;
+  transition: visibility 0s, opacity 0.2s linear;
 }
 
 #images-container {
@@ -87,8 +92,9 @@ nav {
 .explored {
   background-color: black;
   border: 1px solid black;
-  width: 31vw;
-  height: 31vw;
+  border-radius: 7px;
+  width: 28vw;
+  height: 28vw;
   overflow: hidden;
 }
 
@@ -96,27 +102,46 @@ nav {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  padding: 20px 0;
 }
 
 .headings-container p {
-  width: 31%;
+  background-color: rgba(120, 120, 120);
+  color: black;
+  width: 28vw;
   text-align: center;
-  background-color: white;
-  border-radius: 50px;
+  border-radius: 7px;
   padding: 5px;
+}
+
+.headings-container p:nth-child(1) {
+  border: 2px solid  black;
+}
+
+.headings-container p:nth-child(2) {
+  border: 2px solid  #99ffb7;
+}
+
+.headings-container p:nth-child(3) {
+  border: 2px solid  #9999ff;
 }
 
 #userInputButtons {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: 20px 0;
+}
+
+#userInputButtons button {
+  margin: 0 30px;
 }
 
 .tableItems {
   display: flex;
   flex-wrap: wrap;
   padding: 20px;
+  justify-content: center;
   align-items: center;
   text-align: center;
 }
@@ -125,12 +150,39 @@ nav {
   padding: 20px;
   margin: 10px;
   border: 1px solid black;
-  border-radius: 5px;
+  border-radius: 7px;
+}
+
+/* .scroll-indicator {
+  height: 10%;
+  position: fixed;
+  z-index: 5;
+}
+
+.scroll-indicator::before {
+  animation: bounce 1s ease infinite;
+  color: #000;
+  background-color: #fff;
+  content: '\21E9';
+  width: 2.8rem;
+  margin: 0 46%;
+  border: 2px solid black;
+  border-radius: 50px;
+  font-size: 2rem;
+  position: fixed;
+  text-align: center;
+  top: 90%;
+} */
+
+@keyframes bounce {
+  50% {
+    transform: translateY(-50%);
+  }
 }
 
 .modal {
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   left: 0;
   top: 0;
   width: 100%;
@@ -142,13 +194,14 @@ nav {
 }
 
 .modal-content {
-  background-color: rgba(90, 90, 90, .8);
+  background-color: rgba(90, 90, 90);
   margin: 3% auto;
   padding: 20px;
   border: 1px solid white;
   width: 70%;
   height: 90%;
   overflow-y: scroll;
+  border-radius: 7px;
 }
 
 .close {
@@ -168,7 +221,19 @@ nav {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  flex-wrap: wrap;
+  color: white;
+}
+
+#info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+#legend p {
+  padding-bottom: 30px;
 }
 
 #map-container {
@@ -176,6 +241,7 @@ nav {
   height: 99vh;
   overflow: scroll;
   border: 1px solid white;
+  border-radius: 7px;
 }
 
 #map-container::-webkit-scrollbar {
@@ -192,13 +258,6 @@ nav {
   border: 1px solid #bb86fc;
 }
 
-/* .side-panel {
-  width: 30%;
-  color: white;
-  font-family: 'Roboto', sans-serif;
-  padding: 0 10px;
-} */
-
 input {
   background-color: inherit;
   border: 0px;
@@ -209,7 +268,7 @@ input {
 button, select, option {
   padding: 5px 10px;
   background-color: white;
-  border-radius: 30px;
+  border-radius: 7px;
   font-weight: bold;
   transition: 0.2s;
 }
