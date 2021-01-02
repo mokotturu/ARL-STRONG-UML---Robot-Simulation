@@ -1,22 +1,23 @@
-var $mapContainer = $('#map-container');
-var ctx = $("#ma-container").get(0);
-var $map = $('#map');
-var $timer = $('#timer');
-var $modal = $('#instructions-modal');
-var $popupModal = $("#popup-modal");
-var $btn = $('#instructions-button');
-var $minimapImage = $("#minimap");
-var $humanImage = $("#human-image");
-var $botImage = $("#bot-image");
-var $close = $('.close')[0];
-var $log = $('.tableItems');
+const $mapContainer = $('#map-container');
+const ctx = $("#ma-container").get(0);
+const $map = $('#map');
+const $timer = $('#timer');
+const $modal = $('#instructions-modal');
+const $popupModal = $("#popup-modal");
+const $btn = $('#instructions-button');
+const $minimapImage = $("#minimap");
+const $humanImage = $("#human-image");
+const $botImage = $("#bot-image");
+const $close = $('.close')[0];
+const $log = $('.tableItems');
+const $dropdown = $('#maps');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
 var columns;
 
-var canvasWidth = $map.width();
-var canvasHeight = $map.height();
+const canvasWidth = $map.width();
+const canvasHeight = $map.height();
 var boxWidth;
 var boxHeight;
 
@@ -39,7 +40,7 @@ var botExplored = new Set();
 var tempBotExplored = new Set();
 var humanExplored = new Set();
 var userBot, autoBot;
-var victim1, victim2, hazard1, hazard2;
+var victim1, victim2, hazard1, hazard2; // come back
 var obstacles = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var pathIndex = 8;
@@ -139,7 +140,6 @@ $(document).ready(function() {
 });
 
 $(window).on("load", function() {
-  var $dropdown = $('#maps');
   $.each(mapPaths, function(i, path) {
     $dropdown.append($('<option></option>').val(i).html(path));
   });
