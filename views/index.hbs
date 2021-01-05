@@ -65,18 +65,18 @@
     </div>
     <div id="simulation">
         <div id="info">
-        <div id="legend">
-            <div style="width: 40px; height: 20px; background-color: #9999ff; border-radius: 7px;"></div>
-            <p>Human explored region</p>
-            <div style="width: 40px; height: 20px; background-color: #99ffb7; border-radius: 7px;"></div>
-            <p>Agent explored region in the current interval</p>
-            <div style="width: 40px; height: 20px; background-color: #ff9eae; border-radius: 7px;"></div>
-            <p>Trusted agent explored region</p>
-            <div style="width: 40px; height: 20px; background-color: #ffff7f; border-radius: 7px;"></div>
-            <p>Region explored by both human and agent</p>
-        </div>
-        <div id="timer">0</div>
-        {{!-- <button class= --}}
+            <div id="legend">
+                <div style="width: 40px; height: 20px; background-color: #9999ff; border-radius: 7px;"></div>
+                <p>Human explored region</p>
+                <div style="width: 40px; height: 20px; background-color: #99ffb7; border-radius: 7px;"></div>
+                <p>Agent explored region in the current interval</p>
+                <div style="width: 40px; height: 20px; background-color: #ff9eae; border-radius: 7px;"></div>
+                <p>Trusted agent explored region</p>
+                <div style="width: 40px; height: 20px; background-color: #ffff7f; border-radius: 7px;"></div>
+                <p>Region explored by both human and agent</p>
+            </div>
+            <div id="timer">0</div>
+            <button id="terminate" onclick="terminate()">Terminate Simulation</button>
         </div>
         <div id="map-container">
         <canvas width="4000" height="4000" id="map"></canvas>

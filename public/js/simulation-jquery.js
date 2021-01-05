@@ -39,6 +39,7 @@ var grid = [];
 var botExplored = new Set();
 var tempBotExplored = new Set();
 var humanExplored = new Set();
+var data = {humanData: [], agentData: [], decisions: [], obstacles: []};
 var userBot, autoBot;
 var victim1, victim2, hazard1, hazard2; // come back
 var obstacles = [];
@@ -48,7 +49,7 @@ var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
 var count = 0;
-var waitCount = 1;
+var waitCount = 10;
 var steps = 0;
 var totalSteps = 7;
 var seconds = 0;
@@ -64,8 +65,8 @@ var startTime;
 $(document).ready(function() {
     startTime = new Date();
 
-    $.post("/", { data: "idk what to put here" }, data => console.log(data))
-    .fail(() => alert("post failed"));
+    /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
+    .fail(() => alert("post failed")); */
 
     createMap(currentPath, function loop() {
         if (!eventListenersAdded) {
@@ -135,7 +136,10 @@ $(document).ready(function() {
                     // nothing
                     break;
             }
-            // console.log(steps);
+            
+            let tracker = { loc: autoBot.loc, timestamp: performance.now() };
+            data.agentData.push(tracker);
+            console.log(tracker);
         }
     });
 
@@ -163,55 +167,59 @@ function eventKeyHandlers(e) {
         case 65:    // a
         case 37:    // left arrow key
             e.preventDefault();
-            console.log("Left", performance.now(), userBot.loc);
             if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall) {
                 userBot.loc -= rows;
                 userBot.dir = 4;
                 refreshMap();
                 updateScrollingPosition(grid[userBot.loc]);
             }
+            // console.log("Left", performance.now(), userBot.loc);
             break;
         case 87:    // w
         case 38:    // up arrow key
             e.preventDefault();
-            console.log("Up", performance.now(), userBot.loc);
             if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall) {
                 userBot.loc--;
                 userBot.dir = 1;
                 refreshMap();
                 updateScrollingPosition(grid[userBot.loc]);
             }
+            // console.log("Up", performance.now(), userBot.loc);
             break;
         case 68:    // d
         case 39:    // right arrow key
             e.preventDefault();
-            console.log("Right", performance.now(), userBot.loc);
             if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall) {
                 userBot.loc += rows;
                 userBot.dir = 2;
                 refreshMap();
                 updateScrollingPosition(grid[userBot.loc]);
             }
+            // console.log("Right", performance.now(), userBot.loc);
             break;
         case 83:    // s
         case 40:    // down arrow key
             e.preventDefault();
-            console.log("Down", performance.now(), userBot.loc);
             if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall) {
                 userBot.loc++;
                 userBot.dir = 3;
                 refreshMap();
                 updateScrollingPosition(grid[userBot.loc]);
             }
+            // console.log("Down", performance.now(), userBot.loc);
             break;
         case 67:    // c
             e.preventDefault();
-            console.log("Shifted focus to agent", performance.now());
             updateScrollingPosition(grid[autoBot.loc]);
+            // console.log("Shifted focus to agent", performance.now());
             break;
         default:    // nothing
             break;
     }
+
+    let tracker = { loc: userBot.loc, timestamp: performance.now() };
+    data.humanData.push(tracker);
+    console.log(tracker);
 }
 
 function toggleModal() {
@@ -221,6 +229,17 @@ function toggleModal() {
 
 function closeModal() {
     $modal.css('display', 'none');
+}
+
+function terminate() {
+    pause = true;
+    clearInterval(timeout);
+    data.decisions = log;
+    data.obstacles = obstacles;
+    // console.log(data);
+    $.post("/", data, res => console.log(res))
+    .fail(() => alert("POST failed"));
+    window.location.href = "/survey";
 }
 
 function showExploredInfo() {
@@ -335,6 +354,17 @@ function createMap(currentPath, cb) {
         // humanExplored = findLineOfSight(userBot);
 
         spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
+
+        console.log("Spawn", performance.now(), userBot.loc);
+        console.log("Spawn", performance.now(), autoBot.loc);
+        
+        let tracker = { loc: userBot.loc, timestamp: performance.now() };
+        data.humanData.push(tracker);
+        console.log(tracker);
+
+        tracker = { loc: autoBot.loc, timestamp: performance.now() };
+        data.agentData.push(tracker);
+        console.log(tracker);
 
         updateScrollingPosition(grid[userBot.loc]);
         timeout = setInterval(updateTime, 1000);

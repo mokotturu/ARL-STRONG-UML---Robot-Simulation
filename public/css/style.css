@@ -246,6 +246,10 @@ nav {
     font-size: 20px;
 }
 
+#terminate {
+    margin: 20px 0px;
+}
+
 #map {
     background-color: #252525;
     border: 1px solid #bb86fc;

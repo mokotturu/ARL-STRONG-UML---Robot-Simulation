@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const exphbs = require('express-handlebars');
+const bodyParser = require('body-parser');
 const connectDB = require('./config/db.js');
 const path = require('path');
 
@@ -11,8 +12,10 @@ dotenv.config({path: './config/config.env'});
 
 connectDB();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+// app.use(express.json({limit: '2MB'}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 1000000000000000}));
+app.use(bodyParser.json({ extended: true, limit: '50MB' }));
 
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));

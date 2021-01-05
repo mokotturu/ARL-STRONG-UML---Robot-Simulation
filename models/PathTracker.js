@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const PathTrackerSchema = new mongoose.Schema({
-    data: {
-        type: String,
-        required: true
-    },
+    humanData: [],
+    agentData: [],
+    decisions: [],
+    obstacles: [],
     createdAt: {
         type: Date,
         default: Date.now

@@ -13,18 +13,28 @@ router.get('/', (req, res) => {
 
 // @description     simulation page
 // @route           POST /
-router.post('/', (req, res) => {
-    const track = new PathTracker(req.body);
-    track.save(err => {
-        if (err) return console.log(err);
-    });
-    res.send("post received 1");
+router.post('/', async (req, res) => {
+    console.log(req.body);
+    // console.log(req.headers['content-length']);
+    try {
+        const track = new PathTracker(req.body);
+        await track.save();
+    } catch (err) {
+        console.log('err' + err);
+        res.status(500).send(err);
+    }
 });
 
 // @description     survey page
 // @route           GET /survey
 router.get('/survey', (req, res) => {
     res.render('survey');
+});
+
+// @description     survey page
+// @route           POST /survey
+router.post('/survey', (req, res) => {
+    
 });
 
 module.exports = router;
