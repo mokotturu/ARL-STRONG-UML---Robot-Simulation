@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 // @description     simulation page
 // @route           POST /
 router.post('/', async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     // console.log(req.headers['content-length']);
     try {
         const track = new PathTracker(req.body);
