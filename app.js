@@ -17,9 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 1
 app.use(bodyParser.json({ extended: true, limit: '50MB' }));
 
 // morgan logger
-if (process.env.NODE_ENV === 'development') {
+/* if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
-}
+} */
 
 // handlebars
 app.engine('.hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
