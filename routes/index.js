@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const PathTracker = require('../models/PathTracker');
 const router = express.Router();
+var track;  // change later to a const in the try-catch; this is just for testing
 
 // @description     simulation page
 // @route           GET /
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
     // console.log(req.body);
     // console.log(req.headers['content-length']);
     try {
-        const track = new PathTracker(req.body);
+        track = new PathTracker(req.body);
         await track.save();
     } catch (err) {
         console.log('err' + err);
@@ -29,6 +30,7 @@ router.post('/', async (req, res) => {
 // @route           GET /survey
 router.get('/survey', (req, res) => {
     res.render('survey');
+    res.json(track);
 });
 
 // @description     survey page
