@@ -237,9 +237,9 @@ function terminate() {
     data.decisions = log;
     data.obstacles = obstacles;
     // console.log(data);
-    $.post("/", data, res => console.log(res))
+    $.post("/simulation", data, res => console.log(res))
     .fail(() => alert("POST failed"));
-    window.location.href = "/survey";
+    window.location.href = "/stats";
 }
 
 function showExploredInfo() {
