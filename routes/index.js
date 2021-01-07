@@ -3,6 +3,8 @@ const PathTracker = require('../models/PathTracker');
 const router = express.Router();
 var track;  // change later to a const in the try-catch; this is just for testing
 
+express().set('trust proxy', true);
+
 // @description     index page
 // @route           GET /
 router.get('/', (req, res) => {
@@ -30,11 +32,17 @@ router.get('/simulation', (req, res) => {
 router.post('/simulation', async (req, res) => {
     // console.log(req.body);
     // console.log(req.headers['content-length']);
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     try {
-        track = new PathTracker(req.body);
+        track = new PathTracker({
+            humanData: req.body.humanData,
+            agentData: req.body.humanData,
+            decisions: req.body.humanData,
+            obstacles: req.body.humanData,
+            from: ip
+        });
         await track.save();
     } catch (err) {
-        console.log('err' + err);
         res.status(500).send(err);
     }
 });
