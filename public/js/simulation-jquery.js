@@ -67,11 +67,17 @@ $(document).ready(function() {
 
     /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
     .fail(() => alert("post failed")); */
-
-    $('.loader').css('opacity', '1');
+    
+    $('body').css('visibility', 'hidden');
+    $('body').css('opacity', '0');
     $('.loader').css('visibility', 'visible');
+    $('.loader').css('opacity', '1');
 
     createMap(currentPath, function loop() {
+        $('.loader').css('visibility', 'hidden');
+        $('body').css('visibility', 'visible');
+        $('body').css('opacity', '1');
+
         if (!eventListenersAdded) {
             // document arrow keys event listener
             $(document).on('keydown', function(e) {
