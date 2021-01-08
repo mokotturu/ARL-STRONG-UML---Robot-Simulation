@@ -68,15 +68,15 @@ $(document).ready(function() {
     /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
     .fail(() => alert("post failed")); */
     
-    $('body').css('visibility', 'hidden');
-    $('body').css('opacity', '0');
+    $('.body-container').css('visibility', 'hidden');
+    $('.body-container').css('opacity', '0');
     $('.loader').css('visibility', 'visible');
     $('.loader').css('opacity', '1');
 
     createMap(currentPath, function loop() {
         $('.loader').css('visibility', 'hidden');
-        $('body').css('visibility', 'visible');
-        $('body').css('opacity', '1');
+        $('.body-container').css('visibility', 'visible');
+        $('.body-container').css('opacity', '1');
 
         if (!eventListenersAdded) {
             // document arrow keys event listener
@@ -161,10 +161,6 @@ $(window).on("load", function() {
         $dropdown.append($('<option></option>').val(i).html(path));
     });
     $dropdown.prop('selectedIndex', pathIndex);
-
-    $('.loader').css('visibility', 'hidden');
-    $('body').css('visibility', 'visible');
-    $('body').css('opacity', '1');
 });
 
 $("#maps").change(function() {
