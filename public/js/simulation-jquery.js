@@ -325,7 +325,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 1 == 0) {
+    if (seconds % 10 == 0) {
         seconds = 0;
         showExploredInfo();
     }
