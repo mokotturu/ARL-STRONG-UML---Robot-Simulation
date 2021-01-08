@@ -6,13 +6,14 @@
     <meta name="author" content="Monish Reddy Kotturu">
     <title>ARL STRONG UMass Lowell | Robot Simulation</title>
     <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="loader"></div>
     <button id="instructions-button" onclick="toggleModal()">Instructions</button>
-    <div id="instructions-modal" class="modal">
-        <div class="modal-content">
+    <div id="instructions-modal">
         <span class="close" onclick="closeModal()">&times;</span>
         <div class="side-panel">
             <div id="instructions">
@@ -34,10 +35,8 @@
             <button onclick="setSpeed()" disabled>Set Speed</button>
             </div>
         </div>
-        </div>
     </div>
     <div id="popup-modal">
-        <div id="popup-modal-content">
         <!-- <span class="close" onclick="closeModal()">&times;</span> -->
         <div id="images-container">
             <div class="explored">
@@ -61,7 +60,6 @@
             <button onclick="undoExploration()">Discard</button>
         </div>
         <div class="scroll-indicator"></div>
-        </div>
     </div>
     <div id="simulation">
         <div id="info">

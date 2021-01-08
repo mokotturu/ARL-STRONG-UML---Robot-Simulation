@@ -68,6 +68,9 @@ $(document).ready(function() {
     /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
     .fail(() => alert("post failed")); */
 
+    $('.loader').css('opacity', '0');
+    $('.loader').css('visibility', 'visible');
+
     createMap(currentPath, function loop() {
         if (!eventListenersAdded) {
             // document arrow keys event listener
@@ -248,6 +251,8 @@ function showExploredInfo() {
     $(document).off();
     
     $popupModal.css('display', 'block');
+    $popupModal.css('visibility', 'visible');
+    $popupModal.css('opacity', '1');
     $minimapImage.attr("src", $map.getCanvasImage());
     $humanImage.attr("src", $map.getCanvasImage());
     $botImage.attr("src", $map.getCanvasImage());
@@ -267,6 +272,8 @@ function showExploredInfo() {
 
     pause = true;
     clearInterval(timeout);
+
+    setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
 }
 
 // redraw the map and hide pop-up
@@ -288,7 +295,9 @@ function hideExploredInfo() {
         eventKeyHandlers(e);
     });
 
+    $popupModal.css('visibility', 'hidden');
     $popupModal.css('display', 'none');
+    $popupModal.css('opacity', '0');
     clearInterval(timeout);
     timeout = setInterval(updateTime, 1000);
     pause = false;
@@ -316,7 +325,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 10 == 0) {
+    if (seconds % 1 == 0) {
         seconds = 0;
         showExploredInfo();
     }
@@ -351,7 +360,9 @@ function createMap(currentPath, cb) {
         hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         obstacles.push(victim1, victim2, hazard1, hazard2);
 
-        // humanExplored = findLineOfSight(userBot);
+        $('.loader').css('visibility', 'hidden');
+        $('body').css('visibility', 'visible');
+        $('body').css('opacity', '1');
 
         spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
 
