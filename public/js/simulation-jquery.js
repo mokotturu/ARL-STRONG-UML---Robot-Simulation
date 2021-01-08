@@ -68,7 +68,7 @@ $(document).ready(function() {
     /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
     .fail(() => alert("post failed")); */
 
-    $('.loader').css('opacity', '0');
+    $('.loader').css('opacity', '1');
     $('.loader').css('visibility', 'visible');
 
     createMap(currentPath, function loop() {
@@ -155,6 +155,10 @@ $(window).on("load", function() {
         $dropdown.append($('<option></option>').val(i).html(path));
     });
     $dropdown.prop('selectedIndex', pathIndex);
+
+    $('.loader').css('visibility', 'hidden');
+    $('body').css('visibility', 'visible');
+    $('body').css('opacity', '1');
 });
 
 $("#maps").change(function() {
@@ -359,10 +363,6 @@ function createMap(currentPath, cb) {
         hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         obstacles.push(victim1, victim2, hazard1, hazard2);
-
-        $('.loader').css('visibility', 'hidden');
-        $('body').css('visibility', 'visible');
-        $('body').css('opacity', '1');
 
         spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
 
