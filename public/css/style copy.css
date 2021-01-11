@@ -4,7 +4,12 @@ html, body {
     width: 100%;
 }
 
-body {
+.body-container {
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
     visibility: hidden;
     opacity: 0;
     transition: visibility 0.2s linear, opacity 0.2s linear;
@@ -25,9 +30,11 @@ html {
 }
 
 ::-webkit-scrollbar {
+    height: 10px;
     width: 10px;
     background: #121212;
     padding: 0 3px 3px 0;
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -146,9 +153,9 @@ nav {
     cursor: pointer;
 }
 
-#popup-modal::-webkit-scrollbar {
+/* #popup-modal::-webkit-scrollbar {
     display: none;
-}
+} */
 
 #popup-modal {
     visibility: hidden;
@@ -175,11 +182,24 @@ nav {
     -moz-box-shadow: inset 0 0 20px 5px black;
 }
 
+#popup-modal-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.map-info {
+    display: flex;
+    flex-direction: column;
+}
+
 #images-container {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding: 50px 0 0 0;
+    padding: 20px 0 0 0;
 }
 
 #minimap {
@@ -256,12 +276,12 @@ nav {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px 0 50px 0;
+    padding: 10px 0;
 }
 
 #userInputButtons button {
-    margin: 10px 30px;
-    font-size: 16px;
+    margin: 0 10px;
+    font-size: 14px;
     padding: 10px 20px;
     box-shadow: 0 0 10px black;
     -webkit-box-shadow: 0 0 10px black;
@@ -270,19 +290,23 @@ nav {
 
 .tableItems {
     display: flex;
-    flex-wrap: wrap;
-    padding: 40px;
+    flex-wrap: nowrap;
+    padding: 20px 0 10px 0;
+    margin: 0 80px;/* 
     justify-content: center;
-    align-items: center;
+    align-items: center; */
     text-align: center;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
 }
 
 .tableItems p {
-    padding: 20px;
-    margin: 10px;
+    padding: 10px;
+    margin: 0 10px;
     border: 1px solid black;
     border-radius: 7px;
-    font-size: 16px;
+    font-size: 14px;
+    white-space: nowrap;
     box-shadow: 0 0 10px black;
     -webkit-box-shadow: 0 0 10px black;
     -moz-box-shadow: 0 0 10px black;

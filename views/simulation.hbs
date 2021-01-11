@@ -38,29 +38,32 @@
             </div>
         </div>
         <div id="popup-modal">
-            <!-- <span class="close" onclick="closeModal()">&times;</span> -->
-            <div id="images-container">
-                <div class="explored">
-                <img src="#" id="minimap" alt="Entire Map">
+            <div id="popup-modal-container">
+                <div class="map-info">
+                    <div id="images-container">
+                        <div class="explored">
+                            <img src="#" id="minimap" alt="Entire Map">
+                        </div>
+                        <div class="explored">
+                            <img src="#" id="bot-image" alt="Agent explored area">
+                        </div>
+                        <div class="explored">
+                            <img src="#" id="human-image" alt="Human explored area">
+                        </div>
+                    </div>
+                    <div class="headings-container">
+                        <p>Entire map</p>
+                        <p>Agent explored area (highlighted in green)</p>
+                        <p>Human explored area (highlighted in blue)</p>
+                    </div>
                 </div>
-                <div class="explored">
-                <img src="#" id="bot-image" alt="Agent explored area">
+                <div class="tableItems"></div>
+                <div id="userInputButtons">
+                    <button onclick="confirmExploredArea()">Integrate</button>
+                    <button onclick="undoExploration()">Discard</button>
                 </div>
-                <div class="explored">
-                <img src="#" id="human-image" alt="Human explored area">
-                </div>
+                <div class="scroll-indicator"></div>
             </div>
-            <div class="headings-container">
-                <p>Entire map</p>
-                <p>Agent explored area (highlighted in green)</p>
-                <p>Human explored area (highlighted in blue)</p>
-            </div>
-            <div class="tableItems"></div>
-            <div id="userInputButtons">
-                <button onclick="confirmExploredArea()">Integrate</button>
-                <button onclick="undoExploration()">Discard</button>
-            </div>
-            <div class="scroll-indicator"></div>
         </div>
         <div id="simulation">
             <div id="info">

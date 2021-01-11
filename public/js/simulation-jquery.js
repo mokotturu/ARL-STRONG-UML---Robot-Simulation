@@ -266,9 +266,9 @@ function showExploredInfo() {
     if (log[intervalCount - 1] != null) {
         let chosenOption = (log[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
         if (chosenOption == "Integrated") {
-            $log.append("<p style='background-color: #99ffb7;'>Interval " + intervalCount + "<br>" + chosenOption + "</p>");
+            $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
         } else {
-            $log.append("<p style='background-color: #ff9eae;'>Interval " + intervalCount + "<br>" + chosenOption + "</p>");
+            $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
         }
     }
 
@@ -280,6 +280,7 @@ function showExploredInfo() {
     clearInterval(timeout);
 
     setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
+    setTimeout(() => { $log.scrollLeft(10000) }, 500);
 }
 
 // redraw the map and hide pop-up
