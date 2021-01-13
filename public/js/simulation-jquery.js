@@ -49,7 +49,7 @@ var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
 var count = 0;
-var waitCount = 10;
+var waitCount = 7;
 var steps = 0;
 var totalSteps = 7;
 var seconds = 0;
@@ -365,7 +365,7 @@ function createMap(currentPath, cb) {
         victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
         hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
-        obstacles.push(victim1, victim2, hazard1, hazard2);
+        obstacles.push(victim1, /* victim2, */ hazard1, hazard2);
 
         spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
 
