@@ -33,9 +33,9 @@ router.post('/simulation', async (req, res) => {
     try {
         track = new PathTracker({
             humanData: req.body.humanData,
-            agentData: req.body.humanData,
-            decisions: req.body.humanData,
-            obstacles: req.body.humanData
+            agentData: req.body.agentData,
+            decisions: req.body.decisions,
+            obstacles: req.body.obstacles
         });
         await track.save();
     } catch (err) {
