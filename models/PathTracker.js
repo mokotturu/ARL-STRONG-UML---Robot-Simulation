@@ -8,8 +8,7 @@ const PathTrackerSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    from: String
+    }
 });
 
 module.exports = mongoose.model('PathTracker', PathTrackerSchema);

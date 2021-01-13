@@ -30,16 +30,12 @@ router.get('/simulation', (req, res) => {
 // @description     simulation page
 // @route           POST /simulation
 router.post('/simulation', async (req, res) => {
-    // console.log(req.body);
-    // console.log(req.headers['content-length']);
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     try {
         track = new PathTracker({
             humanData: req.body.humanData,
             agentData: req.body.humanData,
             decisions: req.body.humanData,
-            obstacles: req.body.humanData,
-            from: ip
+            obstacles: req.body.humanData
         });
         await track.save();
     } catch (err) {
