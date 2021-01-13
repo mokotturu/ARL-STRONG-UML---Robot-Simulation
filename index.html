@@ -1,96 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Monish Reddy Kotturu">
-    <title>ARL STRONG UMass Lowell | Robot Simulation</title>
-    <link rel="stylesheet" type="text/css" href="../public/css/style.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <title>ARL STRONG UMass Lowell | Welcome</title>
+    <link href="<link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
 </head>
 
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        top: 0;
+        left: 0;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-image: url('arl-strong-hero.svg');
+        height: 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        animation: wave 15s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+        0% {
+            background-position: center;
+        }
+
+        50% {
+            background-position: top;
+        }
+
+        100% {
+            background-position: center;
+        }
+    }
+
+    body {
+        padding: 0 50px;
+    }
+
+    nav {
+        width: 100%;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        height: 10%;
+        position: fixed;
+        z-index: 10000;
+    }
+
+    nav .title {
+        font-family: 'Montserrat', 'sans-serif';
+        font-size: 30px;
+        padding: 0 50px;
+        margin-right: auto;
+    }
+
+    nav .items {
+        font-family: 'Montserrat', 'sans-serif';
+        display: flex;
+        align-items: center;
+    }
+
+    nav .items p {
+        padding: 0 50px;
+    }
+
+    .main-content {
+        font-family: 'Montserrat', 'sans-serif';
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .main-content p {
+        font-size: 70px;
+        padding-top: 20%;
+        padding-bottom: 30px;
+        margin: 0;
+        text-align: center;
+        line-height: 0.7;
+        text-shadow: 0 0 10px grey;
+        color: #00007a;
+        border-bottom: 5px solid #00007a;
+    }
+
+    .main-content button {
+        font-family: 'Montserrat', 'sans-serif';
+        font-size: 18px;
+        padding: 20px 40px;
+        background-color: #7070ff;
+        border: 0;
+        border-radius: 50px;
+        color: white;
+        margin: 35px 0;
+        transition: 0.3s;
+        text-align: center;
+        -webkit-box-shadow: 0 0 10px grey;
+        -moz-box-shadow: 0 0 10px grey;
+        box-shadow: 0 0 10px grey;
+    }
+
+    .main-content button:hover {
+        background-color: white;
+        color: #00007a;
+        cursor: pointer;
+    }
+</style>
+
 <body>
-    <div class="loader"></div>
-    <button id="instructions-button" onclick="toggleModal()">Instructions</button>
-    <div id="instructions-modal" class="modal">
-        <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div class="side-panel">
-            <div id="instructions">
-            <p>The blue colored cell represents the robot that can be controlled by the user. The red colored cell represents the robot that moves autonomously. The yellow shaded region is the area explored by both the human and the agents. Use the arrow keys or AWSD to move the user controlled robot. Press C (and hold if needed) to focus on the agent. The shaded regions around the robots represent the explored area.</p>
-            </div>
-            <br />
-            <div id="settings">
-            <p>Select a map:</p>
-            <select name="maps" id="maps"></select>
-
-            <p style="color: red">&darr; DISABLED &darr;</p>
-
-            <p>Enter the values for the number of rows and columns:</p>
-            Rows: <input type="text" id="rows" value="30" /><br /><br />
-            Columns: <input type="text" id="columns" value="30" /><br /><br />
-            <button onclick="modifyMap()" disabled>Create New Map</button><br /><br /><br />
-            <p>Enter a value to set the speed of the autonomous robot (lower = faster):</p>
-            Speed: <input type="text" id="speed" value="4" /><br /><br />
-            <button onclick="setSpeed()" disabled>Set Speed</button>
-            </div>
+    <nav>
+        <div class="title">Title</div>
+        <div class="items">
+            <p>Item1</p>
+            <p>Item2</p>
+            <p>Item3</p>
         </div>
-        </div>
+    </nav>
+   <div class="main-content">
+        <p>ONE BIG HEADING HERE</p>
+        <button onclick="beginSimulation()">Begin Simulation</button>
     </div>
-    <div id="popup-modal">
-        <div id="popup-modal-content">
-        <!-- <span class="close" onclick="closeModal()">&times;</span> -->
-        <div id="images-container">
-            <div class="explored">
-            <img src="#" id="minimap" alt="Entire Map">
-            </div>
-            <div class="explored">
-            <img src="#" id="bot-image" alt="Agent explored area">
-            </div>
-            <div class="explored">
-            <img src="#" id="human-image" alt="Human explored area">
-            </div>
-        </div>
-        <div class="headings-container">
-            <p>Entire map</p>
-            <p>Agent explored area (highlighted in green)</p>
-            <p>Human explored area (highlighted in blue)</p>
-        </div>
-        <div class="tableItems"></div>
-        <div id="userInputButtons">
-            <button onclick="confirmExploredArea()">Integrate</button>
-            <button onclick="undoExploration()">Discard</button>
-        </div>
-        <div class="scroll-indicator"></div>
-        </div>
-    </div>
-    <div id="simulation">
-        <div id="info">
-            <div id="legend">
-                <div style="width: 40px; height: 20px; background-color: #9999ff; border-radius: 7px;"></div>
-                <p>Human explored region</p>
-                <div style="width: 40px; height: 20px; background-color: #99ffb7; border-radius: 7px;"></div>
-                <p>Agent explored region in the current interval</p>
-                <div style="width: 40px; height: 20px; background-color: #ff9eae; border-radius: 7px;"></div>
-                <p>Trusted agent explored region</p>
-                <div style="width: 40px; height: 20px; background-color: #ffff7f; border-radius: 7px;"></div>
-                <p>Region explored by both human and agent</p>
-            </div>
-            <div id="timer">0</div>
-            <button id="terminate" onclick="terminate()">Terminate Simulation</button>
-        </div>
-        <div id="map-container">
-        <canvas width="4000" height="4000" id="map"></canvas>
-        </div>
-    </div>
-
-    <!-- Load the CDN first -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-
-    <!-- If CDN fails to load, then serve up the local version -->
-    <script>window.jQuery || documnet.write('<script src="/js/jquery-3.5.1.min.js"><\/script>')</script>
-    <script type="text/javascript" src="../public/js/jcanvas.min.js"></script>
-    <script type="text/javascript" src="../public/js/simulation-jquery.js"></script>
-    <!-- <script type="text/javascript" src="js/simulation.js"></script> -->
 </body>
+
+<script>
+    function beginSimulation() {
+        window.location.href = "/simulation";
+    }
+</script>
 </html>
