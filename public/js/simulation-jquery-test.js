@@ -1,5 +1,4 @@
 const $mapContainer = $('#map-container');
-const ctx = $("#ma-container").get(0);
 const $map = $('#map');
 const $timer = $('#timer');
 const $modal = $('#instructions-modal');
@@ -43,6 +42,8 @@ var data;
 var userBot, autoBot;
 var victim1, victim2, hazard1, hazard2; // come back
 var obstacles;
+var openList;
+var closedList;
 var pathToGoal;
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var pathIndex = 8;
@@ -50,7 +51,7 @@ var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
 var count = 0;
-var waitCount = 7;
+var waitCount = 1;
 var step = 0;
 var seconds = 0;
 var timeout;
@@ -94,13 +95,85 @@ $(document).ready(function() {
 
         count = 0;
 
-        if (!pause && step < pathToGoal.length - 1) {
-            autoBot.loc = pathToGoal[step++].loc;
+        if (!pause && openList.length > 0/* step < pathToGoal.length - 1 */) {
+            /* autoBot.loc = pathToGoal[step++].loc;
             refreshMap();
             
             let tracker = { loc: autoBot.loc, timestamp: performance.now() };
             data.agentData.push(tracker);
-            console.log(tracker);
+            console.log(tracker); */
+
+            // while (openList.length > 0) {
+                // get lowest F
+                let lowestF = 0;
+                for (let i = 0; i < openList.length; i++) {
+                    if (openList[i].f < openList[lowestF].f) lowestF = i;
+                }
+                let currentNode = openList[lowestF];
+
+                // end case - return successful path
+                if (currentNode.loc == victim1.loc) {
+                    let current = currentNode;
+                    let ret = [];
+                    while (current.parent) {
+                        ret.push(current);
+                        current = current.parent;
+                    }
+                    let tracePath = ret.reverse();
+                    for (let i = 0; i < tracePath.length; i++) {
+                        $map.drawRect({
+                            fillStyle: 'yellow',
+                            x: tracePath[i].x*boxWidth, y: tracePath[i].y*boxHeight,
+                            width: boxWidth - 1, height: boxHeight - 1
+                        });
+                    }
+                    pause = true;
+                }
+
+                // normal case - move currentNode from open to closed, process each of its neighbours
+                openList.splice(openList.indexOf(currentNode), 1);
+                closedList.push(currentNode);
+                let neighbours = findNeighbours(grid, currentNode);
+
+                for (let i = 0; i < neighbours.length; i++) {
+                    let neighbour = neighbours[i];
+                    if (closedList.indexOf(neighbour) != -1 || neighbour.isWall) {
+                        continue;
+                    }
+
+                    $map.drawRect({
+                        fillStyle: 'white',
+                        x: neighbours[i].x*boxWidth, y: neighbours[i].y*boxHeight,
+                        width: boxWidth - 1, height: boxHeight - 1
+                    });
+
+                    // g score is the shortest distance from start to current node
+                    // we need to check if the path we have arrived at this neighbour is the shortest one we have seen yet
+                    let gScore = currentNode.g + 1;
+                    let gScoreIsBest = false;
+
+                    if (openList.indexOf(neighbour) == -1) {
+                        // This is the first time we have arrived at this node, so it must be the best
+                        // Also, we need to take the h (heuristic) score since we haven't done so yet
+                        gScoreIsBest = true;
+                        neighbour.h = heuristic(neighbour, victim1);
+                        openList.push(neighbour);
+                    } else if (gScore < neighbour.g) {
+                        // We have alread seen the node, but the last time it had a worse g score (distance from start)
+                        gScoreIsBest = true;
+                    }
+
+                    if (gScoreIsBest) {
+                        // Found an optimal path (so far) to this node. Store info on how we got here
+                        neighbour.parent = currentNode;
+                        neighbour.g = gScore;
+                        neighbour.f  = neighbour.g + neighbour.h;
+
+                        // autoBot.loc = currentNode.loc;
+                        refreshMap();
+                    }
+                }
+            // }
         }
     });
 
@@ -173,6 +246,22 @@ function eventKeyHandlers(e) {
             updateScrollingPosition(grid[autoBot.loc]);
             // console.log("Shifted focus to agent", performance.now());
             break;
+        case 72:    // h
+            e.preventDefault();
+            $mapContainer.scrollLeft($mapContainer.scrollLeft() - 50);
+            break;
+        case 74:    // j
+            e.preventDefault();
+            $mapContainer.scrollTop($mapContainer.scrollTop() + 50);
+            break;
+        case 75:    // k
+            e.preventDefault();
+            $mapContainer.scrollTop($mapContainer.scrollTop() - 50);
+            break;
+        case 76:    // l
+            e.preventDefault();
+            $mapContainer.scrollLeft($mapContainer.scrollLeft() + 50);
+            break;
         default:    // nothing
             break;
     }
@@ -236,14 +325,14 @@ function showExploredInfo() {
 
 // redraw the map and hide pop-up
 function hideExploredInfo() {
-    $map.clearCanvas();
+    /* $map.clearCanvas();
     humanExplored.forEach(function(key, item, set) {
         draw(grid[item]);
     });
 
     botExplored.forEach(function(key, item, set) {
         draw(grid[item]);
-    });
+    }); */
 
     tempBotExplored.clear();
 
@@ -283,7 +372,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 10 == 0) {
+    if (seconds % 1000 == 0) {
         seconds = 0;
         showExploredInfo();
     }
@@ -302,7 +391,8 @@ function createMap(currentPath, cb) {
     step = 0;
     pathToGoal = [];
     obstacles = [];
-
+    openList = [];
+    closedList = [];
 
     $.getJSON(currentPath, data => {
         rows = data.dimensions[0].rows;
@@ -315,21 +405,21 @@ function createMap(currentPath, cb) {
     }).fail(() => {
         alert("An error has occured.");
     }).done(() => {
-        let userBotLoc = getRandomLoc(grid);
+        /* let userBotLoc = getRandomLoc(grid);
         let autoBotLoc = getRandomLoc(grid);
         let humanNeighbors = findNeighbours(grid, grid[userBotLoc]);
         for (let i = 0; i < humanNeighbors.length; i++) {
             if (!humanNeighbors[i].isWall) autoBotLoc = humanNeighbors[i].loc;
-        }
-        userBot = {id: "human", loc: userBotLoc, color: USER_BOT_COLOR, dir: 1};
-        autoBot = {id: "agent", loc: autoBotLoc, color: AUTO_BOT_COLOR, dir: 1};
-        victim1 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
+        } */
+        userBot = {id: "human", loc: 153707/* getRandomLoc(grid) */, color: USER_BOT_COLOR, dir: 1};
+        autoBot = {id: "agent", loc: 153687/* getRandomLoc(grid) */, color: AUTO_BOT_COLOR, dir: 1};
+        victim1 = {id: "victim", loc: 143650/* getRandomLoc(grid) */, color: VICTIM_COLOR, isFound: false};
         victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
         hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
         obstacles.push(victim1, /* victim2, */ hazard1, hazard2);
 
-        spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
+        spawn([userBot, autoBot, victim1, /* victim2, */ hazard1, hazard2], 1);
 
         console.log("Spawn", performance.now(), userBot.loc);
         console.log("Spawn", performance.now(), autoBot.loc);
@@ -345,7 +435,8 @@ function createMap(currentPath, cb) {
         updateScrollingPosition(grid[userBot.loc]);
         timeout = setInterval(updateTime, 1000);
 
-        pathToGoal = search(grid, autoBot, victim1);
+        // pathToGoal = search(grid, autoBot, victim1);
+        openList.push(autoBot);
 
         cb(grid);
     });
@@ -396,14 +487,14 @@ function spawn(members, size) {
                 x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
                 width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
             });
-        } else if (bot.id == "victim" && bot.isFound) {
+        } else if (bot.id == "victim"/*  && bot.isFound */) {
             $map.drawEllipse({
                 fromCenter: true,
                 fillStyle: bot.color,
                 x: grid[bot.loc].x*boxWidth + boxWidth/2, y: grid[bot.loc].y*boxHeight + boxHeight/2,
                 width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
             });
-        } else if (bot.id == "hazard" && bot.isFound) {
+        } else if (bot.id == "hazard"/*  && bot.isFound */) {
             $map.drawPolygon({
                 fromCenter: true,
                 fillStyle: bot.color,
@@ -453,13 +544,13 @@ function refreshMap() {
     for (let i = 0; i < pathToGoal.length; i++) {
         let cell = pathToGoal[i];
         $map.drawRect({
-            fillStyle: 'yellow',
+            fillStyle: 'green',
             x: cell.x*boxWidth, y: cell.y*boxHeight,
             width: boxWidth - 1, height: boxHeight - 1
         });
     }
 
-    spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
+    spawn([userBot, autoBot, victim1, /* victim2, */ hazard1, hazard2], 1);
 }
 
 // 0 - human, 1 - bot
@@ -712,6 +803,12 @@ function search(grid, start, goal) {
             if (closedList.indexOf(neighbour) != -1 || neighbour.isWall) {
                 continue;
             }
+
+            $map.drawRect({
+                fillStyle: 'white',
+                x: neighbours[i].x*boxWidth, y: neighbours[i].y*boxHeight,
+                width: boxWidth - 1, height: boxHeight - 1
+            });
 
             // g score is the shortest distance from start to current node
             // we need to check id the path we have arrived at this neighbour is the shortest one we have seen yet
