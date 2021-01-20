@@ -46,7 +46,10 @@ router.post('/simulation', async (req, res) => {
 // @description     stats page
 // @route           GET /stats
 router.get('/stats', (req, res) => {
-    res.json(track);
+    // console.log(track);
+    res.render('stats', {
+        layout: false
+    });
 });
 
 // @description     stats page
