@@ -4,39 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Monish Reddy Kotturu">
-    <title>ARL STRONG UMass Lowell | Robot Simulation</title>
-    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/simulation.css"/>
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <title>ARL STRONG UML | Simulation</title>
 </head>
 
 <body>
     <div class="loader"></div>
         <div class="body-container">
-        <button id="instructions-button" onclick="toggleModal()">Instructions</button>
-        <div id="instructions-modal">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <div class="side-panel">
-                <div id="instructions">
-                <p>The blue colored cell represents the robot that can be controlled by the user. The red colored cell represents the robot that moves autonomously. The yellow shaded region is the area explored by both the human and the agents. Use the arrow keys or AWSD to move the user controlled robot. Press C (and hold if needed) to focus on the agent. The shaded regions around the robots represent the explored area.</p>
-                </div>
-                <br />
-                <div id="settings">
-                <p>Select a map:</p>
-                <select name="maps" id="maps"></select>
-
-                <p style="color: red">&darr; DISABLED &darr;</p>
-
-                <p>Enter the values for the number of rows and columns:</p>
-                Rows: <input type="text" id="rows" value="30" /><br /><br />
-                Columns: <input type="text" id="columns" value="30" /><br /><br />
-                <button onclick="modifyMap()" disabled>Create New Map</button><br /><br /><br />
-                <p>Enter a value to set the speed of the autonomous robot (lower = faster):</p>
-                Speed: <input type="text" id="speed" value="4" /><br /><br />
-                <button onclick="setSpeed()" disabled>Set Speed</button>
-                </div>
-            </div>
-        </div>
         <div id="popup-modal">
             <div id="popup-modal-container">
                 <div class="map-info">
@@ -93,6 +69,5 @@
     <script>window.jQuery || documnet.write('<script src="js/jquery-3.5.1.min.js"><\/script>')</script>
     <script type="text/javascript" src="/js/jcanvas.min.js"></script>
     <script type="text/javascript" src="/js/simulation-jquery.js"></script>
-    <!-- <script type="text/javascript" src="js/simulation.js"></script> -->
 </body>
 </html>

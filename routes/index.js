@@ -1,15 +1,13 @@
 const express = require('express');
 const PathTracker = require('../models/PathTracker');
 const router = express.Router();
-var track;  // change later to a const in the try-catch; this is just for testing
-
-express().set('trust proxy', true);
+// var track;  // change later to a const in the try-catch; this is just for testing
 
 // @description     index page
 // @route           GET /
 router.get('/', (req, res) => {
     res.render('index', {
-        layout: false
+        title: 'ARL STRONG UML | Home'
     });
 });
 
@@ -31,7 +29,7 @@ router.get('/simulation', (req, res) => {
 // @route           POST /simulation
 router.post('/simulation', async (req, res) => {
     try {
-        track = new PathTracker({
+        var track = new PathTracker({
             humanData: req.body.humanData,
             agentData: req.body.agentData,
             decisions: req.body.decisions,
@@ -48,7 +46,7 @@ router.post('/simulation', async (req, res) => {
 router.get('/stats', (req, res) => {
     // console.log(track);
     res.render('stats', {
-        layout: false
+        title: 'ARL STRONG UML | Stats'
     });
 });
 

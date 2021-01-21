@@ -1,0 +1,228 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    background-color: #252525;
+    color: white;
+    scroll-behavior: smooth;
+    font-family: 'Montserrat', 'sans-serif';
+}
+
+::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+    background: #121212;
+    padding: 0 3px 3px 0;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #121212;
+    -moz-box-shadow: inset 0 0 5px #121212;
+    -webkit-box-shadow: inset 0 0 5px #121212;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: grey;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: lightgrey;
+}
+
+#background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+}
+
+video {
+    top: 0;
+    left: 0;
+    display: block;
+    margin: 0;
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+#shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    box-shadow: inset 0 0 150px 10px black;
+    -webkit-box-shadow: inset 0 0 150px 10px black;
+    -moz-box-shadow: inset 0 0 150px 10px black;
+}
+
+nav {
+    width: 100%;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 8%;
+    position: fixed;
+    z-index: 10000;
+    transition: 0.3s linear;
+}
+
+nav.scrolled {
+    background-color: white !important;
+    color: #121212 !important;
+    transition: 0.3s linear;
+    -webkit-box-shadow: 0 0 20px black;
+    -moz-box-shadow: 0 0 20px black;
+    box-shadow: 0 0 20px black;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+    padding: 0 50px;
+    margin-right: auto;
+}
+
+nav a.scrolled {
+    color: #121212 !important;
+}
+
+nav .items {
+    display: flex;
+    align-items: center;
+}
+
+nav .items p {
+    padding: 0 50px;
+}
+
+.main-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100vh;
+    padding: 0 50px;
+    z-index: 1000;
+    scroll-behavior: smooth;
+}
+
+.main-content h1 {
+    font-size: 70px;
+    padding-top: 20%;
+    padding-bottom: 30px;
+    margin: 0;
+    text-align: center;
+    line-height: 0.7;
+    text-shadow: 0 0 10px grey;
+    border-bottom: 5px solid #808080;
+    color: white;
+}
+
+.main-content .buttonsCollection {
+    display: flex;
+    align-items: center;
+}
+
+.main-content .buttonsCollection button {
+    font-family: 'Montserrat', 'sans-serif';
+    font-size: 18px;
+    padding: 20px 40px;
+    background-color: #808080;
+    border: 0;
+    border-radius: 50px;
+    color: white;
+    margin: 35px 0;
+    transition: 0.3s;
+    text-align: center;
+    -webkit-box-shadow: 0 0 10px grey;
+    -moz-box-shadow: 0 0 10px grey;
+    box-shadow: 0 0 10px grey;
+}
+
+.main-content .buttonsCollection button:hover {
+    background-color: white;
+    color: #121212;
+    cursor: pointer;
+}
+
+.main-content .buttonsCollection a {
+    color: white;
+    text-decoration: none;
+    margin: 0 50px;
+}
+
+.main-content .buttonsCollection a:hover {
+    border-bottom: 2px solid white;
+    cursor: pointer;
+}
+
+#instructions {
+    position: relative;
+    font-family: 'Montserrat', 'sans-serif';
+    font-size: 18px;
+    line-height: 150%;
+    padding: 0 150px 100px 150px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    scroll-behavior: smooth;
+}
+
+h2 {
+    margin: 50px 0;
+}
+
+.content-block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 50px 0;
+    border-top: 2px solid white;
+}
+
+.content-block p {
+    padding: 0 50px;
+}
+
+.content-block img {
+    width: 30%;
+}
+
+footer {
+    margin: 0;
+    padding: 50px;
+    background-color: #121212;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+footer h1 {
+    font-size: 24px;
+    margin: 0;
+    padding: 50px 0;
+    border-bottom: 2px solid white;
+}
+
+footer h2 {
+    font-size: 22px;
+    margin: 0;
+    padding: 50px 0;
+}

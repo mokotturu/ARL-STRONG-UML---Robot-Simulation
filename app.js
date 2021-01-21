@@ -8,7 +8,7 @@ const path = require('path');
 
 const app = express();
 
-dotenv.config({path: './config/config.env'});
+dotenv.config({ path: './config/config.env' });
 
 connectDB();
 
@@ -22,7 +22,7 @@ app.use(bodyParser.json({ extended: true, limit: '50MB' }));
 } */
 
 // handlebars
-app.engine('.hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
+app.engine('.hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }));
 app.set('view engine', '.hbs');
 
 // static folder

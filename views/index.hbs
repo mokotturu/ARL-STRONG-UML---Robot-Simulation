@@ -1,94 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARL STRONG UMass Lowell | Welcome</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-</head>
-
-<style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        top: 0;
-        left: 0;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        background-image: url('img/pexels-damir-mijailovic-3695238.webp');
-        height: 100%;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
-    nav {
-        display: flex;
-        padding: 20px 40px;
-        height: 10%;
-        position: fixed;
-        z-index: 10000;
-    }
-
-    nav .title {
-        font-family: 'Roboto', 'sans-serif';
-        font-weight: bold;
-        font-size: 30px;
-    }
-
-    .main-content {
-        font-family: 'Roboto', 'sans-serif';
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-
-    .main-content p {
-        font-size: 70px;
-        margin: 30px 0;
-        text-align: center;
-        text-shadow: 0 0 10px grey;
-    }
-
-    .main-content button {
-        font-size: 28px;
-        padding: 10px 20px;
-        background-color: white;
-        border: 0 solid black;
-        border-radius: 7px;
-        color: black;
-        margin: 30px 0;
-        transition: 0.3s;
-        text-align: center;
-        -webkit-box-shadow: 0 0 10px grey;
-        -moz-box-shadow: 0 0 10px grey;
-        box-shadow: 0 0 10px grey;
-    }
-
-    .main-content button:hover {
-        background-color: black;
-        color: white;
-        font-size: 30px;
-        padding: 20px 40px;
-        border-radius: 10px;
-        cursor: pointer;
-    }
-</style>
-
-<body>
-   <div class="main-content">
-        <p>ARL STRONG - UMass Lowell</p>
+<div id="background-video">
+    <video autoplay muted loop>
+        <source src="img/ARL_STRONG_hero_2.mp4" type="video/mp4">
+    </video>
+    <div id="shadow"></div>
+</div>
+<div class="main-content">
+    <h1>ARL STRONG - UMass Lowell</h1>
+    <div class="buttonsCollection">
         <button onclick="beginSimulation()">Begin Simulation</button>
+        <a onclick="scrollDown()">Read Instructions</a>
     </div>
-</body>
+</div>
+<div id="instructions">
+    <h2>Instructions</h2>
+    <div class="content-block">
+        <p>
+            The blue colored square represents the human on the map. 
+            The light blue colored area shaded around the human is the area of the map 
+            visible to (human's field of view)/explored by the human.
+        </p>
+        <img src='img/human-upscaled.png'>
+    </div>
+
+    <div class="content-block">
+        <img src='img/green-upscaled.png'>
+        <p>
+            The red colored square represents the agent on the map that moves autonomously.
+            The green colored area shaded around the agent is the area of the map 
+            visible to (agent's field of view)/explored by the agent in the current interval.
+        </p>
+    </div>
+
+    <div class="content-block">
+        <p>
+            The light red colored area shaded on the map is the area of the map
+            that has been explored by the agent in the past intervals and has been integrated by the human.
+        </p>
+        <img src='img/red-upscaled.png'>
+    </div>
+
+    <div class="content-block">
+        <img src='img/yellow-upscaled.png'>
+        <p>
+            The yellow colored area shaded on the map is the area of the map
+            that has been explored by both the agent and the human in the past intervals and has been integrated by the human.
+        </p>
+    </div>
+
+    <div class="content-block">
+        <p>
+            Use the arrow keys or AWSD to control the human. After every 10 seconds, you will be shown the images of 
+            the current state of the whole map, the human explored area, and the agent explored area. You will be prompted 
+            to either integrate or discard the agent explored region. If you choose to integrate, the agent explored region 
+            (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is 
+            considered unexplored.
+        </p>
+        <img src='img/pop-up.png'>
+    </div>
+</div>
 
 <script>
     function beginSimulation() {
         window.location.href = "/simulation";
     }
+    
+    function scrollDown() {
+        $(document).scrollTop($('#instructions')[0].offsetTop - 80);
+    }
 </script>
-</html>
