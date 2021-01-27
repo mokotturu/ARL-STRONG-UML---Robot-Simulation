@@ -18,6 +18,8 @@
 
     {{{body}}}
 
+    <div id="backToTop" onclick="backToTop()">Back To Top</div>
+
     <footer>
         <h1>ARL STRONG - University of Massachusetts Lowell</h1>
         <h2>Contact: xxx.xxx.xxxx</h2>
@@ -35,7 +37,12 @@
         $(document).scroll(() => {
             $('nav').toggleClass('scrolled', $(this).scrollTop() > $('nav').height());
             $('nav a').toggleClass('scrolled', $(this).scrollTop() > $('nav').height());
+            $('#backToTop').toggleClass('scrolled', $(this).scrollTop() > $('nav').height());
         });
     });
+
+    function backToTop() {
+        $(document).scrollTop(-99999);
+    }
 </script>
 </html>

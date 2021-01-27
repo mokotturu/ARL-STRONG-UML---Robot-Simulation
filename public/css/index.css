@@ -204,6 +204,33 @@ h2 {
     width: 30%;
 }
 
+#backToTop {
+    background-color: white;
+    color: black;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid black;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 99999;
+}
+
+#backToTop.scrolled {
+    visibility: visible;
+    opacity: 1;
+}
+
+#backToTop:hover {
+    border: 1px solid white;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
 footer {
     margin: 0;
     padding: 50px;
