@@ -339,6 +339,8 @@ function createMap(currentPath, cb) {
 
         spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
 
+        refreshMap();
+
         console.log("Spawn", performance.now(), userBot.loc);
         console.log("Spawn", performance.now(), autoBot.loc);
         
