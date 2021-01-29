@@ -69,4 +69,29 @@ router.get('/declined', (req, res) => {
     });
 });
 
+// @description     survey-1 page
+// @route           GET /survey-1
+router.get('/survey-1', (req, res) => {
+    res.render('survey-1', {
+        title: 'ARL STRONG UML | Survey 1',
+        layout: 'survey.hbs'
+    });
+});
+
+// @description     survey-1-submit
+// @route           POST /survey-1-submit
+router.post('/survey-1-submit', (req, res) => {
+    console.log(req.body);
+    res.redirect('/survey-2');
+});
+
+// @description     survey-2 page
+// @route           GET /survey-2
+router.get('/survey-2', (req, res) => {
+    res.render('survey-2', {
+        title: 'ARL STRONG UML | Survey 2',
+        layout: 'survey.hbs'
+    });
+});
+
 module.exports = router;
