@@ -7,8 +7,19 @@
 <div class="main-content">
     <h1>ARL STRONG - UMass Lowell</h1>
     <div class="buttonsCollection">
-        <button onclick="beginSimulation()">Begin Simulation</button>
+        <button onclick="showConsentForm()">Begin Simulation</button>
         <a onclick="scrollDown()">Read Instructions</a>
+    </div>
+</div>
+<div id="popup-modal">
+    <div id="popup-modal-container">
+        <div id="consent-form">
+            <object data="src\20-077-JER-EXM consent final  6-8-2020.pdf" type="application/pdf" id="pdf"></object>
+        </div>
+        <div id="userInputButtons">
+            <button onclick="agree()">Agree</button>
+            <button onclick="decline()">Decline</button>
+        </div>
     </div>
 </div>
 <div id="instructions">
@@ -59,12 +70,4 @@
     </div>
 </div>
 
-<script>
-    function beginSimulation() {
-        window.location.href = "/simulation";
-    }
-    
-    function scrollDown() {
-        $(document).scrollTop($('#instructions')[0].offsetTop - 80);
-    }
-</script>
+<script type="text/javascript" src="js/landing-page.js"></script>

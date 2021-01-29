@@ -1,7 +1,11 @@
 const express = require('express');
 const PathTracker = require('../models/PathTracker');
 const router = express.Router();
-// var track;  // change later to a const in the try-catch; this is just for testing
+const uuid = require('uuid');
+
+router.get('/user/:uuid', (req, res) => {
+    res.send(uuid.v4());
+});
 
 // @description     index page
 // @route           GET /
@@ -10,6 +14,7 @@ router.get('/', (req, res) => {
         title: 'ARL STRONG UML | Home'
     });
 });
+
 
 // @description     index page
 // @route           POST /
@@ -54,6 +59,14 @@ router.get('/stats', (req, res) => {
 // @route           POST /stats
 router.post('/stats', (req, res) => {
     
+});
+
+// @description     declined page
+// @route           GET /declined
+router.get('/declined', (req, res) => {
+    res.render('declined', {
+        title: 'ARL STRONG UML | Declined'
+    });
 });
 
 module.exports = router;

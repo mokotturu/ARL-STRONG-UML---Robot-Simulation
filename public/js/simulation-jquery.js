@@ -1,14 +1,10 @@
 const $mapContainer = $('#map-container');
-const ctx = $("#ma-container").get(0);
 const $map = $('#map');
 const $timer = $('#timer');
-const $modal = $('#instructions-modal');
 const $popupModal = $("#popup-modal");
-const $btn = $('#instructions-button');
 const $minimapImage = $("#minimap");
 const $humanImage = $("#human-image");
 const $botImage = $("#bot-image");
-const $close = $('.close')[0];
 const $log = $('.tableItems');
 const $dropdown = $('#maps');
 $.jCanvas.defaults.fromCenter = false;
@@ -39,7 +35,7 @@ var grid = [];
 var botExplored = new Set();
 var tempBotExplored = new Set();
 var humanExplored = new Set();
-var data = {humanData: [], agentData: [], decisions: [], obstacles: []};
+var data = {humanData: [], agentData: [], decisions: [], obstacles: [], uuid: null};
 var userBot, autoBot;
 var victim1, victim2, hazard1, hazard2; // come back
 var obstacles = [];
@@ -60,13 +56,11 @@ var pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
 var intervalCount = 0;
 var log = [];
-var startTime;
+var startTime;``
 
-$(document).ready(function() {
+$(document).ready(() => {
     startTime = new Date();
-
-    /* $.post("/", { data: "idk what to put here" }, data => console.log(data))
-    .fail(() => alert("post failed")); */
+    data.uuid = sessionStorage.getItem('uuid');
     
     $('.body-container').css('visibility', 'hidden');
     $('.body-container').css('opacity', '0');
@@ -80,7 +74,7 @@ $(document).ready(function() {
 
         if (!eventListenersAdded) {
             // document arrow keys event listener
-            $(document).on('keydown', function(e) {
+            $(document).on('keydown', e => {
                 eventKeyHandlers(e);
             });
             eventListenersAdded = true;
@@ -156,21 +150,6 @@ $(document).ready(function() {
     // });
 });
 
-$(window).on("load", function() {
-    $.each(mapPaths, function(i, path) {
-        $dropdown.append($('<option></option>').val(i).html(path));
-    });
-    $dropdown.prop('selectedIndex', pathIndex);
-});
-
-$("#maps").change(function() {
-    currentPath = $("#maps option:selected").text();
-    $map.clearCanvas();
-    clearInterval(timeout);
-    createMap(currentPath);
-    toggleModal();
-});
-
 function eventKeyHandlers(e) {
     switch (e.keyCode) {
         case 65:    // a
@@ -231,15 +210,6 @@ function eventKeyHandlers(e) {
     console.log(tracker);
 }
 
-function toggleModal() {
-    if ($modal.css('display') == 'none') $modal.css('display', 'block');
-    else $modal.css('display', 'none');
-}
-
-function closeModal() {
-    $modal.css('display', 'none');
-}
-
 function terminate() {
     pause = true;
     clearInterval(timeout);
@@ -286,7 +256,7 @@ function showExploredInfo() {
 // redraw the map and hide pop-up
 function hideExploredInfo() {
     $map.clearCanvas();
-    humanExplored.forEach(function(key, item, set) {
+    humanExplored.forEach((key, item, set) => {
         draw(grid[item]);
     });
 
@@ -298,7 +268,7 @@ function hideExploredInfo() {
 
     refreshMap();
 
-    $(document).on('keydown', function(e) {
+    $(document).on('keydown', e => {
         eventKeyHandlers(e);
     });
 
@@ -348,17 +318,17 @@ function createMap(currentPath, cb) {
     log = [];
     $log.empty();
 
-    $.getJSON(currentPath, function(data) {
+    $.getJSON(currentPath, data => {
         rows = data.dimensions[0].rows;
         columns = data.dimensions[0].columns;
         boxWidth = canvasWidth/rows;
         boxHeight = canvasHeight/columns;
-        $.each(data.map, function(i, value) {
+        $.each(data.map, (i, value) => {
             grid.push({x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isBotExplored: false});
         });
-    }).fail(function() {
+    }).fail(() => {
         alert("An error has occured.");
-    }).done(function() {
+    }).done(() => {
         userBot = {id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1};
         autoBot = {id: "agent", loc: getRandomLoc(grid), color: AUTO_BOT_COLOR, dir: 1};
         victim1 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};

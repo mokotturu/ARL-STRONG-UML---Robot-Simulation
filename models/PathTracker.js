@@ -5,6 +5,7 @@ const PathTrackerSchema = new mongoose.Schema({
     agentData: [],
     decisions: [],
     obstacles: [],
+    uuid: String,
     createdAt: {
         type: Date,
         default: Date.now

@@ -27,6 +27,7 @@
     "express": "^4.17.1",
     "express-handlebars": "^5.2.0",
     "mongoose": "^5.11.9",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "uuid": "^8.3.2"
   }
 }
