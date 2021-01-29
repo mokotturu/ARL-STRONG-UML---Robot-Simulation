@@ -45,5 +45,9 @@
     function backToTop() {
         $(document).scrollTop(-99999);
     }
+
+    $('form').submit(() => {
+        $('form').append(`<input type="hidden" name="uuid" id="uuid" value="${sessionStorage.getItem("uuid")}">`);
+    });
 </script>
 </html>

@@ -2,4 +2,65 @@
     <h3>Survey 2</h3>
 
     <h4>The following questions are intentionally open-ended to give you a chance to tell us your opinion.</h4>
+
+    <form action="/survey-2-submit" method="POST" name="survey-2" id="survey-2">
+        <div class="question">
+            <p>Were you motivated to succeed in this interaction?</p>
+            <div class="options">
+                <label for="yes">Yes<input type="radio" id="yes" name="question1" value="yes"></label>
+                <label for="no">No<input type="radio" id="no" name="question1" value="no"></label>
+            </div>
+            <label for="response1">
+                Why or why not?
+                <textarea id="response1" name="question1" rows="10" placeholder="Please type your response here"></textarea>
+            </label>
+        </div>
+
+        <div class="question">
+            <p>During the experiment, did the robot help you search the area?</p>
+            <div class="options">
+                <label for="never">Never<input type="radio" id="never" name="question2" value="never"></label>
+                <label for="rarely">Rarely<input type="radio" id="rarely" name="question2" value="rarely"></label>
+                <label for="sometimes">Sometimes<input type="radio" id="sometimes" name="question2" value="sometimes"></label>
+                <label for="most-of-the-time">Most of the time<input type="radio" id="most-of-the-time" name="question2" value="most-of-the-time"></label>
+                <label for="always">Always<input type="radio" id="always" name="question2" value="always"></label>
+            </div>
+            <label for="response2">
+                Please give examples and explain your answer:
+                <textarea id="response2" name="question2" rows="10" placeholder="Please type your response here"></textarea>
+            </label>
+        </div>
+
+        <div class="question">
+            <p>Was the robot a good teammate?</p>
+            <div class="options">
+                <label for="never">Never<input type="radio" id="never" name="question3" value="never"></label>
+                <label for="rarely">Rarely<input type="radio" id="rarely" name="question3" value="rarely"></label>
+                <label for="sometimes">Sometimes<input type="radio" id="sometimes" name="question3" value="sometimes"></label>
+                <label for="most-of-the-time">Most of the time<input type="radio" id="most-of-the-time" name="question3" value="most-of-the-time"></label>
+                <label for="always">Always<input type="radio" id="always" name="question3" value="always"></label>
+            </div>
+            <label for="response3">
+                Please give examples and explain your answer:
+                <textarea id="response3" name="question3" rows="10" placeholder="Please type your response here"></textarea>
+            </label>
+        </div>
+
+        <div class="question">
+            <p>How often did you trust the robot?</p>
+            <div class="options">
+                <label for="never">Never<input type="radio" id="never" name="question4" value="never"></label>
+                <label for="rarely">Rarely<input type="radio" id="rarely" name="question4" value="rarely"></label>
+                <label for="sometimes">Sometimes<input type="radio" id="sometimes" name="question4" value="sometimes"></label>
+                <label for="most-of-the-time">Most of the time<input type="radio" id="most-of-the-time" name="question4" value="most-of-the-time"></label>
+                <label for="always">Always<input type="radio" id="always" name="question4" value="always"></label>
+            </div>
+            <label for="response4">
+                Why or why not?
+                <textarea id="response4" name="question4" rows="10" placeholder="Please type your response here"></textarea>
+            </label>
+        </div>
+
+        <button type="submit" form="survey-2" value="Submit">Submit</button>
+    </form>
 </div>

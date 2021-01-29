@@ -14,7 +14,7 @@ $(window).on('click', e => {
         $('.main-content').removeClass('disabled');
         $('#instructions').removeClass('disabled');
     }
-})
+});
 
 function showConsentForm() {
     $popupModal.css('visibility', 'visible');

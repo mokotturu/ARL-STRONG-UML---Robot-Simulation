@@ -218,7 +218,7 @@ function terminate() {
     // console.log(data);
     $.post("/simulation", data, res => console.log(res))
     .fail(() => alert("POST failed"));
-    window.location.href = "/stats";
+    window.location.href = "/survey-1";
 }
 
 function showExploredInfo() {

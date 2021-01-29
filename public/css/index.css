@@ -169,6 +169,32 @@ nav .items p {
     margin: 0 50px;
 }
 
+.page-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 0 50px;
+    z-index: 1000;
+    scroll-behavior: smooth;
+    text-align: center;
+}
+
+.page-content h2 {
+    font-size: 70px;
+}
+
+.page-content p {
+    font-size: 30px;
+}
+
+.page-content button {
+    margin: 20px 0;
+    font-size: 20px;
+}
+
 .main-content .buttonsCollection a:hover {
     border-bottom: 2px solid white;
     cursor: pointer;
@@ -214,7 +240,6 @@ nav .items p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-
     border-radius: 7px;
     margin: auto auto;
     -webkit-box-shadow: 0 0 99999px 100px black;

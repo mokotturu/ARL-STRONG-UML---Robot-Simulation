@@ -1,5 +1,5 @@
 const express = require('express');
-const PathTracker = require('../models/PathTracker');
+const SimulationResult = require('../models/SimulationResult');
 const router = express.Router();
 const uuid = require('uuid');
 
@@ -7,70 +7,47 @@ router.get('/user/:uuid', (req, res) => {
     res.send(uuid.v4());
 });
 
-// @description     index page
-// @route           GET /
 router.get('/', (req, res) => {
     res.render('index', {
         title: 'ARL STRONG UML | Home'
     });
 });
 
-
-// @description     index page
-// @route           POST /
-router.post('/', async (req, res) => {
-    
-});
-
-// @description     simulation page
-// @route           GET /simulation
 router.get('/simulation', (req, res) => {
     res.render('simulation', {
         layout: false
     });
 });
 
-// @description     simulation page
-// @route           POST /simulation
 router.post('/simulation', async (req, res) => {
     try {
-        var track = new PathTracker({
+        const result = new SimulationResult({
+            uuid: req.body.uuid,
             humanData: req.body.humanData,
             agentData: req.body.agentData,
             decisions: req.body.decisions,
             obstacles: req.body.obstacles
         });
-        await track.save();
+        await result.save();
     } catch (err) {
-        res.status(500).send(err);
+        res.render('error/500', {
+            title: 'ARL STRONG UML | ERROR'
+        });
     }
 });
 
-// @description     stats page
-// @route           GET /stats
-router.get('/stats', (req, res) => {
-    // console.log(track);
-    res.render('stats', {
-        title: 'ARL STRONG UML | Stats'
+router.get('/thank-you', (req, res) => {
+    res.render('thank-you', {
+        title: 'ARL STRONG UML | Thank You'
     });
 });
 
-// @description     stats page
-// @route           POST /stats
-router.post('/stats', (req, res) => {
-    
-});
-
-// @description     declined page
-// @route           GET /declined
 router.get('/declined', (req, res) => {
     res.render('declined', {
         title: 'ARL STRONG UML | Declined'
     });
 });
 
-// @description     survey-1 page
-// @route           GET /survey-1
 router.get('/survey-1', (req, res) => {
     res.render('survey-1', {
         title: 'ARL STRONG UML | Survey 1',
@@ -78,19 +55,74 @@ router.get('/survey-1', (req, res) => {
     });
 });
 
-// @description     survey-1-submit
-// @route           POST /survey-1-submit
-router.post('/survey-1-submit', (req, res) => {
+router.post('/survey-1-submit', async (req, res) => {
     console.log(req.body);
-    res.redirect('/survey-2');
+    try {
+        await SimulationResult.findOneAndUpdate(
+            { uuid: req.body.uuid },
+            {
+                survey1: {
+                    reliable: req.body.reliable,
+                    sincere: req.body.sincere,
+                    capable: req.body.capable,
+                    ethical: req.body.ethical,
+                    predictable: req.body.predictable,
+                    genuine: req.body.genuine,
+                    skilled: req.body.skilled,
+                    respectable: req.body.respectable,
+                    counton: req.body.counton,
+                    candid: req.body.candid,
+                    competent: req.body.competent,
+                    principled: req.body.principled,
+                    consistent: req.body.consistent,
+                    authentic: req.body.authentic,
+                    meticulous: req.body.meticulous,
+                    hasintegrity: req.body.hasintegrity
+                }
+            },
+            { upsert: false }
+        );
+        res.redirect('/survey-2');
+    } catch (err) {
+        res.render('error/500', {
+            title: 'ARL STRONG UML | ERROR'
+        });
+    }
 });
 
-// @description     survey-2 page
-// @route           GET /survey-2
 router.get('/survey-2', (req, res) => {
     res.render('survey-2', {
         title: 'ARL STRONG UML | Survey 2',
         layout: 'survey.hbs'
+    });
+});
+
+router.post('/survey-2-submit', async (req, res) => {
+    console.log(req.body);
+    try {
+        await SimulationResult.findOneAndUpdate(
+            { uuid: req.body.uuid },
+            {
+                survey2: {
+                    question1: req.body.question1,
+                    question2: req.body.question2,
+                    question3: req.body.question3,
+                    question4: req.body.question4,
+                }
+            },
+            { upsert: false }
+        );
+        res.redirect('/thank-you');
+    } catch (err) {
+        res.render('error/500', {
+            title: 'ARL STRONG UML | ERROR'
+        });
+    }
+});
+
+router.get('/error/500', (req, res) => {
+    res.render('error/500', {
+        title: 'ARL STRONG UML | ERROR'
     });
 });
 
