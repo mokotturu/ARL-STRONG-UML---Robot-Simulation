@@ -4,8 +4,8 @@
   "description": "Link: https://mokotturu.github.io/ARL-STRONG-UML---Robot-Simulation/",
   "main": "index.js",
   "scripts": {
-    "start": "node app",
-    "dev": "nodemon app"
+    "start": "cross-env NODE_ENV=production node app",
+    "dev": "cross-env NODE_ENV=development nodemon app"
   },
   "repository": {
     "type": "git",

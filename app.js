@@ -13,13 +13,13 @@ dotenv.config({ path: './config/config.env' });
 connectDB();
 
 // body-parser
-app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 1000000000000000}));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 1000000000000000 }));
 app.use(bodyParser.json({ extended: true, limit: '50MB' }));
 
 // morgan logger
-/* if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
-} */
+}
 
 // handlebars
 app.engine('.hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }));
