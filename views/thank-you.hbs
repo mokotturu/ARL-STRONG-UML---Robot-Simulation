@@ -1,3 +1,52 @@
 <div class="main-content">
     <h1>Thank you for participating!</h1>
+    <div class="buttonsCollection">
+        <button onclick="showCode()">Show code again</button>
+    </div>
 </div>
+
+<div id="popup-modal">
+    <div id="popup-modal-container" style="padding: 20px 50px;">
+        <p style="font-size:25px;font-weight:bold;">Thank you for participating!</p>
+        <p>Your confirmation code is:</p>
+        <code></code>
+        <div id="userInputButtons" style="padding-top:30px;">
+            <button id="copyButton" onclick="copyCode()">Copy code</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const $popupModal = $("#popup-modal");
+
+    $(document).ready(() => {
+        showCode();
+    });
+
+    $(window).on('click', e => {
+        if ($popupModal.is(e.target)) {
+            $popupModal.css('visibility', 'hidden');
+            $popupModal.css('opacity', '0');
+            $('nav').removeClass('disabled');
+            $('.main-content').removeClass('disabled');
+            $('#instructions').removeClass('disabled');
+        }
+    });
+
+    function showCode() {
+        $popupModal.css('visibility', 'visible');
+        $popupModal.css('opacity', '1');
+        $('nav').addClass('disabled');
+        $('.main-content').addClass('disabled');
+        $('code').text(sessionStorage.getItem('uuid'));
+    }
+
+    function copyCode() {
+        const $temp = $('<input>');
+        $('body').append($temp);
+        $temp.val($('code').text()).select();
+        document.execCommand('copy');
+        $temp.remove();
+        $('#copyButton').text('Copied!');
+    }
+</script>

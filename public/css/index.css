@@ -134,6 +134,7 @@ nav .items p {
     text-shadow: 0 0 10px grey;
     border-bottom: 5px solid #808080;
     color: white;
+    line-height: 120%;
 }
 
 .main-content .buttonsCollection {
@@ -234,17 +235,27 @@ nav .items p {
 }
 
 #popup-modal-container {
-    width: 70%;
-    height: 90%;
     background-color: white;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     border-radius: 7px;
+    padding: 20px;
     margin: auto auto;
     -webkit-box-shadow: 0 0 99999px 100px black;
     -moz-box-shadow: 0 0 99999px 100px black;
     box-shadow: 0 0 99999px 100px black;
+}
+
+#pdf {
+    width: 60vw;
+    height: 70vh;
+}
+
+code {
+    background-color: lightgrey;
+    border-radius: 7px;
+    padding: 10px 20px;
 }
 
 #consent-form {
@@ -252,16 +263,12 @@ nav .items p {
     height: 90%;
 }
 
-#pdf {
-    width: 100%;
-    height: 100%;
-}
-
 #userInputButtons {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 10%;
+    padding: 20px 0;
 }
 
 button {
