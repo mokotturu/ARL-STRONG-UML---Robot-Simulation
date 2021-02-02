@@ -56,7 +56,7 @@ var pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
 var intervalCount = 0;
 var log = [];
-var startTime;``
+var startTime;
 
 $(document).ready(() => {
     startTime = new Date();
@@ -90,6 +90,7 @@ $(document).ready(() => {
         count = 0;
 
         if (!pause) {
+            if (intervalCount > 10) terminate();
             switch (autoBot.dir) {
                 case 1:
                     if (steps > 0 && Math.floor(grid[autoBot.loc].y) != 1 && !grid[autoBot.loc - columns].isWall) {
