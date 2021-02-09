@@ -30,9 +30,9 @@ router.post('/simulation', async (req, res) => {
         });
         await result.save();
     } catch (err) {
-        res.render('error/500', {
-            title: 'ARL STRONG UML | ERROR'
-        });
+        console.log(err);
+        res.status(500);
+        res.redirect('error/500');
     }
 });
 
@@ -78,15 +78,16 @@ router.post('/survey-1-submit', async (req, res) => {
                     authentic: req.body.authentic,
                     meticulous: req.body.meticulous,
                     hasintegrity: req.body.hasintegrity
-                }
+                },
+                survey1Modified: new Date()
             },
             { upsert: false }
         );
         res.redirect('/survey-2');
     } catch (err) {
-        res.render('error/500', {
-            title: 'ARL STRONG UML | ERROR'
-        });
+        console.log(err);
+        res.status(500);
+        res.redirect('error/500');
     }
 });
 
@@ -108,22 +109,39 @@ router.post('/survey-2-submit', async (req, res) => {
                     question2: req.body.question2,
                     question3: req.body.question3,
                     question4: req.body.question4,
-                }
+                },
+                survey2Modified: new Date()
             },
             { upsert: false }
         );
         res.redirect('/thank-you');
     } catch (err) {
-        res.render('error/500', {
-            title: 'ARL STRONG UML | ERROR'
-        });
+        console.log(err);
+        res.status(500);
+        res.redirect('error/500');
     }
 });
 
+/* router.get('/error/400', (req, res) => {
+    res.render('error/400', {
+        title: 'ARL STRONG UML | Error 404'
+    });
+}); */
+
 router.get('/error/500', (req, res) => {
     res.render('error/500', {
-        title: 'ARL STRONG UML | ERROR'
+        title: 'ARL STRONG UML | Error 500'
     });
+});
+
+router.use((req, res, next) => {
+    res.status(404);
+    // res.redirect('error/404');
+    res.render('error/400', {
+        url: req.url,
+        title: 'ARL STRONG UML | Error 404'
+    });
+    return;
 });
 
 module.exports = router;

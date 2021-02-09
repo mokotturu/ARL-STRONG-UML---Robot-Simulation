@@ -33,7 +33,9 @@ const SimulationResultSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    survey1Modified: Date,
+    survey2Modified: Date
 });
 
 module.exports = mongoose.model('SimulationResult', SimulationResultSchema);
