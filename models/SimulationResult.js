@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const SimulationResultSchema = new mongoose.Schema({
     uuid: String,
     humanData: [],
-    agentData: [],
+    agentData: {
+        agent1: [],
+        agent2: []
+    },
     decisions: [],
     obstacles: [],
     survey1: {

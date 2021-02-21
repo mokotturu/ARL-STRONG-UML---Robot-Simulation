@@ -24,7 +24,10 @@ router.post('/simulation', async (req, res) => {
         const result = new SimulationResult({
             uuid: req.body.uuid,
             humanData: req.body.humanData,
-            agentData: req.body.agentData,
+            agentData: {
+                agent1: req.body.agentData.agent1,
+                agent2: req.body.agentData.agent2
+            },
             decisions: req.body.decisions,
             obstacles: req.body.obstacles
         });

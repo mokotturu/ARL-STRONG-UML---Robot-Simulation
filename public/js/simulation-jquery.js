@@ -19,8 +19,8 @@ var boxHeight;
 
 const USER_BOT_COLOR = "#3333ff";
 const LIGHT_USER_BOT_COLOR = "#9999ff";
-const AUTO_BOT_COLOR = "#ff3d5d";
-const LIGHT_AUTO_BOT_COLOR = "#ff9eae";
+const AGENT_COLOR = "#ff3d5d";
+const LIGHT_AGENT_COLOR = "#ff9eae";
 const TEAM_COLOR = "#ffff7f";
 const LIGHT_TEAM_COLOR = "#ffff7f";
 const CELL_COLOR = "black";
@@ -32,11 +32,13 @@ const VICTIM_COLOR = "red";
 const HAZARD_COLOR = "yellow";
 
 var grid = [];
-var botExplored = new Set();
-var tempBotExplored = new Set();
+var agent1Explored = new Set();
+var agent2Explored = new Set();
+var tempAgent1Explored = new Set();
+var tempAgent2Explored = new Set();
 var humanExplored = new Set();
-var data = {humanData: [], agentData: [], decisions: [], obstacles: [], uuid: null};
-var userBot, autoBot;
+var data = { humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
+var userBot, agent1, agent2;
 var victim1, victim2, hazard1, hazard2; // come back
 var obstacles = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
@@ -46,8 +48,6 @@ var currentPath = mapPaths[pathIndex];
 var viewRadius = 7;
 var count = 0;
 var waitCount = 7;
-var steps = 0;
-var totalSteps = 7;
 var seconds = 0;
 var timeout;
 var eventListenersAdded = false;
@@ -91,59 +91,8 @@ $(document).ready(() => {
 
         if (!pause) {
             if (intervalCount > 10) terminate();
-            switch (autoBot.dir) {
-                case 1:
-                    if (steps > 0 && Math.floor(grid[autoBot.loc].y) != 1 && !grid[autoBot.loc - columns].isWall) {
-                        grid[autoBot.loc].isExplored = true;
-                        autoBot.loc -= columns;
-                        steps--;
-                        refreshMap();
-                    } else {
-                        if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
-                        autoBot.dir = Math.random() < Math.random() ? 4 : 2;
-                    }
-                    break;
-                case 2:
-                    if (steps > 0 && Math.floor(grid[autoBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[autoBot.loc + 1].isWall) {
-                        grid[autoBot.loc].isExplored = true;
-                        autoBot.loc++;
-                        steps--;
-                        refreshMap();
-                    } else {
-                        if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
-                        autoBot.dir = Math.random() < Math.random() ? 1 : 3;
-                    }
-                    break;
-                case 3:
-                    if (steps > 0 && Math.floor(grid[autoBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[autoBot.loc + columns].isWall) {
-                        grid[autoBot.loc].isExplored = true;
-                        autoBot.loc += columns;
-                        steps--;
-                        refreshMap();
-                    } else {
-                        if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
-                        autoBot.dir = Math.random() < Math.random() ? 2 : 4;
-                    }
-                    break;
-                case 4:
-                    if (steps > 0 && Math.floor(grid[autoBot.loc].x) != 1 && !grid[autoBot.loc - 1].isWall) {
-                        grid[autoBot.loc].isExplored = true;
-                        autoBot.loc--;
-                        steps--;
-                        refreshMap();
-                    } else {
-                        if (steps == 0) steps = Math.floor(Math.random() * totalSteps);
-                        autoBot.dir = Math.random() < Math.random() ? 3 : 1;
-                    }
-                    break;
-                default:
-                    // nothing
-                    break;
-            }
-            
-            let tracker = { loc: autoBot.loc, timestamp: performance.now() };
-            data.agentData.push(tracker);
-            console.log(tracker);
+            randomWalk(agent1);
+            randomWalk(agent2);
         }
     });
 
@@ -197,11 +146,14 @@ function eventKeyHandlers(e) {
             }
             // console.log("Down", performance.now(), userBot.loc);
             break;
-        case 67:    // c
+        case 49:    // 1
             e.preventDefault();
-            updateScrollingPosition(grid[autoBot.loc]);
+            updateScrollingPosition(grid[agent1.loc]);
             // console.log("Shifted focus to agent", performance.now());
             break;
+        case 50:    // 2
+            e.preventDefault();
+            updateScrollingPosition(grid[agent2.loc]);
         default:    // nothing
             break;
     }
@@ -244,7 +196,7 @@ function showExploredInfo() {
     }
 
     getSetBoundaries(humanExplored, 0);
-    getSetBoundaries(tempBotExplored, 1);
+    getSetBoundaries(tempAgent1Explored, 1);
     scaleImages();
 
     pause = true;
@@ -261,11 +213,16 @@ function hideExploredInfo() {
         draw(grid[item]);
     });
 
-    botExplored.forEach(function(key, item, set) {
+    agent1Explored.forEach(function(key, item, set) {
         draw(grid[item]);
     });
 
-    tempBotExplored.clear();
+    agent2Explored.forEach(function(key, item, set) {
+        draw(grid[item]);
+    });
+
+    tempAgent1Explored.clear();
+    tempAgent2Explored.clear();
 
     refreshMap();
 
@@ -282,10 +239,16 @@ function hideExploredInfo() {
 }
 
 function confirmExploredArea() {
-    tempBotExplored.forEach(item => {
+    tempAgent1Explored.forEach(item => {
         grid[item].isBotExplored = true;
-        botExplored.add(item);
+        agent1Explored.add(item);
     });
+
+    tempAgent2Explored.forEach(item => {
+        grid[item].isBotExplored = true;
+        agent2Explored.add(item);
+    });
+
     log.push({interval: intervalCount++, trusted: true});
     hideExploredInfo();
 }
@@ -314,8 +277,9 @@ function updateTime() {
 function createMap(currentPath, cb) {
     grid = [];
     humanExplored.clear();
-    tempBotExplored.clear();
-    botExplored.clear();
+    tempAgent1Explored.clear();
+    agent1Explored.clear();
+    agent2Explored.clear();
     log = [];
     $log.empty();
 
@@ -330,27 +294,33 @@ function createMap(currentPath, cb) {
     }).fail(() => {
         alert("An error has occured.");
     }).done(() => {
-        userBot = {id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1};
-        autoBot = {id: "agent", loc: getRandomLoc(grid), color: AUTO_BOT_COLOR, dir: 1};
-        victim1 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
-        victim2 = {id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false};
-        hazard1 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
-        hazard2 = {id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false};
+        userBot = { id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1 };
+        agent1 = { id: "agent1", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, steps: 0, minSteps: 10, maxSteps: 20 };
+        agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, steps: 0, minSteps: 1, maxSteps: 1 };
+        victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
+        victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
+        hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
+        hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
         obstacles.push(victim1, /* victim2, */ hazard1, hazard2);
 
-        spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
+        spawn([userBot, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
         refreshMap();
 
         console.log("Spawn", performance.now(), userBot.loc);
-        console.log("Spawn", performance.now(), autoBot.loc);
+        console.log("Spawn", performance.now(), agent1.loc);
+        console.log("Spawn", performance.now(), agent2.loc);
         
         let tracker = { loc: userBot.loc, timestamp: performance.now() };
         data.humanData.push(tracker);
         console.log(tracker);
 
-        tracker = { loc: autoBot.loc, timestamp: performance.now() };
-        data.agentData.push(tracker);
+        tracker = { loc: agent1.loc, timestamp: performance.now() };
+        data.agentData.agent1.push(tracker);
+        console.log(tracker);
+
+        tracker = { loc: agent2.loc, timestamp: performance.now() };
+        data.agentData.agent2.push(tracker);
         console.log(tracker);
 
         updateScrollingPosition(grid[userBot.loc]);
@@ -368,8 +338,8 @@ function draw(cell) {
         lightColor = LIGHT_USER_BOT_COLOR;
         darkColor = USER_BOT_COLOR;
     } else if (cell.isBotExplored && !cell.isHumanExplored) {
-        lightColor = LIGHT_AUTO_BOT_COLOR;
-        darkColor = AUTO_BOT_COLOR;
+        lightColor = LIGHT_AGENT_COLOR;
+        darkColor = AGENT_COLOR;
     } else if (cell.isHumanExplored && cell.isBotExplored) {
         lightColor = LIGHT_TEAM_COLOR;
         darkColor = TEAM_COLOR;
@@ -445,11 +415,25 @@ function refreshMap() {
     });
 
     // bot surroundings
-    let botFOV = findLineOfSight(autoBot);
-    let botFOVSet = new Set(botFOV);    // convert array to set
+    let agentFOV = findLineOfSight(agent1);
+    let agentFOVSet = new Set(agentFOV);    // convert array to set
 
-    botFOVSet.forEach(item => {
-        tempBotExplored.add(item);
+    agentFOVSet.forEach(item => {
+        tempAgent1Explored.add(item);
+        draw(grid[item]);
+
+        for (let j = 0; j < obstacles.length; j++) {
+            if (item == obstacles[j].loc) {
+                obstacles[j].isFound = true;
+            }
+        }
+    });
+    
+    agentFOV = findLineOfSight(agent2);
+    agentFOVSet = new Set(agentFOV);    // convert array to set
+
+    agentFOVSet.forEach(item => {
+        tempAgent2Explored.add(item);
         draw(grid[item]);
 
         for (let j = 0; j < obstacles.length; j++) {
@@ -459,7 +443,7 @@ function refreshMap() {
         }
     });
 
-    spawn([userBot, autoBot, victim1, victim2, hazard1, hazard2], 1);
+    spawn([userBot, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 }
 
 // 0 - human, 1 - bot
@@ -498,6 +482,65 @@ function getSetBoundaries(thisSet, who) {
             if (grid[i].y > humanBottom) humanBottom = grid[i].y;
         }
     }
+}
+
+function randomWalk(agent) {
+    let minSteps = agent.minSteps;
+    let maxSteps = agent.maxSteps;
+    switch (agent.dir) {
+        case 1:
+            if (agent.steps > 0 && Math.floor(grid[agent.loc].y) != 1 && !grid[agent.loc - columns].isWall) {
+                grid[agent.loc].isExplored = true;
+                agent.loc -= columns;
+                agent.steps--;
+                refreshMap();
+            } else {
+                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.dir = Math.random() < Math.random() ? 4 : 2;
+            }
+            break;
+        case 2:
+            if (agent.steps > 0 && Math.floor(grid[agent.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[agent.loc + 1].isWall) {
+                grid[agent.loc].isExplored = true;
+                agent.loc++;
+                agent.steps--;
+                refreshMap();
+            } else {
+                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.dir = Math.random() < Math.random() ? 1 : 3;
+            }
+            break;
+        case 3:
+            if (agent.steps > 0 && Math.floor(grid[agent.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[agent.loc + columns].isWall) {
+                grid[agent.loc].isExplored = true;
+                agent.loc += columns;
+                agent.steps--;
+                refreshMap();
+            } else {
+                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.dir = Math.random() < Math.random() ? 2 : 4;
+            }
+            break;
+        case 4:
+            if (agent.steps > 0 && Math.floor(grid[agent.loc].x) != 1 && !grid[agent.loc - 1].isWall) {
+                grid[agent.loc].isExplored = true;
+                agent.loc--;
+                agent.steps--;
+                refreshMap();
+            } else {
+                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.dir = Math.random() < Math.random() ? 3 : 1;
+            }
+            break;
+        default:
+            // nothing
+            break;
+    }
+    
+    let tracker = { loc: agent.loc, timestamp: performance.now() };
+    if (agent.id == "agent1") data.agentData.agent1.push(tracker);
+    else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
+    console.log(tracker);
 }
 
 function scaleImages() {
@@ -690,7 +733,8 @@ function modifyMap() {
     columns = parseInt(columnsInput);
     createMap();
     userBot.loc = getRandomLoc();
-    autoBot.loc = getRandomLoc();
+    agent1.loc = getRandomLoc();
+    agent2.loc = getRandomLoc();
     refreshMap();
 }
 
