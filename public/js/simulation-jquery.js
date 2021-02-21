@@ -47,7 +47,7 @@ var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
 var count = 0;
-var waitCount = 7;
+var waitCount = 15;
 var seconds = 0;
 var timeout;
 var eventListenersAdded = false;
@@ -240,12 +240,12 @@ function hideExploredInfo() {
 
 function confirmExploredArea() {
     tempAgent1Explored.forEach(item => {
-        grid[item].isBotExplored = true;
+        grid[item].isAgentExplored = true;
         agent1Explored.add(item);
     });
 
     tempAgent2Explored.forEach(item => {
-        grid[item].isBotExplored = true;
+        grid[item].isAgentExplored = true;
         agent2Explored.add(item);
     });
 
@@ -289,7 +289,7 @@ function createMap(currentPath, cb) {
         boxWidth = canvasWidth/rows;
         boxHeight = canvasHeight/columns;
         $.each(data.map, (i, value) => {
-            grid.push({x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isBotExplored: false});
+            grid.push({x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isAgentExplored: false});
         });
     }).fail(() => {
         alert("An error has occured.");
@@ -301,7 +301,7 @@ function createMap(currentPath, cb) {
         victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
         hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
-        obstacles.push(victim1, /* victim2, */ hazard1, hazard2);
+        obstacles.push(victim1, victim2, hazard1, hazard2);
 
         spawn([userBot, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
@@ -334,13 +334,13 @@ function createMap(currentPath, cb) {
 function draw(cell) {
     let lightColor = LIGHT_TEMP_COLOR, darkColor = TEMP_COLOR;
 
-    if (cell.isHumanExplored && !cell.isBotExplored) {
+    if (cell.isHumanExplored && !cell.isAgentExplored) {
         lightColor = LIGHT_USER_BOT_COLOR;
         darkColor = USER_BOT_COLOR;
-    } else if (cell.isBotExplored && !cell.isHumanExplored) {
+    } else if (cell.isAgentExplored && !cell.isHumanExplored) {
         lightColor = LIGHT_AGENT_COLOR;
         darkColor = AGENT_COLOR;
-    } else if (cell.isHumanExplored && cell.isBotExplored) {
+    } else if (cell.isHumanExplored && cell.isAgentExplored) {
         lightColor = LIGHT_TEAM_COLOR;
         darkColor = TEAM_COLOR;
     }
@@ -366,32 +366,45 @@ function draw(cell) {
 // spawns the bot in its location
 // size - scale factor
 function spawn(members, size) {
-    let bot;
-    for (let i = 0; i < members.length; i++) {
-        bot = members[i]
-        if (bot.id == "human" || bot.id == "agent") {
+    members.forEach(member => {
+        if (member.id == "human") {
             $map.drawRect({
-                fillStyle: bot.color,
-                x: grid[bot.loc].x*boxWidth, y: grid[bot.loc].y*boxHeight,
+                fillStyle: member.color,
+                x: grid[member.loc].x*boxWidth, y: grid[member.loc].y*boxHeight,
                 width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
             });
-        } else if (bot.id == "victim" && bot.isFound) {
+        } else if (member.id == "agent1" || member.id == "agent2") {
+            $map.drawRect({
+                fillStyle: member.color,
+                x: grid[member.loc].x*boxWidth, y: grid[member.loc].y*boxHeight,
+                width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+            });
+
+            $map.drawText({
+                fromCenter: true,
+                fillStyle: LIGHT_TEMP_COLOR,
+                x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+                fontSize: boxWidth,
+                fontFamily: 'Montserrat, sans-serif',
+                text: member.id == 'agent1' ? '1' : '2'
+            });
+        } else if (member.id == "victim" && member.isFound) {
             $map.drawEllipse({
                 fromCenter: true,
-                fillStyle: bot.color,
-                x: grid[bot.loc].x*boxWidth + boxWidth/2, y: grid[bot.loc].y*boxHeight + boxHeight/2,
+                fillStyle: member.color,
+                x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
                 width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
             });
-        } else if (bot.id == "hazard" && bot.isFound) {
+        } else if (member.id == "hazard" && member.isFound) {
             $map.drawPolygon({
                 fromCenter: true,
-                fillStyle: bot.color,
-                x: grid[bot.loc].x*boxWidth + boxWidth/2, y: grid[bot.loc].y*boxHeight + boxHeight/2,
+                fillStyle: member.color,
+                x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
                 radius: ((boxWidth - 1)/2)*size,
                 sides: 3
             });
         }
-    }
+    });
 }
 
 // redraws the map and spawns the bots in their new location
@@ -399,7 +412,6 @@ function refreshMap() {
     // human surroundings
     let humanFOV = findLineOfSight(userBot);
     let humanFOVSet = new Set(humanFOV);    // convert array to set
-    // console.log(humanFOV.length, humanFOVSet.size)
 
     humanFOVSet.forEach(item => {
         grid[item].isHumanExplored = true;
@@ -407,9 +419,9 @@ function refreshMap() {
 
         draw(grid[item]);
 
-        for (let j = 0; j < obstacles.length; j++) {
-            if (item == obstacles[j].loc) {
-                obstacles[j].isFound = true;
+        for (let i = 0; i < obstacles.length; i++) {
+            if (item == obstacles[i].loc) {
+                obstacles[i].isFound = true;
             }
         }
     });
@@ -422,9 +434,9 @@ function refreshMap() {
         tempAgent1Explored.add(item);
         draw(grid[item]);
 
-        for (let j = 0; j < obstacles.length; j++) {
-            if (item == obstacles[j].loc) {
-                obstacles[j].isFound = true;
+        for (let i = 0; i < obstacles.length; i++) {
+            if (item == obstacles[i].loc) {
+                obstacles[i].isFound = true;
             }
         }
     });
@@ -436,9 +448,9 @@ function refreshMap() {
         tempAgent2Explored.add(item);
         draw(grid[item]);
 
-        for (let j = 0; j < obstacles.length; j++) {
-            if (item == obstacles[j].loc) {
-                obstacles[j].isFound = true;
+        for (let i = 0; i < obstacles.length; i++) {
+            if (item == obstacles[i].loc) {
+                obstacles[i].isFound = true;
             }
         }
     });
