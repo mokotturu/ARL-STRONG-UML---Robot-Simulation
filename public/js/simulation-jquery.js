@@ -295,8 +295,8 @@ function createMap(currentPath, cb) {
         alert("An error has occured.");
     }).done(() => {
         userBot = { id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1 };
-        agent1 = { id: "agent1", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, steps: 0, minSteps: 10, maxSteps: 20 };
-        agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, steps: 0, minSteps: 1, maxSteps: 1 };
+        agent1 = { id: "agent1", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
+        agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 15, maxSteps: 0 };
         victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
@@ -499,48 +499,49 @@ function getSetBoundaries(thisSet, who) {
 function randomWalk(agent) {
     let minSteps = agent.minSteps;
     let maxSteps = agent.maxSteps;
+    let step = agent.step;
     switch (agent.dir) {
         case 1:
-            if (agent.steps > 0 && Math.floor(grid[agent.loc].y) != 1 && !grid[agent.loc - columns].isWall) {
+            if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].y) != 1 && !grid[agent.loc - step*columns].isWall) {
                 grid[agent.loc].isExplored = true;
-                agent.loc -= columns;
-                agent.steps--;
+                agent.loc -= step*columns;
+                agent.stepsCovered--;
                 refreshMap();
             } else {
-                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
                 agent.dir = Math.random() < Math.random() ? 4 : 2;
             }
             break;
         case 2:
-            if (agent.steps > 0 && Math.floor(grid[agent.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[agent.loc + 1].isWall) {
+            if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[agent.loc + step].isWall) {
                 grid[agent.loc].isExplored = true;
-                agent.loc++;
-                agent.steps--;
+                agent.loc += step;
+                agent.stepsCovered--;
                 refreshMap();
             } else {
-                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
                 agent.dir = Math.random() < Math.random() ? 1 : 3;
             }
             break;
         case 3:
-            if (agent.steps > 0 && Math.floor(grid[agent.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[agent.loc + columns].isWall) {
+            if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[agent.loc + step*columns].isWall) {
                 grid[agent.loc].isExplored = true;
-                agent.loc += columns;
-                agent.steps--;
+                agent.loc += step*columns;
+                agent.stepsCovered--;
                 refreshMap();
             } else {
-                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
                 agent.dir = Math.random() < Math.random() ? 2 : 4;
             }
             break;
         case 4:
-            if (agent.steps > 0 && Math.floor(grid[agent.loc].x) != 1 && !grid[agent.loc - 1].isWall) {
+            if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].x) != 1 && !grid[agent.loc - step].isWall) {
                 grid[agent.loc].isExplored = true;
-                agent.loc--;
-                agent.steps--;
+                agent.loc -= step;
+                agent.stepsCovered--;
                 refreshMap();
             } else {
-                agent.steps = Math.floor(Math.random() * maxSteps) + minSteps;
+                agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
                 agent.dir = Math.random() < Math.random() ? 3 : 1;
             }
             break;
