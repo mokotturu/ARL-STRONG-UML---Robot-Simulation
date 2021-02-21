@@ -97,13 +97,13 @@ $(document).ready(() => {
     });
 
     requestAnimationFrame(loop);
-    // });
 });
 
 function eventKeyHandlers(e) {
     switch (e.keyCode) {
         case 65:    // a
         case 37:    // left arrow key
+        case 72:    // h
             e.preventDefault();
             if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall) {
                 userBot.loc -= rows;
@@ -115,6 +115,7 @@ function eventKeyHandlers(e) {
             break;
         case 87:    // w
         case 38:    // up arrow key
+        case 75:    // k
             e.preventDefault();
             if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall) {
                 userBot.loc--;
@@ -126,6 +127,7 @@ function eventKeyHandlers(e) {
             break;
         case 68:    // d
         case 39:    // right arrow key
+        case 76:    // l
             e.preventDefault();
             if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall) {
                 userBot.loc += rows;
@@ -137,6 +139,7 @@ function eventKeyHandlers(e) {
             break;
         case 83:    // s
         case 40:    // down arrow key
+        case 74:    // j
             e.preventDefault();
             if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall) {
                 userBot.loc++;
