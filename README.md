@@ -2,6 +2,7 @@
 This project is a study conducted by ARL STRONG UMass Lowell.
 
 ## Website
+![simulation gif](https://media.giphy.com/media/4Xv6MxRUr6saZ2WSjs/giphy.gif)
 https://arlstrong-uml-robot-simulation.herokuapp.com/
 
 ### Background
