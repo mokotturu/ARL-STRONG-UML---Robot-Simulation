@@ -17,8 +17,8 @@ const canvasHeight = $map.height();
 var boxWidth;
 var boxHeight;
 
-const USER_BOT_COLOR = "#3333ff";
-const LIGHT_USER_BOT_COLOR = "#9999ff";
+const HUMAN_COLOR = "#3333ff";
+const LIGHT_HUMAN_COLOR = "#9999ff";
 const AGENT_COLOR = "#ff3d5d";
 const LIGHT_AGENT_COLOR = "#ff9eae";
 const TEAM_COLOR = "#ffff7f";
@@ -38,7 +38,7 @@ var tempAgent1Explored = new Set();
 var tempAgent2Explored = new Set();
 var humanExplored = new Set();
 var data = { humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
-var userBot, agent1, agent2;
+var human, agent1, agent2;
 var victim1, victim2, hazard1, hazard2; // come back
 var obstacles = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
@@ -57,6 +57,11 @@ var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, bot
 var intervalCount = 0;
 var log = [];
 var startTime;
+
+var victimMarker = new Image();
+var hazardMarker = new Image();
+victimMarker.src = 'img/victim-marker-big.png';
+hazardMarker.src = 'img/hazard-marker-big.png';
 
 $(document).ready(() => {
     startTime = new Date();
@@ -105,49 +110,49 @@ function eventKeyHandlers(e) {
         case 37:    // left arrow key
         case 72:    // h
             e.preventDefault();
-            if (Math.floor(grid[userBot.loc].x) != 1 && !grid[userBot.loc - rows].isWall) {
-                userBot.loc -= rows;
-                userBot.dir = 4;
+            if (Math.floor(grid[human.loc].x) != 1 && !grid[human.loc - rows].isWall) {
+                human.loc -= rows;
+                human.dir = 4;
                 refreshMap();
-                updateScrollingPosition(grid[userBot.loc]);
+                updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Left", performance.now(), userBot.loc);
+            // console.log("Left", performance.now(), human.loc);
             break;
         case 87:    // w
         case 38:    // up arrow key
         case 75:    // k
             e.preventDefault();
-            if (Math.floor(grid[userBot.loc].y) != 1 && !grid[userBot.loc - 1].isWall) {
-                userBot.loc--;
-                userBot.dir = 1;
+            if (Math.floor(grid[human.loc].y) != 1 && !grid[human.loc - 1].isWall) {
+                human.loc--;
+                human.dir = 1;
                 refreshMap();
-                updateScrollingPosition(grid[userBot.loc]);
+                updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Up", performance.now(), userBot.loc);
+            // console.log("Up", performance.now(), human.loc);
             break;
         case 68:    // d
         case 39:    // right arrow key
         case 76:    // l
             e.preventDefault();
-            if (Math.floor(grid[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[userBot.loc + rows].isWall) {
-                userBot.loc += rows;
-                userBot.dir = 2;
+            if (Math.floor(grid[human.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[human.loc + rows].isWall) {
+                human.loc += rows;
+                human.dir = 2;
                 refreshMap();
-                updateScrollingPosition(grid[userBot.loc]);
+                updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Right", performance.now(), userBot.loc);
+            // console.log("Right", performance.now(), human.loc);
             break;
         case 83:    // s
         case 40:    // down arrow key
         case 74:    // j
             e.preventDefault();
-            if (Math.floor(grid[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[userBot.loc + 1].isWall) {
-                userBot.loc++;
-                userBot.dir = 3;
+            if (Math.floor(grid[human.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[human.loc + 1].isWall) {
+                human.loc++;
+                human.dir = 3;
                 refreshMap();
-                updateScrollingPosition(grid[userBot.loc]);
+                updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Down", performance.now(), userBot.loc);
+            // console.log("Down", performance.now(), human.loc);
             break;
         case 49:    // 1
             e.preventDefault();
@@ -161,7 +166,7 @@ function eventKeyHandlers(e) {
             break;
     }
 
-    let tracker = { loc: userBot.loc, timestamp: performance.now() };
+    let tracker = { loc: human.loc, timestamp: performance.now() };
     data.humanData.push(tracker);
     console.log(tracker);
 }
@@ -178,7 +183,10 @@ function terminate() {
 }
 
 function showExploredInfo() {
-    spawn(obstacles, 10);
+    $humanImage.attr("src", $map.getCanvasImage());
+    $botImage.attr("src", $map.getCanvasImage());
+
+    drawMarkers(obstacles);
 
     $(document).off();
     
@@ -186,8 +194,6 @@ function showExploredInfo() {
     $popupModal.css('visibility', 'visible');
     $popupModal.css('opacity', '1');
     $minimapImage.attr("src", $map.getCanvasImage());
-    $humanImage.attr("src", $map.getCanvasImage());
-    $botImage.attr("src", $map.getCanvasImage());
 
     if (log[intervalCount - 1] != null) {
         let chosenOption = (log[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
@@ -297,7 +303,7 @@ function createMap(currentPath, cb) {
     }).fail(() => {
         alert("An error has occured.");
     }).done(() => {
-        userBot = { id: "human", loc: getRandomLoc(grid), color: USER_BOT_COLOR, dir: 1 };
+        human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
         agent1 = { id: "agent1", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
         agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
         victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
@@ -306,15 +312,15 @@ function createMap(currentPath, cb) {
         hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
         obstacles.push(victim1, victim2, hazard1, hazard2);
 
-        spawn([userBot, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+        spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
         refreshMap();
 
-        console.log("Spawn", performance.now(), userBot.loc);
+        console.log("Spawn", performance.now(), human.loc);
         console.log("Spawn", performance.now(), agent1.loc);
         console.log("Spawn", performance.now(), agent2.loc);
         
-        let tracker = { loc: userBot.loc, timestamp: performance.now() };
+        let tracker = { loc: human.loc, timestamp: performance.now() };
         data.humanData.push(tracker);
         console.log(tracker);
 
@@ -326,10 +332,26 @@ function createMap(currentPath, cb) {
         data.agentData.agent2.push(tracker);
         console.log(tracker);
 
-        updateScrollingPosition(grid[userBot.loc]);
+        updateScrollingPosition(grid[human.loc]);
         timeout = setInterval(updateTime, 1000);
 
         cb(grid);
+    });
+}
+
+function drawMarkers(members) {
+    members.forEach(member => {
+        if (member.id == "victim" && member.isFound) {
+            $map.drawImage({
+                source: 'img/victim-marker-big.png',
+                x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+            });
+        } else if (member.id == "hazard" && member.isFound) {
+            $map.drawImage({
+                source: 'img/hazard-marker-big.png',
+                x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+            });
+        }
     });
 }
 
@@ -338,8 +360,8 @@ function draw(cell) {
     let lightColor = LIGHT_TEMP_COLOR, darkColor = TEMP_COLOR;
 
     if (cell.isHumanExplored && !cell.isAgentExplored) {
-        lightColor = LIGHT_USER_BOT_COLOR;
-        darkColor = USER_BOT_COLOR;
+        lightColor = LIGHT_HUMAN_COLOR;
+        darkColor = HUMAN_COLOR;
     } else if (cell.isAgentExplored && !cell.isHumanExplored) {
         lightColor = LIGHT_AGENT_COLOR;
         darkColor = AGENT_COLOR;
@@ -413,7 +435,7 @@ function spawn(members, size) {
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
     // human surroundings
-    let humanFOV = findLineOfSight(userBot);
+    let humanFOV = findLineOfSight(human);
     let humanFOVSet = new Set(humanFOV);    // convert array to set
 
     humanFOVSet.forEach(item => {
@@ -458,7 +480,7 @@ function refreshMap() {
         }
     });
 
-    spawn([userBot, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+    spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 }
 
 // 0 - human, 1 - bot
@@ -748,7 +770,7 @@ function modifyMap() {
     rows = parseInt(rowsInput);
     columns = parseInt(columnsInput);
     createMap();
-    userBot.loc = getRandomLoc();
+    human.loc = getRandomLoc();
     agent1.loc = getRandomLoc();
     agent2.loc = getRandomLoc();
     refreshMap();

@@ -372,5 +372,5 @@ footer a {
 footer a:hover {
     -webkit-transform: rotate(360deg) scale(1);
     transform: rotate(360deg) scale(1);
-    background-color: #238636;
+    background-color: #6e7681;
 }
