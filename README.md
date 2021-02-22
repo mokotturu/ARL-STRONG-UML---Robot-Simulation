@@ -10,8 +10,8 @@ This project pertains to team formation in groups of humans and robots trying to
 ### Objective
 This study is largely exploratory. We will vary study parameters such as the goal assigned to the human-robot team, the complexity of the search and rescue environment, and the resources available to the team (such as level of map detail). We will observe and measure the resulting trust between humans and robots in the team, as well as the level of team performance and cohesion.
 
-###  Website Details
-The website is uses Node JS, Express, and MongoDB.
+###  Project Details
+The website uses Node JS, Express, and MongoDB.
 
 #### Instructions on how to use the website
 ![human on the map](/public/img/blue.png)
