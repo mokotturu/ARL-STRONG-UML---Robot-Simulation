@@ -12,8 +12,6 @@ This study is largely exploratory. We will vary study parameters such as the goa
 
 ###  Website Details
 The website is uses Node JS, Express, and MongoDB.
-Dillinger is a cloud-enabled, mobile-ready, offline-storage compatible,
-AngularJS-powered HTML5 Markdown editor.
 
 #### Instructions on how to use the website
 ![human on the map](/public/img/blue.png)
