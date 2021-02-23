@@ -36,5 +36,10 @@ The yellow colored area shaded on the map is the area of the map that has been e
 
 Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 10 seconds, you will be shown the images of the current state of the whole map, the human explored area, and the agent explored area. You will be prompted to either integrate or discard the agent explored region. If you choose to integrate, the agent explored region (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is considered unexplored.
 
-## License
-MIT
+![Victim marker](/public/img/victim-marker-front.png)
+
+This marker on the minimap in the trust confirmatin pop-up means that a victim has been found on the map.
+
+![Hazard marker](/public/img/hazard-marker-front.png)
+
+This marker on the minimap in the trust confirmation pop-up means that a hazard has been found on the map.
