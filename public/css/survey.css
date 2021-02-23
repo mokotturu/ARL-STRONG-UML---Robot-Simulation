@@ -288,16 +288,11 @@ footer h1 {
     border-bottom: 2px solid white;
 }
 
-footer h2 {
-    font-size: 22px;
-    margin: 30px 0;
-}
-
 footer a {
     text-decoration: none;
     color: white;
     padding: 10px;
-    margin-bottom: 50px;
+    margin: 20px 0 50px 0;
     border-radius: 50px;
     background-color: #161b22;
     transition: 0.3s;

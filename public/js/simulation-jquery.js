@@ -759,6 +759,12 @@ function bresenhams(cell1, cell2, quad, thisGrid) {
     return arr;
 }
 
+$(window).on('beforeunload', e => {
+    e.preventDefault();
+    e.returnValue = 'Your progress will not be saved.';
+    return "Your progress will not be saved.";
+});
+
 // takes the new grid size and modifies the map
 function modifyMap() {
     let rowsInput = $('#rows').value;
