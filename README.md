@@ -34,7 +34,7 @@ The yellow colored area shaded on the map is the area of the map that has been e
 
 ![trust confirmation screen](/public/img/pop-up.png)
 
-Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 10 seconds, you will be shown the images of the current state of the whole map, the human explored area, and the agent explored area. You will be prompted to either integrate or discard the agent explored region. If you choose to integrate, the agent explored region (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is considered unexplored.
+Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 30 seconds, you will be shown the images of the current state of the whole map, the human explored area, and the agent explored area. You will be prompted to either integrate or discard the agent explored region. If you choose to integrate, the agent explored region (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is considered unexplored.
 
 ![Victim marker](/public/img/victim-marker-front.png)
 

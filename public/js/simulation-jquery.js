@@ -37,7 +37,7 @@ var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
 var tempAgent2Explored = new Set();
 var humanExplored = new Set();
-var data = { humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
+var data = { movement: [], humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
 var human, agent1, agent2;
 var victim1, victim2, hazard1, hazard2;
 var obstacles = [];
@@ -116,7 +116,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Left", performance.now(), human.loc);
+            // console.log("Left", performance.now() / 1000, human.loc);
             break;
         case 87:    // w
         case 38:    // up arrow key
@@ -128,7 +128,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Up", performance.now(), human.loc);
+            // console.log("Up", performance.now() / 1000, human.loc);
             break;
         case 68:    // d
         case 39:    // right arrow key
@@ -140,7 +140,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Right", performance.now(), human.loc);
+            // console.log("Right", performance.now() / 1000, human.loc);
             break;
         case 83:    // s
         case 40:    // down arrow key
@@ -152,12 +152,12 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Down", performance.now(), human.loc);
+            // console.log("Down", performance.now() / 1000, human.loc);
             break;
         case 49:    // 1
             e.preventDefault();
             updateScrollingPosition(grid[agent1.loc]);
-            // console.log("Shifted focus to agent", performance.now());
+            // console.log("Shifted focus to agent", performance.now() / 1000);
             break;
         case 50:    // 2
             e.preventDefault();
@@ -166,8 +166,11 @@ function eventKeyHandlers(e) {
             break;
     }
 
-    let tracker = { loc: human.loc, timestamp: performance.now() };
+    let tracker = { loc: human.loc, timestamp: performance.now() / 1000 };
     data.humanData.push(tracker);
+    // console.log(e.key, performance.now() / 1000);
+    tracker = { key: e.key, timestamp: performance.now() / 1000 };
+    data.movement.push(tracker);
     // console.log(tracker);
 }
 
@@ -275,7 +278,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 10 == 0) {
+    if (seconds % 30 == 0) {
         seconds = 0;
         showExploredInfo();
     }
@@ -316,19 +319,19 @@ function createMap(currentPath, cb) {
 
         refreshMap();
 
-        console.log("Spawn", performance.now(), human.loc);
-        console.log("Spawn", performance.now(), agent1.loc);
-        console.log("Spawn", performance.now(), agent2.loc);
+        console.log("Spawn", performance.now() / 1000, human.loc);
+        console.log("Spawn", performance.now() / 1000, agent1.loc);
+        console.log("Spawn", performance.now() / 1000, agent2.loc);
         
-        let tracker = { loc: human.loc, timestamp: performance.now() };
+        let tracker = { loc: human.loc, timestamp: performance.now() / 1000 };
         data.humanData.push(tracker);
         // console.log(tracker);
 
-        tracker = { loc: agent1.loc, timestamp: performance.now() };
+        tracker = { loc: agent1.loc, timestamp: performance.now() / 1000 };
         data.agentData.agent1.push(tracker);
         // console.log(tracker);
 
-        tracker = { loc: agent2.loc, timestamp: performance.now() };
+        tracker = { loc: agent2.loc, timestamp: performance.now() / 1000 };
         data.agentData.agent2.push(tracker);
         // console.log(tracker);
 
@@ -485,7 +488,7 @@ function refreshMap() {
     // testing purposes
     /* if (tempAgent1Explored.size >= 49827) {
         pause = true;
-        console.log(performance.now(), count, tempAgent1Explored.size);
+        console.log(performance.now() / 1000, count, tempAgent1Explored.size);
     } */
 }
 
@@ -581,10 +584,10 @@ function randomWalk(agent) {
             break;
     }
     
-    let tracker = { loc: agent.loc, timestamp: performance.now() };
+    let tracker = { loc: agent.loc, timestamp: performance.now() / 1000 };
     if (agent.id == "agent1") data.agentData.agent1.push(tracker);
     else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
-    console.log(tracker);
+    // console.log(tracker);
 }
 
 function scaleImages() {
@@ -765,11 +768,11 @@ function bresenhams(cell1, cell2, quad, thisGrid) {
     return arr;
 }
 
-$(window).on('beforeunload', e => {
+/* $(window).on('beforeunload', e => {
     e.preventDefault();
     e.returnValue = 'Your progress will not be saved.';
     return "Your progress will not be saved.";
-});
+}); */
 
 // takes the new grid size and modifies the map
 function modifyMap() {

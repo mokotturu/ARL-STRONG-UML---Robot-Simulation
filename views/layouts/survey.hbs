@@ -52,6 +52,7 @@
     });
 
     $(window).on('beforeunload', e => {
+        if (e.target.activeElement == $('#submit')[0]) return;
         e.preventDefault();
         e.returnValue = 'Your progress will not be saved.';
         return "Your progress will not be saved.";

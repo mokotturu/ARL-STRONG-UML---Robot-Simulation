@@ -23,6 +23,7 @@ router.post('/simulation', async (req, res) => {
     try {
         const result = new SimulationResult({
             uuid: req.body.uuid,
+            movement: req.body.movement,
             humanData: req.body.humanData,
             agentData: {
                 agent1: req.body.agentData.agent1,
