@@ -39,7 +39,7 @@ var tempAgent2Explored = new Set();
 var humanExplored = new Set();
 var data = { humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
 var human, agent1, agent2;
-var victim1, victim2, hazard1, hazard2; // come back
+var victim1, victim2, hazard1, hazard2;
 var obstacles = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.min.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var pathIndex = 8;
@@ -47,7 +47,7 @@ var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
 var count = 0;
-var waitCount = 15;
+var waitCount = 7;
 var seconds = 0;
 var timeout;
 var eventListenersAdded = false;
@@ -168,7 +168,7 @@ function eventKeyHandlers(e) {
 
     let tracker = { loc: human.loc, timestamp: performance.now() };
     data.humanData.push(tracker);
-    console.log(tracker);
+    // console.log(tracker);
 }
 
 function terminate() {
@@ -322,15 +322,15 @@ function createMap(currentPath, cb) {
         
         let tracker = { loc: human.loc, timestamp: performance.now() };
         data.humanData.push(tracker);
-        console.log(tracker);
+        // console.log(tracker);
 
         tracker = { loc: agent1.loc, timestamp: performance.now() };
         data.agentData.agent1.push(tracker);
-        console.log(tracker);
+        // console.log(tracker);
 
         tracker = { loc: agent2.loc, timestamp: performance.now() };
         data.agentData.agent2.push(tracker);
-        console.log(tracker);
+        // console.log(tracker);
 
         updateScrollingPosition(grid[human.loc]);
         timeout = setInterval(updateTime, 1000);
@@ -481,6 +481,12 @@ function refreshMap() {
     });
 
     spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+
+    // testing purposes
+    /* if (tempAgent1Explored.size >= 49827) {
+        pause = true;
+        console.log(performance.now(), count, tempAgent1Explored.size);
+    } */
 }
 
 // 0 - human, 1 - bot
