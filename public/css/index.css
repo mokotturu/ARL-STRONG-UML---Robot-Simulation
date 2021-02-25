@@ -142,7 +142,7 @@ nav .items p {
     align-items: center;
 }
 
-.main-content .buttonsCollection button {
+.main-content .buttonsCollection a {
     font-family: 'Montserrat', 'sans-serif';
     font-size: 18px;
     padding: 20px 40px;
@@ -158,16 +158,32 @@ nav .items p {
     box-shadow: 0 0 10px grey;
 }
 
-.main-content .buttonsCollection button:hover {
+#begin {
+    font-family: 'Montserrat', 'sans-serif';
+    font-size: 18px;
+    padding: 20px 40px;
+    background-color: #808080;
+    border: 0;
+    border-radius: 50px;
+    color: white;
+    margin: 0;
+    transition: 0.3s;
+    text-align: center;
+    -webkit-box-shadow: 0 0 10px grey;
+    -moz-box-shadow: 0 0 10px grey;
+    box-shadow: 0 0 10px grey;
+}
+
+#begin:hover {
     background-color: white;
     color: #121212;
     cursor: pointer;
 }
 
-.main-content .buttonsCollection a {
-    color: white;
-    text-decoration: none;
-    margin: 0 50px;
+.main-content .buttonsCollection a:hover {
+    background-color: white;
+    color: #121212;
+    cursor: pointer;
 }
 
 .page-content {
