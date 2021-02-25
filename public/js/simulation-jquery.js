@@ -95,7 +95,7 @@ $(document).ready(() => {
         count = 0;
 
         if (!pause) {
-            if (intervalCount > 2) terminate();
+            if (intervalCount >= 10) terminate();
             randomWalk(agent1);
             randomWalk(agent2);
         }
@@ -278,7 +278,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 5 == 0) {
+    if (seconds % 30 == 0) {
         seconds = 0;
         showExploredInfo();
     }
