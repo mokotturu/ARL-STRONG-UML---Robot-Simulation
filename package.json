@@ -1,7 +1,7 @@
 {
-  "name": "arl-strong-uml---robot-simulation",
+  "name": "arl-strong-uml",
   "version": "1.0.0",
-  "description": "Link: https://mokotturu.github.io/ARL-STRONG-UML---Robot-Simulation/",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node app",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mokotturu/ARL-STRONG-UML---Robot-Simulation.git"
+    "url": "git+https://github.com/mokotturu/ARL-STRONG-UML.git"
   },
   "author": "Monish Reddy Kotturu",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mokotturu/ARL-STRONG-UML---Robot-Simulation/issues"
+    "url": "https://github.com/mokotturu/ARL-STRONG-UML/issues"
   },
-  "homepage": "https://github.com/mokotturu/ARL-STRONG-UML---Robot-Simulation#readme",
+  "homepage": "https://github.com/mokotturu/ARL-STRONG-UML#readme",
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.7"
