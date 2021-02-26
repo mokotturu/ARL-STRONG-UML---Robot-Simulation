@@ -8,26 +8,23 @@ router.get('/user/:uuid', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-    res.render('index', {
-        title: 'ARL STRONG UML | Home'
-    });
+    res.render('index', { title: 'ARL STRONG UML | Home' });
 });
 
 router.get('/simulation', (req, res) => {
-    res.render('simulation', {
-        layout: false
-    });
+    res.render('simulation', { layout: false });
 });
 
 router.post('/simulation', async (req, res) => {
+    console.log(req.body);
     try {
         const result = new SimulationResult({
             uuid: req.body.uuid,
             movement: req.body.movement,
             humanData: req.body.humanData,
             agentData: {
-                agent1: req.body.agentData.agent1,
-                agent2: req.body.agentData.agent2
+                agent1: req.body.agent1,
+                agent2: req.body.agent2
             },
             decisions: req.body.decisions,
             obstacles: req.body.obstacles
@@ -41,15 +38,11 @@ router.post('/simulation', async (req, res) => {
 });
 
 router.get('/thank-you', (req, res) => {
-    res.render('thank-you', {
-        title: 'ARL STRONG UML | Thank You'
-    });
+    res.render('thank-you', { title: 'ARL STRONG UML | Thank You' });
 });
 
 router.get('/declined', (req, res) => {
-    res.render('declined', {
-        title: 'ARL STRONG UML | Declined'
-    });
+    res.render('declined', { title: 'ARL STRONG UML | Declined' });
 });
 
 router.get('/survey-1', (req, res) => {
@@ -90,8 +83,7 @@ router.post('/survey-1-submit', async (req, res) => {
         res.redirect('/survey-2');
     } catch (err) {
         console.log(err);
-        res.status(500);
-        res.redirect('error/500');
+        res.redirect(500, 'error/500');
     }
 });
 
@@ -121,8 +113,7 @@ router.post('/survey-2-submit', async (req, res) => {
         res.redirect('/thank-you');
     } catch (err) {
         console.log(err);
-        res.status(500);
-        res.redirect('error/500');
+        res.redirect(500, 'error/500');
     }
 });
 
@@ -133,9 +124,7 @@ router.post('/survey-2-submit', async (req, res) => {
 }); */
 
 router.get('/error/500', (req, res) => {
-    res.render('error/500', {
-        title: 'ARL STRONG UML | Error 500'
-    });
+    res.render('error/500', { title: 'ARL STRONG UML | Error 500' });
 });
 
 router.use((req, res, next) => {

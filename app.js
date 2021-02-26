@@ -1,6 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db.js');

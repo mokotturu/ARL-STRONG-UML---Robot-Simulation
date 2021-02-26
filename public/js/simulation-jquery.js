@@ -179,9 +179,30 @@ function terminate() {
     clearInterval(timeout);
     data.decisions = log;
     data.obstacles = obstacles;
-    // console.log(data);
-    $.post("/simulation", data, res => console.log(res))
-    .fail(() => alert("POST failed"));
+
+    $.ajax({
+        type: "POST",
+        url: "/simulation",
+        contentType: "application/json",
+        dataType: "json",
+        data: JSON.stringify({
+            uuid: data.uuid,
+            movement: data.movement,
+            humanData: data.humanData,
+            agent1: data.agentData.agent1,
+            agent2: data.agentData.agent2,
+            decisions: data.decisions,
+            obstacles: data.obstacles
+        }),
+        success: (res, status, jqXHR) => {
+            console.log(status);
+        },
+        error: (jqXHR, status, err) => {
+            console.log(err);
+            alert("POST failed.");
+        }
+    });
+
     window.location.href = "/survey-1";
 }
 
