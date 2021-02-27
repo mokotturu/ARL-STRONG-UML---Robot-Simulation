@@ -32,6 +32,8 @@ const VICTIM_COLOR = "red";
 const HAZARD_COLOR = "yellow";
 
 var grid = [];
+var agent1Traversal = [];
+var agent1Index = 0;
 var agent1Explored = new Set();
 var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
@@ -96,8 +98,9 @@ $(document).ready(() => {
 
         if (!pause) {
             if (intervalCount >= 10) terminate();
-            randomWalk(agent1);
-            randomWalk(agent2);
+            moveAgent1(agent1);
+            // randomWalk(agent1);
+            // randomWalk(agent2);
         }
     });
 
@@ -315,6 +318,12 @@ function createMap(currentPath, cb) {
     agent2Explored.clear();
     log = [];
     $log.empty();
+
+    $.getJSON('src/details9.json', data => {
+        $.each(data.traversal, (i, value) => {
+            agent1Traversal.push({ x: value[0], y: value[1] });
+        })
+    });
 
     $.getJSON(currentPath, data => {
         rows = data.dimensions[0].rows;
@@ -549,6 +558,17 @@ function getSetBoundaries(thisSet, who) {
             if (grid[i].y > humanBottom) humanBottom = grid[i].y;
         }
     }
+}
+
+function moveAgent1(agent) {
+    let tempLoc = agent1Traversal[agent1Index++];
+    agent.loc = tempLoc.y + tempLoc.x*columns;
+
+    refreshMap();
+
+    let tracker = { loc: agent.loc, timestamp: performance.now() / 1000 };
+    if (agent.id == "agent1") data.agentData.agent1.push(tracker);
+    else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
 }
 
 function randomWalk(agent) {
