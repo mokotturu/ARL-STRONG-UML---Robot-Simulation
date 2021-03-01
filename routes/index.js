@@ -20,20 +20,19 @@ router.post('/simulation', async (req, res) => {
     try {
         const result = new SimulationResult({
             uuid: req.body.uuid,
-            movement: req.body.movement,
-            humanData: req.body.humanData,
+            movement: JSON.parse(req.body.movement),
+            humanData: JSON.parse(req.body.humanData),
             agentData: {
-                agent1: req.body.agent1,
-                agent2: req.body.agent2
+                agent1: JSON.parse(req.body.agent1),
+                agent2: JSON.parse(req.body.agent2)
             },
-            decisions: req.body.decisions,
-            obstacles: req.body.obstacles
+            decisions: JSON.parse(req.body.decisions),
+            obstacles: JSON.parse(req.body.obstacles)
         });
         await result.save();
     } catch (err) {
         console.log(err);
-        res.status(500);
-        res.redirect('error/500');
+        res.redirect(500, 'error/500');
     }
 });
 
@@ -77,8 +76,7 @@ router.post('/survey-1-submit', async (req, res) => {
                     hasintegrity: req.body.hasintegrity
                 },
                 survey1Modified: new Date()
-            },
-            { upsert: false }
+            }
         );
         res.redirect('/survey-2');
     } catch (err) {

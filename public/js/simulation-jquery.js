@@ -7,6 +7,7 @@ const $humanImage = $("#human-image");
 const $botImage = $("#bot-image");
 const $log = $('.tableItems');
 const $dropdown = $('#maps');
+const $progressbar = $('.background');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
@@ -57,6 +58,7 @@ var fullMapDrawn = false;
 var pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
 var intervalCount = 0;
+var intervals = 10;
 var log = [];
 var startTime;
 
@@ -65,10 +67,15 @@ var hazardMarker = new Image();
 victimMarker.src = 'img/victim-marker-big.png';
 hazardMarker.src = 'img/hazard-marker-big.png';
 
+var requests;
+var currentReq = 0;
+
 $(document).ready(() => {
     startTime = new Date();
     data.uuid = sessionStorage.getItem('uuid');
-    
+
+    // $.post("/simulation", { uuid: data.uuid }, null, "json");   
+
     $('.body-container').css('visibility', 'hidden');
     $('.body-container').css('opacity', '0');
     $('.loader').css('visibility', 'visible');
@@ -97,7 +104,7 @@ $(document).ready(() => {
         count = 0;
 
         if (!pause) {
-            if (intervalCount >= 10) terminate();
+            if (intervalCount >= intervals) terminate();
             moveAgent1(agent1);
             // randomWalk(agent1);
             // randomWalk(agent2);
@@ -119,7 +126,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Left", performance.now() / 1000, human.loc);
+            // console.log("Left", Math.round((performance.now()/1000) * 100)/100, human.loc);
             break;
         case 87:    // w
         case 38:    // up arrow key
@@ -131,7 +138,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Up", performance.now() / 1000, human.loc);
+            // console.log("Up", Math.round((performance.now()/1000) * 100)/100, human.loc);
             break;
         case 68:    // d
         case 39:    // right arrow key
@@ -143,7 +150,7 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Right", performance.now() / 1000, human.loc);
+            // console.log("Right", Math.round((performance.now()/1000) * 100)/100, human.loc);
             break;
         case 83:    // s
         case 40:    // down arrow key
@@ -155,12 +162,12 @@ function eventKeyHandlers(e) {
                 refreshMap();
                 updateScrollingPosition(grid[human.loc]);
             }
-            // console.log("Down", performance.now() / 1000, human.loc);
+            // console.log("Down", Math.round((performance.now()/1000) * 100)/100, human.loc);
             break;
         case 49:    // 1
             e.preventDefault();
             updateScrollingPosition(grid[agent1.loc]);
-            // console.log("Shifted focus to agent", performance.now() / 1000);
+            // console.log("Shifted focus to agent", Math.round((performance.now()/1000) * 100)/100);
             break;
         case 50:    // 2
             e.preventDefault();
@@ -169,10 +176,10 @@ function eventKeyHandlers(e) {
             break;
     }
 
-    let tracker = { loc: human.loc, timestamp: performance.now() / 1000 };
+    let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
     data.humanData.push(tracker);
-    // console.log(e.key, performance.now() / 1000);
-    tracker = { key: e.key, timestamp: performance.now() / 1000 };
+    // console.log(e.key, Math.round((performance.now()/1000) * 100)/100);
+    tracker = { key: e.key, t: Math.round((performance.now()/1000) * 100)/100 };
     data.movement.push(tracker);
     // console.log(tracker);
 }
@@ -183,30 +190,42 @@ function terminate() {
     data.decisions = log;
     data.obstacles = obstacles;
 
-    $.ajax({
-        type: "POST",
-        url: "/simulation",
-        contentType: "application/json",
-        dataType: "json",
-        data: JSON.stringify({
-            uuid: data.uuid,
-            movement: data.movement,
-            humanData: data.humanData,
-            agent1: data.agentData.agent1,
-            agent2: data.agentData.agent2,
-            decisions: data.decisions,
-            obstacles: data.obstacles
-        }),
-        success: (res, status, jqXHR) => {
-            console.log(status);
-        },
-        error: (jqXHR, status, err) => {
-            console.log(err);
-            alert("POST failed.");
-        }
-    });
+    $.post("/simulation", {
+        uuid: data.uuid,
+        movement: JSON.stringify(data.movement),
+        humanData: JSON.stringify(data.humanData),
+        agent1: JSON.stringify(data.agentData.agent1),
+        agent2: JSON.stringify(data.agentData.agent2),
+        obstacles: JSON.stringify(data.obstacles),
+        decisions: JSON.stringify(data.decisions)
+    }, null, "json");
+
+    /* requests = [{ url: "/simulation/details", data: { uuid: data.uuid, obstacles: data.obstacles, decisions: data.decisions }},
+    { url: "/simulation/movement", data: { uuid: data.uuid, movement: data.movement } },
+    { url: "/simulation/humanData", data: data.humanData },
+    { url: "/simulation/agent1", data: data.agentData.agent1 },
+    { url: "/simulation/agent2", data: data.agentData.agent2 }] */
+    // console.log(requests);
+    // doAjax();
 
     window.location.href = "/survey-1";
+}
+
+function doAjax() {
+    // alert(requests[currentReq]);
+    if (currentReq < requests.length) {
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: requests[currentReq].url,
+            data: requests[currentReq].data,
+            complete: (jqXHR, status) => {
+                console.log(status);
+                ++currentReq;
+                doAjax();
+            }
+        });
+    }
 }
 
 function showExploredInfo() {
@@ -269,6 +288,8 @@ function hideExploredInfo() {
     $popupModal.css('visibility', 'hidden');
     $popupModal.css('display', 'none');
     $popupModal.css('opacity', '0');
+    $progressbar.css('width', `${intervalCount*100/intervals}%`);
+    $progressbar.html(`${intervalCount*100/intervals}%`)
     clearInterval(timeout);
     timeout = setInterval(updateTime, 1000);
     pause = false;
@@ -345,25 +366,26 @@ function createMap(currentPath, cb) {
         hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
         obstacles.push(victim1, victim2, hazard1, hazard2);
 
-        spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+        spawn([human, /* agent1, agent2,  */victim1, victim2, hazard1, hazard2], 1);
 
         refreshMap();
 
-        console.log("Spawn", performance.now() / 1000, human.loc);
-        console.log("Spawn", performance.now() / 1000, agent1.loc);
-        console.log("Spawn", performance.now() / 1000, agent2.loc);
+        console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
+        console.log(data.uuid);
+        // console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent1.loc);
+        // console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent2.loc);
         
-        let tracker = { loc: human.loc, timestamp: performance.now() / 1000 };
+        let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
         data.humanData.push(tracker);
         // console.log(tracker);
 
-        tracker = { loc: agent1.loc, timestamp: performance.now() / 1000 };
+        /* tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
         data.agentData.agent1.push(tracker);
         // console.log(tracker);
 
-        tracker = { loc: agent2.loc, timestamp: performance.now() / 1000 };
+        tracker = { loc: agent2.loc, t: Math.round((performance.now()/1000) * 100)/100 };
         data.agentData.agent2.push(tracker);
-        // console.log(tracker);
+        // console.log(tracker); */
 
         updateScrollingPosition(grid[human.loc]);
         timeout = setInterval(updateTime, 1000);
@@ -518,7 +540,7 @@ function refreshMap() {
     // testing purposes
     /* if (tempAgent1Explored.size >= 49827) {
         pause = true;
-        console.log(performance.now() / 1000, count, tempAgent1Explored.size);
+        console.log(Math.round((performance.now()/1000) * 100)/100, count, tempAgent1Explored.size);
     } */
 }
 
@@ -566,7 +588,7 @@ function moveAgent1(agent) {
 
     refreshMap();
 
-    let tracker = { loc: agent.loc, timestamp: performance.now() / 1000 };
+    let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
     if (agent.id == "agent1") data.agentData.agent1.push(tracker);
     else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
 }
@@ -625,7 +647,7 @@ function randomWalk(agent) {
             break;
     }
     
-    let tracker = { loc: agent.loc, timestamp: performance.now() / 1000 };
+    let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
     if (agent.id == "agent1") data.agentData.agent1.push(tracker);
     else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
     // console.log(tracker);
