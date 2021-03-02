@@ -214,7 +214,7 @@ function terminate() {
     // console.log(requests);
     // doAjax();
 
-    // window.location.href = "/survey-1";
+    window.location.href = "/survey-1";
 }
 
 function doAjax() {
