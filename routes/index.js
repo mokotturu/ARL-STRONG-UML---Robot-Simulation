@@ -15,21 +15,41 @@ router.get('/simulation', (req, res) => {
     res.render('simulation', { layout: false });
 });
 
-router.post('/simulation', async (req, res) => {
+router.post('/simulation/1', async (req, res) => {
     console.log(req.body);
     try {
         const result = new SimulationResult({
             uuid: req.body.uuid,
-            movement: req.body.movement,
-            humanData: req.body.humanData,
-            agentData: {
+            section1: {
+                movement: req.body.movement,
+                human: req.body.human,
                 agent1: req.body.agent1,
                 agent2: req.body.agent2
-            },
-            decisions: req.body.decisions,
-            obstacles: req.body.obstacles
+            }
         });
         await result.save();
+    } catch (err) {
+        console.log(err);
+        res.redirect(500, 'error/500');
+    }
+});
+
+router.post('/simulation/2', async (req, res) => {
+    console.log(req.body);
+    try {
+        const result = await SimulationResult.updateOne(
+            { uuid: req.body.uuid },
+            {
+                section2: {
+                    movement: req.body.movement,
+                    human: req.body.human,
+                    agent1: req.body.agent1,
+                    agent2: req.body.agent2,
+                },
+                decisions: req.body.decisions,
+                obstacles: req.body.obstacles
+            }
+        );
     } catch (err) {
         console.log(err);
         res.redirect(500, 'error/500');
@@ -105,8 +125,7 @@ router.post('/survey-2-submit', async (req, res) => {
                     question4: req.body.question4,
                 },
                 survey2Modified: new Date()
-            },
-            { upsert: false }
+            }
         );
         res.redirect('/thank-you');
     } catch (err) {

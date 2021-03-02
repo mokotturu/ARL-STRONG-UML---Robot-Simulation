@@ -40,27 +40,23 @@ var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
 var tempAgent2Explored = new Set();
 var humanExplored = new Set();
-var data = { movement: [], humanData: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
+// var data = { movement: [], human: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
+var uuid;
+var data = [{ movement: [], human: [], agent1: [], agent2: [] },
+{ movement: [], human: [], agent1: [], agent2: [] }];
+var obstacles = [];
 var human, agent1, agent2;
 var victim1, victim2, hazard1, hazard2;
-var obstacles = [];
 var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.min.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
 var pathIndex = 8;
 var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 7;
-var count = 0;
-var waitCount = 7;
-var seconds = 0;
-var timeout;
-var eventListenersAdded = false;
-var fullMapDrawn = false;
-var pause = false;
+var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
+var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0;
-var intervals = 10;
+var intervalCount = 0, half = 0, intervals = 10, duration = 30;
 var log = [];
-var startTime;
 
 var victimMarker = new Image();
 var hazardMarker = new Image();
@@ -72,9 +68,9 @@ var currentReq = 0;
 
 $(document).ready(() => {
     startTime = new Date();
-    data.uuid = sessionStorage.getItem('uuid');
+    uuid = sessionStorage.getItem('uuid');
 
-    // $.post("/simulation", { uuid: data.uuid }, null, "json");   
+    // $.post("/simulation", { uuid: uuid }, null, "json");   
 
     $('.body-container').css('visibility', 'hidden');
     $('.body-container').css('opacity', '0');
@@ -166,51 +162,48 @@ function eventKeyHandlers(e) {
             break;
         case 49:    // 1
             e.preventDefault();
+            data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
             updateScrollingPosition(grid[agent1.loc]);
             // console.log("Shifted focus to agent", Math.round((performance.now()/1000) * 100)/100);
             break;
         case 50:    // 2
             e.preventDefault();
+            data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
             updateScrollingPosition(grid[agent2.loc]);
         default:    // nothing
             break;
     }
 
     let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-    data.humanData.push(tracker);
-    // console.log(e.key, Math.round((performance.now()/1000) * 100)/100);
-    tracker = { key: e.key, t: Math.round((performance.now()/1000) * 100)/100 };
-    data.movement.push(tracker);
+    data[half].human.push(tracker);
     // console.log(tracker);
 }
 
 function terminate() {
     pause = true;
     clearInterval(timeout);
-    data.decisions = log;
-    data.obstacles = obstacles;
 
     $.ajax({
-        url: "/simulation",
+        url: "/simulation/2",
         type: "POST",
         data: JSON.stringify({
-            uuid: data.uuid,
-            movement: data.movement,
-            humanData: data.humanData,
-            agent1: data.agentData.agent1,
-            agent2: data.agentData.agent2,
-            obstacles: data.obstacles,
-            decisions: data.decisions
+            uuid: uuid,
+            movement: data[half].movement,
+            human: data[half].human,
+            agent1: data[half].agent1,
+            agent2: data[half].agent2,
+            obstacles: data[half].obstacles,
+            decisions: log
         }),
         contentType: "application/json; charset=utf-8",
         dataType: "json"
     });
 
-    /* requests = [{ url: "/simulation/details", data: { uuid: data.uuid, obstacles: data.obstacles, decisions: data.decisions }},
-    { url: "/simulation/movement", data: { uuid: data.uuid, movement: data.movement } },
-    { url: "/simulation/humanData", data: data.humanData },
-    { url: "/simulation/agent1", data: data.agentData.agent1 },
-    { url: "/simulation/agent2", data: data.agentData.agent2 }] */
+    /* requests = [{ url: "/simulation/details", data: { uuid: data[half].uuid, obstacles: data[half].obstacles, decisions: data[half].decisions }},
+    { url: "/simulation/movement", data: { uuid: data[half].uuid, movement: data[half].movement } },
+    { url: "/simulation/human", data: data[half].human },
+    { url: "/simulation/agent1", data: data[half].agent1 },
+    { url: "/simulation/agent2", data: data[half].agent2 }] */
     // console.log(requests);
     // doAjax();
 
@@ -269,6 +262,23 @@ function showExploredInfo() {
 
 // redraw the map and hide pop-up
 function hideExploredInfo() {
+    if (intervalCount == 5) {
+        $.ajax({
+            url: "/simulation/1",
+            type: "POST",
+            data: JSON.stringify({
+                uuid: uuid,
+                movement: data[half].movement,
+                human: data[half].human,
+                agent1: data[half].agent1,
+                agent2: data[half].agent2
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        });
+        ++half;
+    }
+
     $map.clearCanvas();
     humanExplored.forEach((key, item, set) => {
         draw(grid[item]);
@@ -329,7 +339,7 @@ function updateScrollingPosition(loc) {
 
 function updateTime() {
     seconds++;
-    if (seconds % 30 == 0) {
+    if (seconds % duration == 0) {
         seconds = 0;
         showExploredInfo();
     }
@@ -377,20 +387,20 @@ function createMap(currentPath, cb) {
         refreshMap();
 
         console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
-        console.log(data.uuid);
+        console.log(uuid);
         // console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent1.loc);
         // console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent2.loc);
         
         let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-        data.humanData.push(tracker);
+        data[half].human.push(tracker);
         // console.log(tracker);
 
         /* tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-        data.agentData.agent1.push(tracker);
+        data[half].agent1.push(tracker);
         // console.log(tracker);
 
         tracker = { loc: agent2.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-        data.agentData.agent2.push(tracker);
+        data[half].agent2.push(tracker);
         // console.log(tracker); */
 
         updateScrollingPosition(grid[human.loc]);
@@ -595,8 +605,8 @@ function moveAgent1(agent) {
     refreshMap();
 
     let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-    if (agent.id == "agent1") data.agentData.agent1.push(tracker);
-    else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
+    if (agent.id == "agent1") data[half].agent1.push(tracker);
+    else if (agent.id == "agent2") data[half].agent2.push(tracker);
 }
 
 function randomWalk(agent) {
@@ -654,8 +664,8 @@ function randomWalk(agent) {
     }
     
     let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-    if (agent.id == "agent1") data.agentData.agent1.push(tracker);
-    else if (agent.id == "agent2") data.agentData.agent2.push(tracker);
+    if (agent.id == "agent1") data[half].agent1.push(tracker);
+    else if (agent.id == "agent2") data[half].agent2.push(tracker);
     // console.log(tracker);
 }
 

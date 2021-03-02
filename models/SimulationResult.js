@@ -2,9 +2,15 @@ const mongoose = require('mongoose');
 
 const SimulationResultSchema = new mongoose.Schema({
     uuid: String,
-    movement: [],
-    humanData: [],
-    agentData: {
+    section1: {
+        movement: [],
+        human: [],
+        agent1: [],
+        agent2: []
+    },
+    section2: {
+        movement: [],
+        human: [],
         agent1: [],
         agent2: []
     },
