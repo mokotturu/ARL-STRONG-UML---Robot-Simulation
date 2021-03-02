@@ -192,11 +192,18 @@ function terminate() {
             human: data[half].human,
             agent1: data[half].agent1,
             agent2: data[half].agent2,
-            obstacles: data[half].obstacles,
+            obstacles: obstacles,
             decisions: log
         }),
         contentType: "application/json; charset=utf-8",
-        dataType: "json"
+        success: (data, status, jqXHR) => {
+            console.log(data, status, jqXHR);
+            window.location.href = "/survey-1";
+        },
+        error: (jqXHR, status, err) => {
+            console.log(jqXHR, status, err);
+            alert(err);
+        }
     });
 
     /* requests = [{ url: "/simulation/details", data: { uuid: data[half].uuid, obstacles: data[half].obstacles, decisions: data[half].decisions }},
@@ -207,7 +214,7 @@ function terminate() {
     // console.log(requests);
     // doAjax();
 
-    window.location.href = "/survey-1";
+    // window.location.href = "/survey-1";
 }
 
 function doAjax() {
@@ -273,8 +280,7 @@ function hideExploredInfo() {
                 agent1: data[half].agent1,
                 agent2: data[half].agent2
             }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json"
+            contentType: "application/json; charset=utf-8"
         });
         ++half;
     }

@@ -28,6 +28,7 @@ router.post('/simulation/1', async (req, res) => {
             }
         });
         await result.save();
+        res.sendStatus(200);
     } catch (err) {
         console.log(err);
         res.redirect(500, 'error/500');
@@ -50,6 +51,7 @@ router.post('/simulation/2', async (req, res) => {
                 obstacles: req.body.obstacles
             }
         );
+        res.sendStatus(200);
     } catch (err) {
         console.log(err);
         res.redirect(500, 'error/500');
