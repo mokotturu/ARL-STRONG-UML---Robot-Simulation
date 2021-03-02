@@ -13,8 +13,11 @@ dotenv.config({ path: './config/config.env' });
 connectDB();
 
 // body-parser
-app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 99999999999999999 }));
-app.use(bodyParser.json({ extended: true, limit: '50MB' }));
+/* app.use(bodyParser.urlencoded({ extended: true, limit: '50MB', parameterLimit: 99999999999999999 }));
+app.use(bodyParser.json({ extended: true, limit: '50MB' })); */
+
+app.use(express.urlencoded({ extended: true, limit: '50MB', parameterLimit: 99999999999999999 }));
+app.use(express.json({ extended: true, limit: '50MB' }));
 
 // morgan logger
 /* if (process.env.NODE_ENV === 'development') {

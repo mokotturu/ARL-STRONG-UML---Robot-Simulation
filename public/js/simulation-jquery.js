@@ -190,15 +190,21 @@ function terminate() {
     data.decisions = log;
     data.obstacles = obstacles;
 
-    $.post("/simulation", {
-        uuid: data.uuid,
-        movement: JSON.stringify(data.movement),
-        humanData: JSON.stringify(data.humanData),
-        agent1: JSON.stringify(data.agentData.agent1),
-        agent2: JSON.stringify(data.agentData.agent2),
-        obstacles: JSON.stringify(data.obstacles),
-        decisions: JSON.stringify(data.decisions)
-    }, null, "json");
+    $.ajax({
+        url: "/simulation",
+        type: "POST",
+        data: JSON.stringify({
+            uuid: data.uuid,
+            movement: data.movement,
+            humanData: data.humanData,
+            agent1: data.agentData.agent1,
+            agent2: data.agentData.agent2,
+            obstacles: data.obstacles,
+            decisions: data.decisions
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    });
 
     /* requests = [{ url: "/simulation/details", data: { uuid: data.uuid, obstacles: data.obstacles, decisions: data.decisions }},
     { url: "/simulation/movement", data: { uuid: data.uuid, movement: data.movement } },
@@ -208,7 +214,7 @@ function terminate() {
     // console.log(requests);
     // doAjax();
 
-    window.location.href = "/survey-1";
+    // window.location.href = "/survey-1";
 }
 
 function doAjax() {
@@ -288,8 +294,8 @@ function hideExploredInfo() {
     $popupModal.css('visibility', 'hidden');
     $popupModal.css('display', 'none');
     $popupModal.css('opacity', '0');
-    $progressbar.css('width', `${intervalCount*100/intervals}%`);
-    $progressbar.html(`${intervalCount*100/intervals}%`)
+    $progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
+    $progressbar.html(`${Math.round(intervalCount*100/intervals)}%`)
     clearInterval(timeout);
     timeout = setInterval(updateTime, 1000);
     pause = false;

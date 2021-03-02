@@ -20,14 +20,14 @@ router.post('/simulation', async (req, res) => {
     try {
         const result = new SimulationResult({
             uuid: req.body.uuid,
-            movement: JSON.parse(req.body.movement),
-            humanData: JSON.parse(req.body.humanData),
+            movement: req.body.movement,
+            humanData: req.body.humanData,
             agentData: {
-                agent1: JSON.parse(req.body.agent1),
-                agent2: JSON.parse(req.body.agent2)
+                agent1: req.body.agent1,
+                agent2: req.body.agent2
             },
-            decisions: JSON.parse(req.body.decisions),
-            obstacles: JSON.parse(req.body.obstacles)
+            decisions: req.body.decisions,
+            obstacles: req.body.obstacles
         });
         await result.save();
     } catch (err) {
