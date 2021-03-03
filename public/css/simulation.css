@@ -2,6 +2,7 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
+    font-family: 'Montserrat', 'sans-serif';
 }
 
 .body-container {
@@ -33,6 +34,11 @@ html, body {
 .background {
     width: 2%;
     transition: 0.3s ease-in-out;
+}
+
+.background p {
+    padding-right: 5px;
+    margin: 0;
 }
 
 div, input, button, select {
@@ -250,6 +256,44 @@ nav {
 
 .headings-container p:nth-child(3)::after {
     background: #9999ff;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border: 1px solid black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: black;
+    text-align: center;
+    border-radius: 7px;
+    padding: 10px 5px;
+    position: absolute;
+    z-index: 1;
+    top: 150%;
+    left: 50%;
+    margin-left: -100px;
+    font-family: 'Montserrat', 'sans-serif';
+    font-size: 14px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    lefT: 50%;
+    margin-left: -10px;
+    border: 5px;
+    border-style: solid;
+    border-color: transparent transparent rgba(255, 255, 255, 0.7) transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 
 #userInputButtons {

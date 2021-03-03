@@ -14,7 +14,10 @@ const SimulationResultSchema = new mongoose.Schema({
         agent1: [],
         agent2: []
     },
-    decisions: [],
+    decisions: {
+        agent1: [],
+        agent2: []
+    },
     obstacles: [],
     survey1: {
         reliable: Number,

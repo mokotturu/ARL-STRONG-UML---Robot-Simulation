@@ -7,12 +7,13 @@
     <link rel="stylesheet" type="text/css" href="/css/simulation.css"/>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/4240eddcaa.js" crossorigin="anonymous"></script>
     <title>ARL STRONG UML | Simulation</title>
 </head>
 
 <body>
     <div class="loader"></div>
-    <div class="progressbar"><div class="progress background">0%</div></div>
+    <div class="progressbar"><div class="progress background"><p>0%</p></div></div>
     <div class="body-container">
         <div id="popup-modal">
             <div id="popup-modal-container">
@@ -30,8 +31,13 @@
                     </div>
                     <div class="headings-container">
                         <p>Entire map</p>
-                        <p>Agent explored area (highlighted in green)</p>
-                        <p>Human explored area (highlighted in blue)</p>
+                        <p class="agent-text">
+                            Agent explored area (green)
+                            <i class="fas fa-info-circle tooltip">
+                                <span class="tooltiptext">If there is no area highlighted in green, then the agent did not explore any new area.</span>
+                            </i>
+                        </p>
+                        <p>Human explored area (blue)</p>
                     </div>
                 </div>
                 <div class="tableItems"></div>

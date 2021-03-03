@@ -8,6 +8,7 @@ const $botImage = $("#bot-image");
 const $log = $('.tableItems');
 const $dropdown = $('#maps');
 const $progressbar = $('.background');
+const $agentText = $('.agent-text');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
@@ -34,7 +35,7 @@ const HAZARD_COLOR = "yellow";
 
 var grid = [];
 var agent1Traversal = [];
-var agent1Index = 0;
+var agent1Index = 0, agentNum = 1;
 var agent1Explored = new Set();
 var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
@@ -56,7 +57,7 @@ var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
 var intervalCount = 0, half = 0, intervals = 10, duration = 30;
-var log = [];
+var log = { agent1: [], agent2: [] };
 
 var victimMarker = new Image();
 var hazardMarker = new Image();
@@ -103,7 +104,7 @@ $(document).ready(() => {
             if (intervalCount >= intervals) terminate();
             moveAgent1(agent1);
             // randomWalk(agent1);
-            // randomWalk(agent2);
+            randomWalk(agent2);
         }
     });
 
@@ -246,18 +247,50 @@ function showExploredInfo() {
     $popupModal.css('visibility', 'visible');
     $popupModal.css('opacity', '1');
     $minimapImage.attr("src", $map.getCanvasImage());
+    $agentText.html(`Agent ${agentNum} explored area (green)
+    <i class="fas fa-info-circle tooltip">
+        <span class="tooltiptext">If there is no area highlighted in green, then the agent did not explore any new area.</span>
+    </i>`);
 
-    if (log[intervalCount - 1] != null) {
-        let chosenOption = (log[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
-        if (chosenOption == "Integrated") {
-            $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
-        } else {
-            $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
+    $log.empty();
+
+    if (agentNum == 1) {
+        if (log.agent1[intervalCount - 1] != null) {
+            /* let chosenOption = (log.agent1[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
+            if (chosenOption == "Integrated") {
+                $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
+            } else {
+                $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
+            } */
+            log.agent1.forEach((data, i) => {
+                if (data.trusted) {
+                    $log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
+                } else {
+                    $log.append(`<p style='background-color: #ff9eae;'>${i + 1} - Discarded</p>`);
+                }
+            });
         }
+    } else if (agentNum == 2) {
+        /* if (log.agent2[intervalCount - 1] != null) {
+            let chosenOption = (log.agent2[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
+            if (chosenOption == "Integrated") {
+                $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
+            } else {
+                $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
+            }
+        } */
+        log.agent2.forEach((data, i) => {
+            if (data.trusted) {
+                $log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
+            } else {
+                $log.append(`<p style='background-color: #ff9eae;'>${i + 1} - Discarded</p>`);
+            }
+        });
     }
 
     getSetBoundaries(humanExplored, 0);
-    getSetBoundaries(tempAgent1Explored, 1);
+    if (agentNum == 1) getSetBoundaries(tempAgent1Explored, 1);
+    else if (agentNum == 2) getSetBoundaries(tempAgent2Explored, 1);
     scaleImages();
 
     pause = true;
@@ -269,6 +302,12 @@ function showExploredInfo() {
 
 // redraw the map and hide pop-up
 function hideExploredInfo() {
+    if (agentNum == 1) {
+        agentNum++;
+        showExploredInfo();
+        return;
+    }
+
     if (intervalCount == 5) {
         $.ajax({
             url: "/simulation/1",
@@ -311,30 +350,40 @@ function hideExploredInfo() {
     $popupModal.css('display', 'none');
     $popupModal.css('opacity', '0');
     $progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
-    $progressbar.html(`${Math.round(intervalCount*100/intervals)}%`)
+    $progressbar.html(`<p>${Math.round(intervalCount*100/intervals)}%</p>`);
     clearInterval(timeout);
     timeout = setInterval(updateTime, 1000);
     pause = false;
 }
 
 function confirmExploredArea() {
-    tempAgent1Explored.forEach(item => {
-        grid[item].isAgentExplored = true;
-        agent1Explored.add(item);
-    });
+    if (agentNum == 1) {
+        tempAgent1Explored.forEach(item => {
+            grid[item].isAgentExplored = true;
+            agent1Explored.add(item);
+        });
 
-    tempAgent2Explored.forEach(item => {
-        grid[item].isAgentExplored = true;
-        agent2Explored.add(item);
-    });
+        log.agent1.push({interval: intervalCount, trusted: true});
+        hideExploredInfo();
+    } else if (agentNum == 2) {
+        tempAgent2Explored.forEach(item => {
+            grid[item].isAgentExplored = true;
+            agent2Explored.add(item);
+        });
 
-    log.push({interval: intervalCount++, trusted: true});
-    hideExploredInfo();
+        log.agent2.push({interval: intervalCount++, trusted: true});
+        hideExploredInfo();
+    }
 }
 
 function undoExploration() {
-    log.push({interval: intervalCount++, trusted: false});
-    hideExploredInfo();
+    if (agentNum == 1) {
+        log.agent1.push({interval: intervalCount, trusted: false});
+        hideExploredInfo();
+    } else if (agentNum == 2) {
+        log.agent2.push({interval: intervalCount++, trusted: false});
+        hideExploredInfo();
+    }
 }
 
 function updateScrollingPosition(loc) {
@@ -347,6 +396,7 @@ function updateTime() {
     seconds++;
     if (seconds % duration == 0) {
         seconds = 0;
+        agentNum = 1;
         showExploredInfo();
     }
     $timer.text(seconds);
@@ -359,7 +409,7 @@ function createMap(currentPath, cb) {
     tempAgent1Explored.clear();
     agent1Explored.clear();
     agent2Explored.clear();
-    log = [];
+    log = { agent1: [], agent2: [] };
     $log.empty();
 
     $.getJSON('src/details9.json', data => {
@@ -379,8 +429,9 @@ function createMap(currentPath, cb) {
     }).fail(() => {
         alert("An error has occured.");
     }).done(() => {
+        let tempLoc = agent1Traversal[agent1Index++];
         human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
-        agent1 = { id: "agent1", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
+        agent1 = { id: "agent1", loc: tempLoc.y + tempLoc.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
         agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
         victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
@@ -388,7 +439,7 @@ function createMap(currentPath, cb) {
         hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
         obstacles.push(victim1, victim2, hazard1, hazard2);
 
-        spawn([human, /* agent1, agent2,  */victim1, victim2, hazard1, hazard2], 1);
+        spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
         refreshMap();
 

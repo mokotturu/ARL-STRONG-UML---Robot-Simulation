@@ -47,7 +47,10 @@ router.post('/simulation/2', async (req, res) => {
                     agent1: req.body.agent1,
                     agent2: req.body.agent2,
                 },
-                decisions: req.body.decisions,
+                decisions: {
+                    agent1: req.body.decisions.agent1,
+                    agent2: req.body.decisions.agent2
+                },
                 obstacles: req.body.obstacles
             }
         );
