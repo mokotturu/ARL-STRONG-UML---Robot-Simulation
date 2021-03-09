@@ -250,8 +250,16 @@ nav {
     background: white;
 }
 
-.headings-container p:nth-child(2)::after {
+/* .headings-container p:nth-child(2)::after {
     background: #99ffb7;
+} */
+
+.headings-container .agent-text::after {
+    background: #99ffb7;
+}
+
+.headings-container .agent-text.changed::after {
+    background: #ffbf7f;
 }
 
 .headings-container p:nth-child(3)::after {

@@ -28,8 +28,10 @@ const LIGHT_TEAM_COLOR = "#ffff7f";
 const CELL_COLOR = "black";
 const EXPLORED_COLOR = "white";
 const WALL_COLOR = "black";
-const TEMP_COLOR = "#33ff70";
-const LIGHT_TEMP_COLOR = "#99ffb7";
+const TEMP_COLOR_1 = "#33ff70";
+const LIGHT_TEMP_COLOR_1 = "#99ffb7";
+const TEMP_COLOR_2 = "#ff8000";
+const LIGHT_TEMP_COLOR_2 = "#ffbf7f";
 const VICTIM_COLOR = "red";
 const HAZARD_COLOR = "yellow";
 
@@ -41,7 +43,6 @@ var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
 var tempAgent2Explored = new Set();
 var humanExplored = new Set();
-// var data = { movement: [], human: [], agentData: { agent1: [], agent2: [] }, decisions: [], obstacles: [], uuid: null };
 var uuid;
 var data = [{ movement: [], human: [], agent1: [], agent2: [] },
 { movement: [], human: [], agent1: [], agent2: [] }];
@@ -206,38 +207,13 @@ function terminate() {
             alert(err);
         }
     });
-
-    /* requests = [{ url: "/simulation/details", data: { uuid: data[half].uuid, obstacles: data[half].obstacles, decisions: data[half].decisions }},
-    { url: "/simulation/movement", data: { uuid: data[half].uuid, movement: data[half].movement } },
-    { url: "/simulation/human", data: data[half].human },
-    { url: "/simulation/agent1", data: data[half].agent1 },
-    { url: "/simulation/agent2", data: data[half].agent2 }] */
-    // console.log(requests);
-    // doAjax();
-
-    // window.location.href = "/survey-1";
-}
-
-function doAjax() {
-    // alert(requests[currentReq]);
-    if (currentReq < requests.length) {
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: requests[currentReq].url,
-            data: requests[currentReq].data,
-            complete: (jqXHR, status) => {
-                console.log(status);
-                ++currentReq;
-                doAjax();
-            }
-        });
-    }
 }
 
 function showExploredInfo() {
-    $humanImage.attr("src", $map.getCanvasImage());
-    $botImage.attr("src", $map.getCanvasImage());
+    if (agentNum == 1) {
+        $humanImage.attr("src", $map.getCanvasImage());
+        $botImage.attr("src", $map.getCanvasImage());
+    }
 
     drawMarkers(obstacles);
 
@@ -247,21 +223,17 @@ function showExploredInfo() {
     $popupModal.css('visibility', 'visible');
     $popupModal.css('opacity', '1');
     $minimapImage.attr("src", $map.getCanvasImage());
-    $agentText.html(`Agent ${agentNum} explored area (green)
-    <i class="fas fa-info-circle tooltip">
-        <span class="tooltiptext">If there is no area highlighted in green, then the agent did not explore any new area.</span>
-    </i>`);
 
     $log.empty();
 
     if (agentNum == 1) {
+        $agentText.toggleClass("changed", false);
+        $agentText.css("color", "#99ffb7");
+        $agentText.html(`Agent ${agentNum} explored area (green)
+        <i class="fas fa-info-circle tooltip">
+            <span class="tooltiptext">If there is no area highlighted in green, then the agent did not explore any new area.</span>
+        </i>`);
         if (log.agent1[intervalCount - 1] != null) {
-            /* let chosenOption = (log.agent1[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
-            if (chosenOption == "Integrated") {
-                $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
-            } else {
-                $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
-            } */
             log.agent1.forEach((data, i) => {
                 if (data.trusted) {
                     $log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
@@ -271,14 +243,12 @@ function showExploredInfo() {
             });
         }
     } else if (agentNum == 2) {
-        /* if (log.agent2[intervalCount - 1] != null) {
-            let chosenOption = (log.agent2[intervalCount - 1].trusted) ? "Integrated" : "Discarded";
-            if (chosenOption == "Integrated") {
-                $log.append(`<p style='background-color: #99ffb7;'>${intervalCount} - ${chosenOption}</p>`);
-            } else {
-                $log.append(`<p style='background-color: #ff9eae;'>${intervalCount} - ${chosenOption}</p>`);
-            }
-        } */
+        $agentText.toggleClass("changed", true);
+        $agentText.css("color", "#ffbf7f");
+        $agentText.html(`Agent ${agentNum} explored area (orange)
+        <i class="fas fa-info-circle tooltip">
+            <span class="tooltiptext">If there is no area highlighted in orange, then the agent did not explore any new area.</span>
+        </i>`);
         log.agent2.forEach((data, i) => {
             if (data.trusted) {
                 $log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
@@ -326,15 +296,15 @@ function hideExploredInfo() {
 
     $map.clearCanvas();
     humanExplored.forEach((key, item, set) => {
-        draw(grid[item]);
+        draw(grid[item], 0);
     });
 
     agent1Explored.forEach(function(key, item, set) {
-        draw(grid[item]);
+        draw(grid[item], 1);
     });
 
     agent2Explored.forEach(function(key, item, set) {
-        draw(grid[item]);
+        draw(grid[item], 2);
     });
 
     tempAgent1Explored.clear();
@@ -429,6 +399,7 @@ function createMap(currentPath, cb) {
     }).fail(() => {
         alert("An error has occured.");
     }).done(() => {
+        // 177414
         let tempLoc = agent1Traversal[agent1Index++];
         human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
         agent1 = { id: "agent1", loc: tempLoc.y + tempLoc.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
@@ -484,8 +455,13 @@ function drawMarkers(members) {
 }
 
 // draw a square given a cell
-function draw(cell) {
-    let lightColor = LIGHT_TEMP_COLOR, darkColor = TEMP_COLOR;
+// who: 0 - human, 1 - agent1, 2 - agent2
+function draw(cell, who) {
+    let lightColor = LIGHT_TEMP_COLOR_1, darkColor = TEMP_COLOR_1;
+    if (who == 2) {
+        lightColor = LIGHT_TEMP_COLOR_2;
+        darkColor = TEMP_COLOR_2;
+    }
 
     if (cell.isHumanExplored && !cell.isAgentExplored) {
         lightColor = LIGHT_HUMAN_COLOR;
@@ -533,14 +509,25 @@ function spawn(members, size) {
                 width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
             });
 
-            $map.drawText({
-                fromCenter: true,
-                fillStyle: LIGHT_TEMP_COLOR,
-                x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
-                fontSize: boxWidth,
-                fontFamily: 'Montserrat, sans-serif',
-                text: member.id == 'agent1' ? '1' : '2'
-            });
+            if (member.id == "agent1") {
+                $map.drawText({
+                    fromCenter: true,
+                    fillStyle: LIGHT_TEMP_COLOR_1,
+                    x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+                    fontSize: boxWidth,
+                    fontFamily: 'Montserrat, sans-serif',
+                    text: member.id == 'agent1' ? '1' : '2'
+                });
+            } else {
+                $map.drawText({
+                    fromCenter: true,
+                    fillStyle: LIGHT_TEMP_COLOR_2,
+                    x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+                    fontSize: boxWidth,
+                    fontFamily: 'Montserrat, sans-serif',
+                    text: member.id == 'agent1' ? '1' : '2'
+                });
+            }
         } else if (member.id == "victim" && member.isFound) {
             $map.drawEllipse({
                 fromCenter: true,
@@ -570,7 +557,7 @@ function refreshMap() {
         grid[item].isHumanExplored = true;
         humanExplored.add(item);
 
-        draw(grid[item]);
+        draw(grid[item], 0);
 
         for (let i = 0; i < obstacles.length; i++) {
             if (item == obstacles[i].loc) {
@@ -580,12 +567,13 @@ function refreshMap() {
     });
 
     // bot surroundings
+    // agent 1
     let agentFOV = findLineOfSight(agent1);
     let agentFOVSet = new Set(agentFOV);    // convert array to set
 
     agentFOVSet.forEach(item => {
         tempAgent1Explored.add(item);
-        draw(grid[item]);
+        draw(grid[item], 1);
 
         for (let i = 0; i < obstacles.length; i++) {
             if (item == obstacles[i].loc) {
@@ -594,12 +582,13 @@ function refreshMap() {
         }
     });
     
+    // agent 2
     agentFOV = findLineOfSight(agent2);
     agentFOVSet = new Set(agentFOV);    // convert array to set
 
     agentFOVSet.forEach(item => {
         tempAgent2Explored.add(item);
-        draw(grid[item]);
+        draw(grid[item], 2);
 
         for (let i = 0; i < obstacles.length; i++) {
             if (item == obstacles[i].loc) {

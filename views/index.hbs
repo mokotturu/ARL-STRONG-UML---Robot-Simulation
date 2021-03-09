@@ -35,7 +35,7 @@
     <div class="content-block">
         <img src='img/green.png'>
         <p>
-            The red colored square represents an agent on the map that moves autonomously.
+            The red colored square marked by "1" represents the first agent on the map that moves autonomously.
             The green colored area shaded around the agent is the area of the map 
             visible to (agent's field of view)/explored by the agent in the current interval.
         </p>
@@ -43,29 +43,27 @@
 
     <div class="content-block">
         <p>
-            The light red colored area shaded on the map is the area of the map
-            that has been explored by the agent in the past intervals and has been integrated by the human.
+            The red colored square marked by "2" represents the second agent on the map that moves autonomously.
+            The orange colored area shaded around the agent is the area of the map 
+            visible to (agent's field of view)/explored by the agent in the current interval.
         </p>
-        <img src='img/red.png'>
+        <img src='img/orange.png'>
     </div>
 
     <div class="content-block">
-        <img src='img/yellow.png'>
+        <img src='img/red.png'>
+        <p>
+            The light red colored area shaded on the map is the area of the map
+            that has been explored by the agent in the past intervals and has been integrated by the human.
+        </p>
+    </div>
+
+    <div class="content-block">
         <p>
             The yellow colored area shaded on the map is the area of the map
             that has been explored by both the agent and the human in the past intervals and has been integrated by the human.
         </p>
-    </div>
-
-    <div class="content-block">
-        <p>
-            Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 30 seconds, you will be shown the images of 
-            the current state of the whole map, the human explored area, and the agent explored area. You will be prompted 
-            to either integrate or discard both agents' explored regions (Agent 1 and Agent 2). If you choose to integrate, the agent explored region 
-            (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is 
-            considered unexplored.
-        </p>
-        <img src='img/pop-up.png'>
+        <img src='img/yellow.png'>
     </div>
 
     <div class="content-block">
@@ -82,6 +80,23 @@
         <img src='img/hazard-marker-front.png'>
     </div>
 
+    <div class="content-block">
+        <img src='img/pop-up.png'>
+        <p>
+            Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 30 seconds, you will be shown the images of 
+            the current state of the whole map, the human explored area, and the agent explored area. You will be prompted 
+            to either integrate or discard both agents' explored regions (Agent 1 and Agent 2). If you choose to integrate, the agent explored region 
+            (shaded green) will turn red. If you choose to discard this area, the green colored region will disappear and is 
+            considered unexplored.
+        </p>
+    </div>
+
+    {{!-- <div class="content-block">
+        <p>
+            The goal of the user is to explore the space along with the agents in search of the victims. As you search, you will encounter 
+            victims (represented by a red circle) and hazards (represented by a yellow triangle) on the map.
+        </p>
+    </div> --}}
     
     <button id="begin" onclick="showConsentForm()">Begin Simulation</button>
 </div>
