@@ -16,6 +16,8 @@ This study is largely exploratory. We will vary study parameters such as the goa
 The website uses Node JS, Express, and MongoDB.
 
 ## Instructions on how to use the website
+Your goal is to explore a set of rooms and find as many victims and hazards as possible. You will have help from two autonomous agents. You do not need to do anything when you find a victim or a hazard, the system will record your exploration as you move.
+
 ![human on the map](/public/img/blue.png)
 
 The blue colored square represents a human on the map. The light blue colored area shaded around the human is the area of the map visible to (human's field of view)/explored by the human.
