@@ -37,7 +37,8 @@ const HAZARD_COLOR = "yellow";
 
 var grid = [];
 var agent1Traversal = [];
-var agent1Index = 0, agentNum = 1;
+var agent2Traversal = [];
+var agent1Index = 0, agent2Index = 0, agentNum = 1;
 var agent1Explored = new Set();
 var agent2Explored = new Set();
 var tempAgent1Explored = new Set();
@@ -105,7 +106,7 @@ $(document).ready(() => {
             if (intervalCount >= intervals) terminate();
             moveAgent1(agent1);
             // randomWalk(agent1);
-            randomWalk(agent2);
+            moveAgent2(agent2);
         }
     });
 
@@ -388,6 +389,12 @@ function createMap(currentPath, cb) {
         })
     });
 
+    $.getJSON('src/bnm9.json', data => {
+        Object.entries(data).forEach(([key, value]) => {
+            agent2Traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y });
+        });
+    });
+
     $.getJSON(currentPath, data => {
         rows = data.dimensions[0].rows;
         columns = data.dimensions[0].columns;
@@ -400,10 +407,11 @@ function createMap(currentPath, cb) {
         alert("An error has occured.");
     }).done(() => {
         // 177414
-        let tempLoc = agent1Traversal[agent1Index++];
+        let tempLoc1 = agent1Traversal[agent1Index++];
+        let tempLoc2 = agent2Traversal[agent2Index++];
         human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
-        agent1 = { id: "agent1", loc: tempLoc.y + tempLoc.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
-        agent2 = { id: "agent2", loc: getRandomLoc(grid), color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+        agent1 = { id: "agent1", loc: tempLoc1.y + tempLoc1.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
+        agent2 = { id: "agent2", loc: tempLoc2.cY + tempLoc2.cX*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
         victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
         hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
@@ -651,8 +659,17 @@ function moveAgent1(agent) {
     refreshMap();
 
     let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-    if (agent.id == "agent1") data[half].agent1.push(tracker);
-    else if (agent.id == "agent2") data[half].agent2.push(tracker);
+    data[half].agent1.push(tracker);
+}
+
+function moveAgent2(agent) {
+    let tempLoc = agent2Traversal[agent2Index++];
+    agent.loc = tempLoc.cY + tempLoc.cX*columns;
+
+    refreshMap();
+
+    let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+    data[half].agent2.push(tracker);
 }
 
 function randomWalk(agent) {
