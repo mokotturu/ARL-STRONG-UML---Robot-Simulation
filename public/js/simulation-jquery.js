@@ -389,9 +389,15 @@ function createMap(currentPath, cb) {
 		})
 	});
 
-	$.getJSON('src/bnm9.json', data => {
+	/* $.getJSON('src/bnm9.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
 			agent2Traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y });
+		});
+	}); */
+
+	$.getJSON('src/data9_coverage_9x9.json', data => {
+		Object.entries(data).forEach(([key, value]) => {
+			agent2Traversal.push({ current: value.current, explored: value.explored.concat(value.visited) });
 		});
 	});
 
@@ -411,7 +417,7 @@ function createMap(currentPath, cb) {
 		let tempLoc2 = agent2Traversal[agent2Index++];
 		human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
 		agent1 = { id: "agent1", loc: tempLoc1.y + tempLoc1.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
-		agent2 = { id: "agent2", loc: tempLoc2.cY + tempLoc2.cX*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		agent2 = { id: "agent2", loc: tempLoc2.current[0][1] + tempLoc2.current[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
 		victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
 		victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
 		hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
@@ -431,13 +437,13 @@ function createMap(currentPath, cb) {
 		data[half].human.push(tracker);
 		// console.log(tracker);
 
-		/* tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+		tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
 		data[half].agent1.push(tracker);
 		// console.log(tracker);
 
 		tracker = { loc: agent2.loc, t: Math.round((performance.now()/1000) * 100)/100 };
 		data[half].agent2.push(tracker);
-		// console.log(tracker); */
+		// console.log(tracker);
 
 		updateScrollingPosition(grid[human.loc]);
 		timeout = setInterval(updateTime, 1000);
@@ -591,7 +597,7 @@ function refreshMap() {
 	});
 	
 	// agent 2
-	agentFOV = findLineOfSight(agent2);
+	/* agentFOV = findLineOfSight(agent2);
 	agentFOVSet = new Set(agentFOV);	// convert array to set
 
 	agentFOVSet.forEach(item => {
@@ -603,7 +609,31 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-	});
+	}); */
+
+	agentFOV = agent2Traversal[agent2Index - 1].explored;
+	agentFOVSet = new Set(agentFOV);
+
+	agentFOVSet.forEach(item => {
+		let thisCell = item[1] + item[0]*columns;
+		let neighbours = [thisCell - 1, thisCell - 1 + columns, thisCell + columns, thisCell + columns + 1, thisCell + 1, thisCell - columns + 1, thisCell - columns, thisCell - columns - 1];
+
+		tempAgent2Explored.add(thisCell);
+		draw(grid[thisCell], 2);
+		
+		neighbours.forEach((data, i) => {
+			if (grid[data].isWall) {
+				tempAgent2Explored.add(data);
+				draw(grid[data], 2);
+			}
+		});
+
+		for (let i = 0; i < obstacles.length; ++i) {
+			if (item == obstacles[i].loc) {
+				obstacles[i].isFound = true;
+			}
+		}
+	})
 
 	spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
@@ -663,8 +693,16 @@ function moveAgent1(agent) {
 }
 
 function moveAgent2(agent) {
-	let tempLoc = agent2Traversal[agent2Index++];
+	/* let tempLoc = agent2Traversal[agent2Index++];
 	agent.loc = tempLoc.cY + tempLoc.cX*columns;
+
+	refreshMap();
+
+	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	data[half].agent2.push(tracker); */
+
+	let tempLoc = agent2Traversal[agent2Index++];
+	agent.loc = tempLoc.current[0][1] + tempLoc.current[0][0]*columns;
 
 	refreshMap();
 
