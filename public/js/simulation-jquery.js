@@ -45,16 +45,31 @@ var tempAgent1Explored = new Set();
 var tempAgent2Explored = new Set();
 var humanExplored = new Set();
 var uuid;
-var data = [{ movement: [], human: [], agent1: [], agent2: [] },
-{ movement: [], human: [], agent1: [], agent2: [] }];
+var data = [{ movement: [], human: [], agent1: [], agent2: [] }, { movement: [], human: [], agent1: [], agent2: [] }];
 var obstacles = [];
 var human, agent1, agent2;
 var victim1, victim2, hazard1, hazard2;
-var mapPaths = ["src/sample-map.json", "src/data.json", "src/data1.json", "src/data3.json", "src/data4.json", "src/data6.json", "src/data7.json", "src/data8.json", "src/data9.min.json", "src/data10.json", "src/data11.json", "src/data12.json", "src/data13.json", "src/data14.json"];
-var pathIndex = 8;
+var mapPaths = [
+	"src/data9.min.json",	// 0
+	"src/data9.min.json",	// 1
+	"src/data9.min.json",	// 2
+	"src/data9.min.json",	// 3
+	"src/data9.min.json",	// 4
+	"src/data9.min.json",	// 5
+	"src/data9.min.json",	// 6
+	"src/data9.min.json",	// 7
+	"src/data9.min.json",	// 8
+	"src/data9.min.json",	// 9
+	"src/data10.min.json",	// 10
+	"src/data11.min.json",	// 11
+	"src/data12.min.json",	// 12
+	"src/data13.min.json",	// 13
+	"src/data14.min.json"	// 14
+];
+var pathIndex = 9;
 var currentPath = mapPaths[pathIndex];
 
-var viewRadius = 7;
+var viewRadius = 9;
 var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
@@ -395,7 +410,7 @@ function createMap(currentPath, cb) {
 		});
 	}); */
 
-	$.getJSON('src/data9_coverage_9x9.json', data => {
+	$.getJSON('src/data9_9x9.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
 			agent2Traversal.push({ current: value.current, explored: value.explored.concat(value.visited) });
 		});
