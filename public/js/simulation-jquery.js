@@ -50,23 +50,23 @@ var obstacles = [];
 var human, agent1, agent2;
 var victim1, victim2, hazard1, hazard2;
 var mapPaths = [
-	"src/data9.min.json",	// 0
-	"src/data9.min.json",	// 1
-	"src/data9.min.json",	// 2
-	"src/data9.min.json",	// 3
-	"src/data9.min.json",	// 4
-	"src/data9.min.json",	// 5
-	"src/data9.min.json",	// 6
-	"src/data9.min.json",	// 7
-	"src/data9.min.json",	// 8
-	"src/data9.min.json",	// 9
+	"src/data9.min.json",	//  0
+	"src/data9.min.json",	//  1
+	"src/data9.min.json",	//  2
+	"src/data9.min.json",	//  3
+	"src/data9.min.json",	//  4
+	"src/data9.min.json",	//  5
+	"src/data9.min.json",	//  6
+	"src/data9.min.json",	//  7
+	"src/data9.min.json",	//  8
+	"src/data9.min.json",	//  9
 	"src/data10.min.json",	// 10
 	"src/data11.min.json",	// 11
 	"src/data12.min.json",	// 12
 	"src/data13.min.json",	// 13
 	"src/data14.min.json"	// 14
 ];
-var pathIndex = 9;
+var pathIndex = 10;
 var currentPath = mapPaths[pathIndex];
 
 var viewRadius = 9;
@@ -119,9 +119,10 @@ $(document).ready(() => {
 
 		if (!pause) {
 			if (intervalCount >= intervals) terminate();
-			moveAgent1(agent1);
-			// randomWalk(agent1);
-			moveAgent2(agent2);
+			// moveAgent1(agent1);
+			randomWalk(agent1);
+			randomWalk(agent2);
+			// moveAgent2(agent2);
 		}
 	});
 
@@ -398,23 +399,25 @@ function createMap(currentPath, cb) {
 	log = { agent1: [], agent2: [] };
 	$log.empty();
 
-	$.getJSON('src/details9.json', data => {
+	// agent 1
+	/* $.getJSON('src/details9.json', data => {
 		$.each(data.traversal, (i, value) => {
 			agent1Traversal.push({ x: value[0], y: value[1] });
 		})
-	});
+	}); */
 
+	// agent 2
 	/* $.getJSON('src/bnm9.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
 			agent2Traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y });
 		});
 	}); */
 
-	$.getJSON('src/data9_9x9.json', data => {
+	/* $.getJSON('src/data9_9x9.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
 			agent2Traversal.push({ current: value.current, explored: value.explored.concat(value.visited) });
 		});
-	});
+	}); */
 
 	$.getJSON(currentPath, data => {
 		rows = data.dimensions[0].rows;
@@ -427,16 +430,16 @@ function createMap(currentPath, cb) {
 	}).fail(() => {
 		alert("An error has occured.");
 	}).done(() => {
-		// 177414
-		let tempLoc1 = agent1Traversal[agent1Index++];
-		let tempLoc2 = agent2Traversal[agent2Index++];
-		human = { id: "human", loc: getRandomLoc(grid), color: HUMAN_COLOR, dir: 1 };
-		agent1 = { id: "agent1", loc: tempLoc1.y + tempLoc1.x*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 10, maxSteps: 20 };
-		agent2 = { id: "agent2", loc: tempLoc2.current[0][1] + tempLoc2.current[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
-		victim1 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
-		victim2 = { id: "victim", loc: getRandomLoc(grid), color: VICTIM_COLOR, isFound: false };
-		hazard1 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
-		hazard2 = { id: "hazard", loc: getRandomLoc(grid), color: HAZARD_COLOR, isFound: false };
+		// data 9: 177414
+		// let tempLoc1 = agent1Traversal[agent1Index++];
+		// let tempLoc2 = agent2Traversal[agent2Index++];
+		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
+		agent1 = { id: "agent1", loc: 131320/* tempLoc1.y + tempLoc1.x*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		agent2 = { id: "agent2", loc: 141348/* tempLoc2.current[0][1] + tempLoc2.current[0][0]*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		victim1 = { id: "victim", loc: 161644, color: VICTIM_COLOR, isFound: false };
+		victim2 = { id: "victim", loc: 172422, color: VICTIM_COLOR, isFound: false };
+		hazard1 = { id: "hazard", loc: 162259, color: HAZARD_COLOR, isFound: false };
+		hazard2 = { id: "hazard", loc: 158390, color: HAZARD_COLOR, isFound: false };
 		obstacles.push(victim1, victim2, hazard1, hazard2);
 
 		spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
@@ -444,7 +447,7 @@ function createMap(currentPath, cb) {
 		refreshMap();
 
 		console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
-		console.log(uuid);
+		// console.log(uuid);
 		// console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent1.loc);
 		// console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent2.loc);
 		
@@ -612,7 +615,7 @@ function refreshMap() {
 	});
 	
 	// agent 2
-	/* agentFOV = findLineOfSight(agent2);
+	agentFOV = findLineOfSight(agent2);
 	agentFOVSet = new Set(agentFOV);	// convert array to set
 
 	agentFOVSet.forEach(item => {
@@ -624,9 +627,9 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-	}); */
+	});
 
-	agentFOV = agent2Traversal[agent2Index - 1].explored;
+	/* agentFOV = agent2Traversal[agent2Index - 1].explored;
 	agentFOVSet = new Set(agentFOV);
 
 	agentFOVSet.forEach(item => {
@@ -648,7 +651,7 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-	})
+	}); */
 
 	spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
 
