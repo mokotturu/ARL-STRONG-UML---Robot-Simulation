@@ -1,387 +1,387 @@
 html, body {
-    margin: 0;
-    padding: 0;
-    top: 0;
-    left: 0;
-    background-color: #252525;
-    color: white;
-    scroll-behavior: smooth;
-    font-family: 'Montserrat', 'sans-serif';
+	margin: 0;
+	padding: 0;
+	top: 0;
+	left: 0;
+	background-color: #252525;
+	color: white;
+	scroll-behavior: smooth;
+	font-family: 'Montserrat', 'sans-serif';
 }
 
 ::-webkit-scrollbar {
-    height: 10px;
-    width: 10px;
-    background: #121212;
-    padding: 0 3px 3px 0;
-    border-radius: 10px;
+	height: 10px;
+	width: 10px;
+	background: #121212;
+	padding: 0 3px 3px 0;
+	border-radius: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px #121212;
-    -moz-box-shadow: inset 0 0 5px #121212;
-    -webkit-box-shadow: inset 0 0 5px #121212;
-    border-radius: 10px;
+	box-shadow: inset 0 0 5px #121212;
+	-moz-box-shadow: inset 0 0 5px #121212;
+	-webkit-box-shadow: inset 0 0 5px #121212;
+	border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: grey;
-    border-radius: 10px;
+	background: grey;
+	border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: lightgrey;
+	background: lightgrey;
 }
 
 .disabled {
-    pointer-events: none;
+	pointer-events: none;
 }
 
 #background-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 0;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	z-index: 0;
 }
 
 video {
-    top: 0;
-    left: 0;
-    display: block;
-    margin: 0;
-    width: 100%;
-    height: 100vh;
-    object-fit: cover;
+	top: 0;
+	left: 0;
+	display: block;
+	margin: 0;
+	width: 100%;
+	height: 100vh;
+	object-fit: cover;
 }
 
 #shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    box-shadow: inset 0 0 150px 10px black;
-    -webkit-box-shadow: inset 0 0 150px 10px black;
-    -moz-box-shadow: inset 0 0 150px 10px black;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	box-shadow: inset 0 0 150px 10px black;
+	-webkit-box-shadow: inset 0 0 150px 10px black;
+	-moz-box-shadow: inset 0 0 150px 10px black;
 }
 
 nav {
-    width: 100%;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    height: 8%;
-    position: fixed;
-    z-index: 10000;
-    transition: 0.3s linear;
+	width: 100%;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	height: 8%;
+	position: fixed;
+	z-index: 10000;
+	transition: 0.3s linear;
 }
 
 nav.scrolled {
-    background-color: white !important;
-    color: #121212 !important;
-    transition: 0.3s linear;
-    -webkit-box-shadow: 0 0 20px black;
-    -moz-box-shadow: 0 0 20px black;
-    box-shadow: 0 0 20px black;
+	background-color: white !important;
+	color: #121212 !important;
+	transition: 0.3s linear;
+	-webkit-box-shadow: 0 0 20px black;
+	-moz-box-shadow: 0 0 20px black;
+	box-shadow: 0 0 20px black;
 }
 
 nav a {
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-    font-size: 30px;
-    padding: 0 50px;
-    margin-right: auto;
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+	font-size: 30px;
+	padding: 0 50px;
+	margin-right: auto;
 }
 
 nav a.scrolled {
-    color: #121212 !important;
+	color: #121212 !important;
 }
 
 nav .items {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 nav .items p {
-    padding: 0 50px;
+	padding: 0 50px;
 }
 
 .main-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    height: 100vh;
-    padding: 0 50px;
-    z-index: 1000;
-    scroll-behavior: smooth;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	height: 100vh;
+	padding: 0 50px;
+	z-index: 1000;
+	scroll-behavior: smooth;
 }
 
 .main-content h1 {
-    font-size: 70px;
-    padding-top: 20%;
-    padding-bottom: 30px;
-    margin: 0;
-    text-align: center;
-    line-height: 0.7;
-    text-shadow: 0 0 10px grey;
-    border-bottom: 5px solid #808080;
-    color: white;
-    line-height: 120%;
+	font-size: 70px;
+	padding-top: 20%;
+	padding-bottom: 30px;
+	margin: 0;
+	text-align: center;
+	line-height: 0.7;
+	text-shadow: 0 0 10px grey;
+	border-bottom: 5px solid #808080;
+	color: white;
+	line-height: 120%;
 }
 
 .main-content .buttonsCollection {
-    display: flex;
-    align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .main-content .buttonsCollection a {
-    font-family: 'Montserrat', 'sans-serif';
-    font-size: 18px;
-    padding: 20px 40px;
-    background-color: #808080;
-    border: 0;
-    border-radius: 50px;
-    color: white;
-    margin: 35px 0;
-    transition: 0.3s;
-    text-align: center;
-    -webkit-box-shadow: 0 0 10px grey;
-    -moz-box-shadow: 0 0 10px grey;
-    box-shadow: 0 0 10px grey;
+	font-family: 'Montserrat', 'sans-serif';
+	font-size: 18px;
+	padding: 20px 40px;
+	background-color: #808080;
+	border: 0;
+	border-radius: 50px;
+	color: white;
+	margin: 35px 0;
+	transition: 0.3s;
+	text-align: center;
+	-webkit-box-shadow: 0 0 10px grey;
+	-moz-box-shadow: 0 0 10px grey;
+	box-shadow: 0 0 10px grey;
 }
 
 #begin {
-    font-family: 'Montserrat', 'sans-serif';
-    font-size: 18px;
-    padding: 20px 40px;
-    background-color: #808080;
-    border: 0;
-    border-radius: 50px;
-    color: white;
-    margin: 0;
-    transition: 0.3s;
-    text-align: center;
-    -webkit-box-shadow: 0 0 10px grey;
-    -moz-box-shadow: 0 0 10px grey;
-    box-shadow: 0 0 10px grey;
+	font-family: 'Montserrat', 'sans-serif';
+	font-size: 18px;
+	padding: 20px 40px;
+	background-color: #808080;
+	border: 0;
+	border-radius: 50px;
+	color: white;
+	margin: 0;
+	transition: 0.3s;
+	text-align: center;
+	-webkit-box-shadow: 0 0 10px grey;
+	-moz-box-shadow: 0 0 10px grey;
+	box-shadow: 0 0 10px grey;
 }
 
 #begin:hover {
-    background-color: white;
-    color: #121212;
-    cursor: pointer;
+	background-color: white;
+	color: #121212;
+	cursor: pointer;
 }
 
 .main-content .buttonsCollection a:hover {
-    background-color: white;
-    color: #121212;
-    cursor: pointer;
+	background-color: white;
+	color: #121212;
+	cursor: pointer;
 }
 
 .page-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: 0 50px;
-    z-index: 1000;
-    scroll-behavior: smooth;
-    text-align: center;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100vh;
+	padding: 0 50px;
+	z-index: 1000;
+	scroll-behavior: smooth;
+	text-align: center;
 }
 
 .page-content h2 {
-    font-size: 70px;
+	font-size: 70px;
 }
 
 .page-content p {
-    font-size: 30px;
+	font-size: 30px;
 }
 
 .page-content button {
-    margin: 20px 0;
-    font-size: 20px;
+	margin: 20px 0;
+	font-size: 20px;
 }
 
 .main-content .buttonsCollection a:hover {
-    border-bottom: 2px solid white;
-    cursor: pointer;
+	border-bottom: 2px solid white;
+	cursor: pointer;
 }
 
 #instructions {
-    position: relative;
-    font-family: 'Montserrat', 'sans-serif';
-    font-size: 18px;
-    line-height: 150%;
-    padding: 0 150px 100px 150px;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    scroll-behavior: smooth;
+	position: relative;
+	font-family: 'Montserrat', 'sans-serif';
+	font-size: 18px;
+	line-height: 150%;
+	padding: 0 150px 100px 150px;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	scroll-behavior: smooth;
 }
 
 #popup-modal {
-    visibility: hidden;
-    opacity: 0;
-    position: fixed;
-    z-index: 100000;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    color: black;
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 0 20px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: visibility 0.2s linear, opacity 0.2s linear;
+	visibility: hidden;
+	opacity: 0;
+	position: fixed;
+	z-index: 100000;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	color: black;
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 0 20px;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: visibility 0.2s linear, opacity 0.2s linear;
 }
 
 #popup-modal-container {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border-radius: 7px;
-    padding: 20px;
-    margin: auto auto;
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	border-radius: 7px;
+	padding: 20px;
+	margin: auto auto;
 }
 
 #pdf {
-    width: 60vw;
-    height: 70vh;
+	width: 60vw;
+	height: 70vh;
 }
 
 code {
-    background-color: lightgrey;
-    border-radius: 7px;
-    padding: 10px 20px;
+	background-color: lightgrey;
+	border-radius: 7px;
+	padding: 10px 20px;
 }
 
 #consent-form {
-    padding: 20px 20px 0 20px;
-    height: 90%;
+	padding: 20px 20px 0 20px;
+	height: 90%;
 }
 
 #userInputButtons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 10%;
-    padding: 20px 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 10%;
+	padding: 20px 0;
 }
 
 button {
-    font-family: 'Montserrat', 'sans-serif';
-    font-size: 14px;
-    font-weight: bold;
-    margin: 0 10px;
-    padding: 10px 20px;
-    box-shadow: 0 0 10px black;
-    -webkit-box-shadow: 0 0 10px black;
-    -moz-box-shadow: 0 0 10px black;
-    background-color: white;
-    border-radius: 50px;
-    transition: 0.2s;
+	font-family: 'Montserrat', 'sans-serif';
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0 10px;
+	padding: 10px 20px;
+	box-shadow: 0 0 10px black;
+	-webkit-box-shadow: 0 0 10px black;
+	-moz-box-shadow: 0 0 10px black;
+	background-color: white;
+	border-radius: 50px;
+	transition: 0.2s;
 }
 
 button:hover {
-    background-color: black;
-    border: 2px solid white;
-    color: white;
-    cursor: pointer;
+	background-color: black;
+	border: 2px solid white;
+	color: white;
+	cursor: pointer;
 }
 
 h2 {
-    margin: 50px 0;
+	margin: 50px 0;
 }
 
 .content-block {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 50px 0;
-    border-top: 2px solid white;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 50px 0;
+	border-top: 2px solid white;
 }
 
 .content-block p {
-    padding: 0 50px;
+	padding: 0 50px;
 }
 
 .content-block img {
-    width: 30%;
+	width: 30%;
 }
 
 #backToTop {
-    background-color: white;
-    color: black;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    border-radius: 50px;
-    border: 1px solid black;
-    visibility: hidden;
-    opacity: 0;
-    transition: 0.3s;
-    z-index: 99999;
+	background-color: white;
+	color: black;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	padding: 10px 20px;
+	border-radius: 50px;
+	border: 1px solid black;
+	visibility: hidden;
+	opacity: 0;
+	transition: 0.3s;
+	z-index: 99999;
 }
 
 #backToTop.scrolled {
-    visibility: visible;
-    opacity: 1;
+	visibility: visible;
+	opacity: 1;
 }
 
 #backToTop:hover {
-    border: 1px solid white;
-    background-color: black;
-    color: white;
-    cursor: pointer;
+	border: 1px solid white;
+	background-color: black;
+	color: white;
+	cursor: pointer;
 }
 
 footer {
-    margin: 0;
-    padding: 30px;
-    background-color: #121212;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
+	margin: 0;
+	padding: 30px;
+	background-color: #121212;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: center;
 }
 
 footer h1 {
-    font-size: 24px;
-    padding: 50px 0 30px 0;
-    border-bottom: 2px solid white;
+	font-size: 24px;
+	padding: 50px 0 30px 0;
+	border-bottom: 2px solid white;
 }
 
 footer a {
-    text-decoration: none;
-    color: white;
-    padding: 10px;
-    margin: 20px 0 50px 0;
-    border-radius: 50px;
-    background-color: #161b22;
-    transition: 0.3s;
+	text-decoration: none;
+	color: white;
+	padding: 10px;
+	margin: 20px 0 50px 0;
+	border-radius: 50px;
+	background-color: #161b22;
+	transition: 0.3s;
 }
 
 footer a:hover {
-    -webkit-transform: rotate(360deg) scale(1);
-    transform: rotate(360deg) scale(1);
-    background-color: #6e7681;
+	-webkit-transform: rotate(360deg) scale(1);
+	transform: rotate(360deg) scale(1);
+	background-color: #6e7681;
 }
