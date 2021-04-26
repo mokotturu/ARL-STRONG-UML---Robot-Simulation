@@ -1,237 +1,1034 @@
-var canvas = document.getElementById("map");
-var context = canvas.getContext("2d");
+const $mapContainer = $('#map-container');
+const $map = $('#map');
+const $timer = $('#timer');
+const $popupModal = $("#popup-modal");
+const $minimapImage = $("#minimap");
+const $humanImage = $("#human-image");
+const $botImage = $("#bot-image");
+const $log = $('.tableItems');
+const $dropdown = $('#maps');
+const $progressbar = $('.background');
+const $agentText = $('.agent-text');
+$.jCanvas.defaults.fromCenter = false;
 
-context.canvas.width = window.innerWidth/3;
-context.canvas.height = window.innerWidth/3;
+var rows;
+var columns;
 
-var rows = 30;
-var columns = 30;
-
-var canvasWidth = canvas.width;
-var canvasHeight = canvas.height;
+const canvasWidth = $map.width();
+const canvasHeight = $map.height();
 var boxWidth;
 var boxHeight;
 
-const CELL_COLOR = "black";
-const USER_BOT_COLOR = "blue";
-const AUTO_BOT_COLOR = "red";
-const EXPLORED_COLOR = "white";
+const HUMAN_COLOR = "#3333ff";
+const LIGHT_HUMAN_COLOR = "#9999ff";
+const AGENT_COLOR = "#ff3d5d";
+const LIGHT_AGENT_COLOR = "#ff9eae";
+const TEAM_COLOR = "#ffff7f";
+const LIGHT_TEAM_COLOR = "#ffff7f";
+const WALL_COLOR = "black";
+const TEMP_COLOR_1 = "#33ff70";
+const LIGHT_TEMP_COLOR_1 = "#99ffb7";
+const TEMP_COLOR_2 = "#ff8000";
+const LIGHT_TEMP_COLOR_2 = "#ffbf7f";
+const VICTIM_COLOR = "red";
+const HAZARD_COLOR = "yellow";
 
-var map = [];
-var bots = [];
+var grid = [];
+var agent1Traversal = [];
+var agent2Traversal = [];
+var agent1Index = 0, agent2Index = 0, agentNum = 1;
+var agent1Explored = new Set();
+var agent2Explored = new Set();
+var humanExplored = new Set();
+var tempAgent1Explored = new Set();
+var tempAgent2Explored = new Set();
+var tempHumanExplored = new Set();
+var uuid;
+var data = [{ movement: [], human: [], agent1: [], agent2: [] }, { movement: [], human: [], agent1: [], agent2: [] }];
+var obstacles = [];
+var human, agent1, agent2;
+var victim1, victim2, hazard1, hazard2;
+var mapPaths = [
+	"src/data9.min.json",	//  0
+	"src/data9.min.json",	//  1
+	"src/data9.min.json",	//  2
+	"src/data9.min.json",	//  3
+	"src/data9.min.json",	//  4
+	"src/data9.min.json",	//  5
+	"src/data9.min.json",	//  6
+	"src/data9.min.json",	//  7
+	"src/data9.min.json",	//  8
+	"src/data9.min.json",	//  9
+	"src/data10.min.json",	// 10
+	"src/data11.min.json",	// 11
+	"src/data12.min.json",	// 12
+	"src/data13.min.json",	// 13
+	"src/data14.min.json"	// 14
+];
+var pathIndex = 10;
+var currentPath = mapPaths[pathIndex];
 
-var count = 0;
-var waitCount = 4;
+var viewRadius = 9;
+var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
+var eventListenersAdded = false, fullMapDrawn = false, pause = false;
+var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
+var intervalCount = 0, half = 0, intervals = 10, duration = 30;
+var log = { agent1: [], agent2: [] };
 
-createMap();
-drawMap();
+var victimMarker = new Image();
+var hazardMarker = new Image();
+victimMarker.src = 'img/victim-marker-big.png';
+hazardMarker.src = 'img/hazard-marker-big.png';
 
-var userBot = {loc: getRandomLoc(), color: USER_BOT_COLOR, dir: 1};
-var autoBot = {loc: getRandomLoc(), color: AUTO_BOT_COLOR, dir: 1};
-bots.push(userBot, autoBot);
+var requests;
+var currentReq = 0;
 
-spawnBot(userBot);
-spawnBot(autoBot);
+$(document).ready(() => {
+	startTime = new Date();
+	uuid = sessionStorage.getItem('uuid');
 
-// auto bot movement
-function loop() {
-  requestAnimationFrame(loop);
+	$('.body-container').css('visibility', 'hidden');
+	$('.body-container').css('opacity', '0');
+	$('.loader').css('visibility', 'visible');
+	$('.loader').css('opacity', '1');
 
-  // set speed
-  if (++count < waitCount) {
-    return;
-  }
+	createMap(currentPath, function loop() {
+		$('.loader').css('visibility', 'hidden');
+		$('.body-container').css('visibility', 'visible');
+		$('.body-container').css('opacity', '1');
 
-  count = 0;
+		if (!eventListenersAdded) {
+			// document arrow keys event listener
+			$(document).on('keydown', e => {
+				eventKeyHandlers(e);
+			});
+			eventListenersAdded = true;
+		}
 
-  switch (autoBot.dir) {
-    case 1:
-      if (Math.floor(map[autoBot.loc].y) != 1 && !map[autoBot.loc - columns].isWall && !map[autoBot.loc - columns].isOccupied) {
-        map[autoBot.loc].isOccupied = !map[autoBot.loc].isOccupied;
-        map[autoBot.loc].isExplored = true;
-        autoBot.loc -= columns;
-        refreshMap();
-      } else {
-        autoBot.dir = Math.random() < Math.random() ? 4 : 2;
-      }
-      break;
-    case 2:
-      if (Math.floor(map[autoBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !map[autoBot.loc + 1].isWall && !map[autoBot.loc + 1].isOccupied) {
-        map[autoBot.loc].isOccupied = !map[autoBot.loc].isOccupied;
-        map[autoBot.loc].isExplored = true;
-        autoBot.loc++;
-        refreshMap();
-      } else {
-        autoBot.dir = Math.random() < Math.random() ? 1 : 3;
-      }
-      break;
-    case 3:
-      if (Math.floor(map[autoBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !map[autoBot.loc + columns].isWall && !map[autoBot.loc + columns].isOccupied) {
-        map[autoBot.loc].isOccupied = !map[autoBot.loc].isOccupied;
-        map[autoBot.loc].isExplored = true;
-        autoBot.loc += columns;
-        refreshMap();
-      } else {
-        autoBot.dir = Math.random() < Math.random() ? 2 : 4;
-      }
-      break;
-    case 4:
-      if (Math.floor(map[autoBot.loc].x) != 1 && !map[autoBot.loc - 1].isWall && !map[autoBot.loc - 1].isOccupied) {
-        map[autoBot.loc].isOccupied = !map[autoBot.loc].isOccupied;
-        map[autoBot.loc].isExplored = true;
-        autoBot.loc--;
-        refreshMap();
-      } else {
-        autoBot.dir = Math.random() < Math.random() ? 3 : 1;
-      }
-      break;
-    default:
-      // nothing
-      break;
-  }
+		requestAnimationFrame(loop);
+
+		// set speed
+		if (++count < waitCount) {
+			return;
+		}
+
+		count = 0;
+
+		if (!pause) {
+			if (intervalCount >= intervals) terminate();
+			// moveAgent1(agent1);
+			// moveAgent2(agent2);
+			randomWalk(agent1);
+			randomWalk(agent2);
+		}
+	});
+
+	requestAnimationFrame(loop);
+});
+
+function union(setA, setB) {
+	let _union = new Set(setA);
+	for (let elem of setB) {
+		_union.add(elem);
+	}
+	return _union;
+}
+
+function difference(setA, setB) {
+	let _difference = new Set(setA);
+	for (let elem of setB) {
+		_difference.delete(elem);
+	}
+	return _difference;
+}
+
+function eventKeyHandlers(e) {
+	switch (e.keyCode) {
+		case 65:	// a
+		case 37:	// left arrow key
+		case 72:	// h
+			e.preventDefault();
+			if (Math.floor(grid[human.loc].x) != 1 && !grid[human.loc - rows].isWall) {
+				human.loc -= rows;
+				human.dir = 4;
+				refreshMap();
+				updateScrollingPosition(grid[human.loc]);
+			}
+			// console.log("Left", Math.round((performance.now()/1000) * 100)/100, human.loc);
+			break;
+		case 87:	// w
+		case 38:	// up arrow key
+		case 75:	// k
+			e.preventDefault();
+			if (Math.floor(grid[human.loc].y) != 1 && !grid[human.loc - 1].isWall) {
+				--human.loc;
+				human.dir = 1;
+				refreshMap();
+				updateScrollingPosition(grid[human.loc]);
+			}
+			// console.log("Up", Math.round((performance.now()/1000) * 100)/100, human.loc);
+			break;
+		case 68:	// d
+		case 39:	// right arrow key
+		case 76:	// l
+			e.preventDefault();
+			if (Math.floor(grid[human.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[human.loc + rows].isWall) {
+				human.loc += rows;
+				human.dir = 2;
+				refreshMap();
+				updateScrollingPosition(grid[human.loc]);
+			}
+			// console.log("Right", Math.round((performance.now()/1000) * 100)/100, human.loc);
+			break;
+		case 83:	// s
+		case 40:	// down arrow key
+		case 74:	// j
+			e.preventDefault();
+			if (Math.floor(grid[human.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[human.loc + 1].isWall) {
+				++human.loc
+				human.dir = 3;
+				refreshMap();
+				updateScrollingPosition(grid[human.loc]);
+			}
+			// console.log("Down", Math.round((performance.now()/1000) * 100)/100, human.loc);
+			break;
+		case 49:	// 1
+			e.preventDefault();
+			data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
+			updateScrollingPosition(grid[agent1.loc]);
+			// console.log("Shifted focus to agent", Math.round((performance.now()/1000) * 100)/100);
+			break;
+		case 50:	// 2
+			e.preventDefault();
+			data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
+			updateScrollingPosition(grid[agent2.loc]);
+		default:	// nothing
+			break;
+	}
+
+	let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	data[half].human.push(tracker);
+	// console.log(tracker);
+}
+
+function terminate() {
+	pause = true;
+	clearInterval(timeout);
+
+	$.ajax({
+		url: "/simulation/2",
+		type: "POST",
+		data: JSON.stringify({
+			uuid: uuid,
+			movement: data[half].movement,
+			humanTraversal: data[half].human,
+			agent1Traversal: data[half].agent1,
+			agent2Traversal: data[half].agent2,
+			humanExplored: [...humanExplored],
+			agent1Explored: [...agent1Explored],
+			agent2Explored: [...agent2Explored],
+			obstacles: obstacles,
+			decisions: log
+		}),
+		contentType: "application/json; charset=utf-8",
+		success: (data, status, jqXHR) => {
+			console.log(data, status, jqXHR);
+			window.location.href = "/survey-1";
+		},
+		error: (jqXHR, status, err) => {
+			console.log(jqXHR, status, err);
+			alert(err);
+		}
+	});
+}
+
+function showExploredInfo() {
+	if (agentNum == 1) {
+		$humanImage.attr("src", $map.getCanvasImage());
+		$botImage.attr("src", $map.getCanvasImage());
+	}
+
+	drawMarkers(obstacles);
+
+	$(document).off();
+
+	$popupModal.css('display', 'block');
+	$popupModal.css('visibility', 'visible');
+	$popupModal.css('opacity', '1');
+	$minimapImage.attr("src", $map.getCanvasImage());
+
+	$log.empty();
+
+	if (agentNum == 1) {
+		$agentText.toggleClass("changed", false);
+		$agentText.css("color", "#99ffb7");
+		$agentText.html(`Agent ${agentNum} explored area (green)
+		<i class="fas fa-info-circle tooltip">
+			<span class="tooltiptext">If there is no area highlighted in green, then the agent did not explore any new area.</span>
+		</i>`);
+		if (log.agent1[intervalCount - 1] != null) {
+			log.agent1.forEach((data, i) => {
+				if (data.trusted) {
+					$log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
+				} else {
+					$log.append(`<p style='background-color: #ff9eae;'>${i + 1} - Discarded</p>`);
+				}
+			});
+		}
+	} else if (agentNum == 2) {
+		$agentText.toggleClass("changed", true);
+		$agentText.css("color", "#ffbf7f");
+		$agentText.html(`Agent ${agentNum} explored area (orange)
+		<i class="fas fa-info-circle tooltip">
+			<span class="tooltiptext">If there is no area highlighted in orange, then the agent did not explore any new area.</span>
+		</i>`);
+		log.agent2.forEach((data, i) => {
+			if (data.trusted) {
+				$log.append(`<p style='background-color: #99ffb7;'>${i + 1} - Integrated</p>`);
+			} else {
+				$log.append(`<p style='background-color: #ff9eae;'>${i + 1} - Discarded</p>`);
+			}
+		});
+	}
+
+	getSetBoundaries(tempHumanExplored, 0);
+	if (agentNum == 1) getSetBoundaries(tempAgent1Explored, 1);
+	else if (agentNum == 2) getSetBoundaries(tempAgent2Explored, 1);
+	scaleImages();
+
+	pause = true;
+	clearInterval(timeout);
+
+	setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
+	setTimeout(() => { $log.scrollLeft(10000) }, 500);
+}
+
+// redraw the map and hide pop-up
+function hideExploredInfo() {
+	if (agentNum == 1) {
+		++agentNum;
+		showExploredInfo();
+		return;
+	}
+
+	if (intervalCount == 5) {
+		$.ajax({
+			url: "/simulation/1",
+			type: "POST",
+			data: JSON.stringify({
+				uuid: uuid,
+				map: pathIndex,
+				movement: data[half].movement,
+				humanTraversal: data[half].human,
+				agent1Traversal: data[half].agent1,
+				agent2Traversal: data[half].agent2
+			}),
+			contentType: "application/json; charset=utf-8"
+		});
+		++half;
+	}
+
+	$map.clearCanvas();
+	tempHumanExplored.forEach((key, item, set) => {
+		draw(grid[item], 0);
+	});
+
+	agent1Explored.forEach(function(key, item, set) {
+		draw(grid[item], 1);
+	});
+
+	agent2Explored.forEach(function(key, item, set) {
+		draw(grid[item], 2);
+	});
+	
+	tempAgent1Explored.clear();
+	tempAgent2Explored.clear();
+	refreshMap();
+
+	$(document).on('keydown', e => {
+		eventKeyHandlers(e);
+	});
+
+	$popupModal.css('visibility', 'hidden');
+	$popupModal.css('display', 'none');
+	$popupModal.css('opacity', '0');
+	$progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
+	$progressbar.html(`<p>${Math.round(intervalCount*100/intervals)}%</p>`);
+	clearInterval(timeout);
+	timeout = setInterval(updateTime, 1000);
+	pause = false;
+}
+
+function confirmExploredArea() {
+	if (agentNum == 1) {
+		tempAgent1Explored.forEach(item => {
+			grid[item].isAgentExplored = true;
+			agent1Explored.add(item);
+		});
+
+		tempHumanExplored.forEach(item => {
+			grid[item.isHumanExplored] = true;
+			humanExplored.add(item);
+		});
+
+		log.agent1.push({interval: intervalCount, trusted: true});
+		hideExploredInfo();
+	} else if (agentNum == 2) {
+		tempAgent2Explored.forEach(item => {
+			grid[item].isAgentExplored = true;
+			agent2Explored.add(item);
+		});
+
+		log.agent2.push({interval: intervalCount++, trusted: true});
+		hideExploredInfo();
+	}
+}
+
+function undoExploration() {
+	if (agentNum == 1) {
+		log.agent1.push({interval: intervalCount, trusted: false});
+		hideExploredInfo();
+	} else if (agentNum == 2) {
+		log.agent2.push({interval: intervalCount++, trusted: false});
+		hideExploredInfo();
+	}
+}
+
+function updateScrollingPosition(loc) {
+	let x = loc.x * boxWidth;
+	let y = loc.y * boxHeight;
+	$mapContainer[0].scroll(x - $mapContainer.width()/2, y - $mapContainer.height()/2);
+}
+
+function updateTime() {
+	++seconds;
+	if (seconds % duration == 0) {
+		seconds = 0;
+		agentNum = 1;
+		showExploredInfo();
+	}
+	$timer.text(seconds);
 }
 
 // creates an array containing cells with x and y positions and additional details
-function createMap() {
-  map = [];
-  boxWidth = canvasWidth/columns - 2;
-  boxHeight = canvasHeight/rows - 2;
-  for (let y = 1; y < canvasHeight; y += boxHeight + 2) {
-    for (let x = 1; x < canvasWidth; x += boxWidth + 2) {
-      map.push({x: x, y: y, isWall: Math.random() < 0.1, isOccupied: false, isExplored: false});  // 10% chance that a cell will be a wall during initialization
-    }
-  }
-  console.log(map);
+function createMap(currentPath, cb) {
+	grid = [];
+	tempHumanExplored.clear();
+	tempAgent1Explored.clear();
+	agent1Explored.clear();
+	agent2Explored.clear();
+	log = { agent1: [], agent2: [] };
+	$log.empty();
+	agent1Index = 0, agent2Index = 0;
+
+	// agent 1
+	/* $.getJSON('src/details9.json', data => {
+		$.each(data.traversal, (i, value) => {
+			agent1Traversal.push({ x: value[0], y: value[1] });
+		})
+	}); */
+
+	// agent 2
+	/* $.getJSON('src/bnm9.json', data => {
+		Object.entries(data).forEach(([key, value]) => {
+			agent2Traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y });
+		});
+	}); */
+
+	/* $.getJSON('src/data9_9x9.json', data => {
+		Object.entries(data).forEach(([key, value]) => {
+			agent2Traversal.push({ current: value.current, explored: value.explored.concat(value.visited) });
+		});
+	}); */
+
+	$.getJSON(currentPath, data => {
+		rows = data.dimensions[0].rows;
+		columns = data.dimensions[0].columns;
+		boxWidth = canvasWidth/rows;
+		boxHeight = canvasHeight/columns;
+		$.each(data.map, (i, value) => {
+			grid.push({x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isAgentExplored: false});
+		});
+	}).fail(() => {
+		alert("An error has occured.");
+	}).done(() => {
+		// data 9: 177414
+		// let tempLoc1 = agent1Traversal[agent1Index++];
+		// let tempLoc2 = agent2Traversal[agent2Index++];
+		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
+		agent1 = { id: "agent1", loc: 131320/* tempLoc1.y + tempLoc1.x*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		agent2 = { id: "agent2", loc: 141348/* tempLoc2.current[0][1] + tempLoc2.current[0][0]*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		victim1 = { id: "victim", loc: 161644, color: VICTIM_COLOR, isFound: false };
+		victim2 = { id: "victim", loc: 172422, color: VICTIM_COLOR, isFound: false };
+		hazard1 = { id: "hazard", loc: 162259, color: HAZARD_COLOR, isFound: false };
+		hazard2 = { id: "hazard", loc: 158390, color: HAZARD_COLOR, isFound: false };
+		obstacles.push(victim1, victim2, hazard1, hazard2);
+
+		spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+		refreshMap();
+
+		console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
+		// console.log(uuid);
+		// console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent1.loc);
+		// console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent2.loc);
+
+		let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+		data[half].human.push(tracker);
+		// console.log(tracker);
+
+		tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+		data[half].agent1.push(tracker);
+		// console.log(tracker);
+
+		tracker = { loc: agent2.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+		data[half].agent2.push(tracker);
+		// console.log(tracker);
+
+		updateScrollingPosition(grid[human.loc]);
+		timeout = setInterval(updateTime, 1000);
+		cb(grid);
+	});
 }
 
-// renders the map on the screen
-function drawMap() {
-  map.forEach(item => {
-    if (item.isExplored && !item.isWall) {
-      context.fillStyle = EXPLORED_COLOR;
-      context.fillRect(item.x, item.y, boxWidth, boxHeight);
-    } else if (!item.isExplored && !item.isWall) {
-      context.fillStyle = CELL_COLOR;
-      context.fillRect(item.x, item.y, boxWidth, boxHeight);
-    }
-  });
+function drawMarkers(members) {
+	members.forEach(member => {
+		if (member.id == "victim" && member.isFound) {
+			$map.drawImage({
+				source: 'img/victim-marker-big.png',
+				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+			});
+		} else if (member.id == "hazard" && member.isFound) {
+			$map.drawImage({
+				source: 'img/hazard-marker-big.png',
+				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+			});
+		}
+	});
+}
+
+// draw a square given a cell
+// who: 0 - human, 1 - agent1, 2 - agent2
+function draw(cell, who) {
+	let lightColor = LIGHT_TEMP_COLOR_1, darkColor = TEMP_COLOR_1;
+	if (who == 2) {
+		lightColor = LIGHT_TEMP_COLOR_2;
+		darkColor = TEMP_COLOR_2;
+	}
+
+	if (cell.isHumanExplored && !cell.isAgentExplored) {
+		lightColor = LIGHT_HUMAN_COLOR;
+		darkColor = HUMAN_COLOR;
+	} else if (cell.isAgentExplored && !cell.isHumanExplored) {
+		lightColor = LIGHT_AGENT_COLOR;
+		darkColor = AGENT_COLOR;
+	} else if (cell.isHumanExplored && cell.isAgentExplored) {
+		lightColor = LIGHT_TEAM_COLOR;
+		darkColor = TEAM_COLOR;
+	}
+
+	if (cell.isWall) {
+		$map.drawRect({
+			fillStyle: WALL_COLOR,
+			strokeStyle: darkColor,
+			strokeWidth: 1,
+			cornerRadius: 2,
+			x: cell.x*boxWidth, y: cell.y*boxHeight,
+			width: boxWidth - 1, height: boxHeight - 1
+		});
+	} else {
+		$map.drawRect({
+			fillStyle: lightColor,
+			x: cell.x*boxWidth, y: cell.y*boxHeight,
+			width: boxWidth - 1, height: boxHeight - 1
+		});
+	}
 }
 
 // spawns the bot in its location
-function spawnBot(bot) {
-  console.log(bot);
-  context.fillStyle = bot.color;
-  context.fillRect(map[bot.loc].x, map[bot.loc].y, boxWidth, boxHeight);
-  map[bot.loc].isOccupied = true;
+// size - scale factor
+function spawn(members, size) {
+	members.forEach(member => {
+		if (member.id == "human") {
+			$map.drawRect({
+				fillStyle: member.color,
+				x: grid[member.loc].x*boxWidth, y: grid[member.loc].y*boxHeight,
+				width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+			});
+		} else if (member.id == "agent1" || member.id == "agent2") {
+			$map.drawRect({
+				fillStyle: member.color,
+				x: grid[member.loc].x*boxWidth, y: grid[member.loc].y*boxHeight,
+				width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+			});
+
+			if (member.id == "agent1") {
+				$map.drawText({
+					fromCenter: true,
+					fillStyle: LIGHT_TEMP_COLOR_1,
+					x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+					fontSize: boxWidth,
+					fontFamily: 'Montserrat, sans-serif',
+					text: member.id == 'agent1' ? '1' : '2'
+				});
+			} else {
+				$map.drawText({
+					fromCenter: true,
+					fillStyle: LIGHT_TEMP_COLOR_2,
+					x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+					fontSize: boxWidth,
+					fontFamily: 'Montserrat, sans-serif',
+					text: member.id == 'agent1' ? '1' : '2'
+				});
+			}
+		} else if (member.id == "victim" && member.isFound) {
+			$map.drawEllipse({
+				fromCenter: true,
+				fillStyle: member.color,
+				x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+				width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+			});
+		} else if (member.id == "hazard" && member.isFound) {
+			$map.drawPolygon({
+				fromCenter: true,
+				fillStyle: member.color,
+				x: grid[member.loc].x*boxWidth + boxWidth/2, y: grid[member.loc].y*boxHeight + boxHeight/2,
+				radius: ((boxWidth - 1)/2)*size,
+				sides: 3
+			});
+		}
+	});
 }
 
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-  drawMap();
-  spawnBot(userBot);
-  spawnBot(autoBot);
+	// human surroundings
+	let humanFOV = findLineOfSight(human);
+	let humanFOVSet = new Set(humanFOV);	// convert array to set
+
+	humanFOVSet.forEach(item => {
+		grid[item].isHumanExplored = true;
+		tempHumanExplored.add(item);
+
+		draw(grid[item], 0);
+
+		for (let i = 0; i < obstacles.length; ++i) {
+			if (item == obstacles[i].loc) {
+				obstacles[i].isFound = true;
+			}
+		}
+	});
+
+	// bot surroundings
+	// agent 1
+	let agentFOV = findLineOfSight(agent1);
+	let agentFOVSet = new Set(agentFOV);	// convert array to set
+
+	agentFOVSet.forEach(item => {
+		tempAgent1Explored.add(item);
+		draw(grid[item], 1);
+
+		for (let i = 0; i < obstacles.length; ++i) {
+			if (item == obstacles[i].loc) {
+				obstacles[i].isFound = true;
+			}
+		}
+	});
+
+	// agent 2
+	agentFOV = findLineOfSight(agent2);
+	agentFOVSet = new Set(agentFOV);	// convert array to set
+
+	agentFOVSet.forEach(item => {
+		tempAgent2Explored.add(item);
+		draw(grid[item], 2);
+
+		for (let i = 0; i < obstacles.length; ++i) {
+			if (item == obstacles[i].loc) {
+				obstacles[i].isFound = true;
+			}
+		}
+	});
+
+	/* agentFOV = agent2Traversal[agent2Index - 1].explored;
+	agentFOVSet = new Set(agentFOV);
+
+	agentFOVSet.forEach(item => {
+		let thisCell = item[1] + item[0]*columns;
+		let neighbours = [thisCell - 1, thisCell - 1 + columns, thisCell + columns, thisCell + columns + 1, thisCell + 1, thisCell - columns + 1, thisCell - columns, thisCell - columns - 1];
+
+		tempAgent2Explored.add(thisCell);
+		draw(grid[thisCell], 2);
+		
+		neighbours.forEach((data, i) => {
+			if (grid[data].isWall) {
+				tempAgent2Explored.add(data);
+				draw(grid[data], 2);
+			}
+		});
+
+		for (let i = 0; i < obstacles.length; ++i) {
+			if (item == obstacles[i].loc) {
+				obstacles[i].isFound = true;
+			}
+		}
+	}); */
+
+	spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+
+	// testing purposes
+	/* if (tempAgent1Explored.size >= 49827) {
+		pause = true;
+		console.log(Math.round((performance.now()/1000) * 100)/100, count, tempAgent1Explored.size);
+	} */
 }
+
+// 0 - human, 1 - bot
+function getSetBoundaries(thisSet, who) {
+	if (who == 1) {
+		let setIterator = thisSet.values();
+		let firstElement = setIterator.next().value;
+		botLeft = grid[firstElement].x;
+		botRight = grid[firstElement].x;
+		botTop = grid[firstElement].y;
+		botBottom = grid[firstElement].y;
+
+		for (let i = setIterator.next().value; i != null; i = setIterator.next().value) {
+			if (grid[i].x < botLeft) botLeft = grid[i].x;
+			if (grid[i].x > botRight) botRight = grid[i].x;
+			if (grid[i].y < botTop) botTop = grid[i].y;
+			if (grid[i].y > botBottom) botBottom = grid[i].y;
+		}
+	} else {
+		let setIterator = thisSet.values();
+		let firstElement = setIterator.next().value;
+		humanLeft = grid[firstElement].x;
+		humanRight = grid[firstElement].x;
+		humanTop = grid[firstElement].y;
+		humanBottom = grid[firstElement].y;
+
+		if (humanLeft == null) humanLeft = grid[firstElement].x;
+		if (humanRight == null) humanRight = grid[firstElement].x;
+		if (humanTop == null) humanTop = grid[firstElement].y;
+		if (humanBottom == null) humanBottom = grid[firstElement].y;
+
+		for (let i = setIterator.next().value; i != null; i = setIterator.next().value) {
+			if (grid[i].x < humanLeft) humanLeft = grid[i].x;
+			if (grid[i].x > humanRight) humanRight = grid[i].x;
+			if (grid[i].y < humanTop) humanTop = grid[i].y;
+			if (grid[i].y > humanBottom) humanBottom = grid[i].y;
+		}
+	}
+}
+
+function moveAgent1(agent) {
+	let tempLoc = agent1Traversal[agent1Index++];
+	agent.loc = tempLoc.y + tempLoc.x*columns;
+
+	refreshMap();
+
+	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	data[half].agent1.push(tracker);
+}
+
+function moveAgent2(agent) {
+	/* let tempLoc = agent2Traversal[agent2Index++];
+	agent.loc = tempLoc.cY + tempLoc.cX*columns;
+
+	refreshMap();
+
+	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	data[half].agent2.push(tracker); */
+
+	let tempLoc = agent2Traversal[agent2Index++];
+	agent.loc = tempLoc.current[0][1] + tempLoc.current[0][0]*columns;
+
+	refreshMap();
+
+	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	data[half].agent2.push(tracker);
+}
+
+function randomWalk(agent) {
+	let minSteps = agent.minSteps;
+	let maxSteps = agent.maxSteps;
+	let step = agent.step;
+	switch (agent.dir) {
+		case 1:
+			if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].y) != 1 && !grid[agent.loc - step*columns].isWall) {
+				grid[agent.loc].isExplored = true;
+				agent.loc -= step*columns;
+				--agent.stepsCovered;
+				refreshMap();
+			} else {
+				agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
+				agent.dir = Math.random() < Math.random() ? 4 : 2;
+			}
+			break;
+		case 2:
+			if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !grid[agent.loc + step].isWall) {
+				grid[agent.loc].isExplored = true;
+				agent.loc += step;
+				--agent.stepsCovered;
+				refreshMap();
+			} else {
+				agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
+				agent.dir = Math.random() < Math.random() ? 1 : 3;
+			}
+			break;
+		case 3:
+			if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !grid[agent.loc + step*columns].isWall) {
+				grid[agent.loc].isExplored = true;
+				agent.loc += step*columns;
+				--agent.stepsCovered;
+				refreshMap();
+			} else {
+				agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
+				agent.dir = Math.random() < Math.random() ? 2 : 4;
+			}
+			break;
+		case 4:
+			if (agent.stepsCovered > 0 && Math.floor(grid[agent.loc].x) != 1 && !grid[agent.loc - step].isWall) {
+				grid[agent.loc].isExplored = true;
+				agent.loc -= step;
+				--agent.stepsCovered;
+				refreshMap();
+			} else {
+				agent.stepsCovered = Math.floor(Math.random() * maxSteps) + minSteps;
+				agent.dir = Math.random() < Math.random() ? 3 : 1;
+			}
+			break;
+		default:
+			// nothing
+			break;
+	}
+	
+	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
+	if (agent.id == "agent1") data[half].agent1.push(tracker);
+	else if (agent.id == "agent2") data[half].agent2.push(tracker);
+	// console.log(tracker);
+}
+
+function scaleImages() {
+	let botWidth = columns/(botRight - botLeft + 5) * 100;
+	let botHeight = rows/(botBottom - botTop + 5) * 100;
+	let humanWidth = columns/(humanRight - humanLeft + 5) * 100;
+	let humanHeight = rows/(humanBottom - humanTop + 5) * 100;
+
+	botWidth = (botWidth < 100) ? 100 : botWidth;
+	botHeight = (botHeight < 100) ? 100 : botHeight;
+
+	humanWidth = (humanWidth < 100) ? 100 : humanWidth;
+	humanHeight = (humanHeight < 100) ? 100 : humanHeight;
+
+	if (botWidth > botHeight) {
+		$botImage.attr("width", botHeight + "%");
+		$botImage.attr("height", botHeight + "%");
+	} else {
+		$botImage.attr("width", botWidth + "%");
+		$botImage.attr("height", botWidth + "%");
+	}
+
+	if (humanWidth > humanHeight) {
+		$humanImage.attr("width", humanHeight + "%");
+		$humanImage.attr("height", humanHeight + "%");
+	} else {
+		$humanImage.attr("width", humanWidth + "%");
+		$humanImage.attr("height", humanWidth + "%");
+	}
+	
+	$botImage.parent()[0].scroll((botLeft + (botRight - botLeft + 1)/2)*($botImage.width()/columns) - $('.explored').width()/2, ((botTop + (botBottom - botTop + 1)/2)*($botImage.height()/rows)) - $('.explored').height()/2);
+	$humanImage.parent()[0].scroll((humanLeft + (humanRight - humanLeft + 1)/2)*($humanImage.width()/columns) - $('.explored').width()/2, ((humanTop + (humanBottom - humanTop + 1)/2)*($humanImage.height()/rows)) - $('.explored').height()/2);
+}
+
+function findLineOfSight(bot) {
+	let thisSurroundings = [[], [], [], []];
+	let centerX = grid[bot.loc].x;
+	let centerY = grid[bot.loc].y;
+	let i = 0, j = 0;
+
+	// quadrant 1
+	for (let y = centerY; y >= centerY - viewRadius; --y) {
+		for (let x = centerX; x <= centerX + viewRadius; ++x) {
+			thisSurroundings[0].push({x: i, y: j, loc: y + x*rows});
+			++i;
+		}
+		i = 0;
+		++j;
+	}
+
+	i = 0, j = 0;
+
+	// quadrant 2
+	for (let y = centerY; y >= centerY - viewRadius; --y) {
+		for (let x = centerX; x >= centerX - viewRadius; --x) {
+			thisSurroundings[1].push({x: i, y: j, loc: y + x*rows});
+			++i;
+		}
+		i = 0;
+		++j;
+	}
+
+	i = 0, j = 0;
+
+	// quadrant 3
+	for (let y = centerY; y <= centerY + viewRadius; ++y) {
+		for (let x = centerX; x >= centerX - viewRadius; --x) {
+			thisSurroundings[2].push({x: i, y: j, loc: y + x*rows});
+			++i;
+		}
+		i = 0;
+		++j;
+	}
+
+	i = 0, j = 0;
+
+	//quadrant 4
+	for (let y = centerY; y <= centerY + viewRadius; ++y) {
+		for (let x = centerX; x <= centerX + viewRadius; ++x) {
+			thisSurroundings[3].push({x: i, y: j, loc: y + x*rows});
+			++i;
+		}
+		i = 0;
+		++j;
+	}
+
+	return castRays(thisSurroundings);
+}
+
+// arr has quadrant one ([0]), quadrant two ([1]), quadrant three ([2]), quadrant four ([3]).
+function castRays(arr) {
+	let mySurroundings = [];
+	// quadrant 1
+	for (let i = viewRadius; i < arr[0].length; i += viewRadius + 1) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[0][0], arr[0][i], 1, arr[0]));
+	}
+	for (let i = arr[0].length - viewRadius - 1; i < arr[0].length - 1; ++i) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[0][0], arr[0][i], 1, arr[0]));
+	}
+
+	// quadrant 2
+	for (let i = viewRadius; i < arr[1].length; i += viewRadius + 1) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[1][0], arr[1][i], 2, arr[1]));
+	}
+	for (let i = arr[1].length - viewRadius - 1; i < arr[1].length - 1; ++i) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[1][0], arr[1][i], 2, arr[1]));
+	}
+
+	// quadrant 3
+	for (let i = viewRadius; i < arr[2].length; i += viewRadius + 1) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[2][0], arr[2][i], 3, arr[2]));
+	}
+	for (let i = arr[2].length - viewRadius - 1; i < arr[2].length - 1; ++i) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[2][0], arr[2][i], 3, arr[2]));
+	}
+
+	// quadrant 4
+	for (let i = viewRadius; i < arr[3].length; i += viewRadius + 1) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[3][0], arr[3][i], 4, arr[3]));
+	}
+	for (let i = arr[3].length - viewRadius - 1; i < arr[3].length - 1; ++i) {
+		mySurroundings = mySurroundings.concat(bresenhams(arr[3][0], arr[3][i], 4, arr[3]));
+	}
+
+	return mySurroundings;
+}
+
+function getCell(x, y, grid) {
+	for (let i = 0; i < grid.length; ++i) {
+		if (grid[i].x == x && grid[i].y == y) return grid[i];
+	}
+	return null;
+}
+
+function bresenhams(cell1, cell2, quad, thisGrid) {
+	let x1 = cell1.x, y1 = cell1.y, x2 = cell2.x, y2 = cell2.y;
+
+	let dx = x2 - x1, dy = y2 - y1;
+	let m = dy/dx;
+	let p;
+
+	let arr = [];
+	arr.push(getCell(x1, y1, thisGrid).loc);
+	if (m >= 0 && m <= 1) {
+		p = (2*dy) - dx;
+		while (x1 < x2) {
+			if (p < 0) {
+				++x1;
+				p += 2*dy;
+				arr.push(getCell(x1, y1, thisGrid).loc)
+				if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
+			} else {
+				++x1;
+				++y1;
+				p += 2*(dy - dx);
+				arr.push(getCell(x1, y1, thisGrid).loc);
+				if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
+			}
+		}
+	} else if (m > 1) {
+		p = (2*dx) - dy;
+		while (y1 < y2) {
+			if (p < 0) {
+				++y1;
+				p += 2*dx;
+				arr.push(getCell(x1, y1, thisGrid).loc);
+				if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
+			} else {
+				++x1;
+				++y1;
+				p += 2*(dx - dy);
+				arr.push(getCell(x1, y1, thisGrid).loc);
+				if (grid[getCell(x1, y1, thisGrid).loc].isWall) break;
+			}
+		}
+	}
+	// console.log(cell1, cell2, arr, thisGrid);
+	return arr;
+}
+
+/* $(window).on('beforeunload', e => {
+	e.preventDefault();
+	e.returnValue = 'Your progress will not be saved.';
+	return "Your progress will not be saved.";
+}); */
 
 // takes the new grid size and modifies the map
 function modifyMap() {
-  let rowsInput = document.getElementById("rows").value;
-  let columnsInput = document.getElementById("columns").value
-  if (!(isValidNumber(rowsInput) && isValidNumber(columnsInput))) {
-    alert("Incorrect input. Please enter a positive integer.");
-    return;
-  }
-  rows = parseInt(rowsInput);
-  columns = parseInt(columnsInput);
-  createMap();
-  userBot.loc = getRandomLoc();
-  autoBot.loc = getRandomLoc();
-  refreshMap();
+	let rowsInput = $('#rows').value;
+	let columnsInput = $('#columns').value;
+	if (!(isValidNumber(rowsInput) && isValidNumber(columnsInput))) {
+		alert("Incorrect input. Please enter a positive integer.");
+		return;
+	}
+	rows = parseInt(rowsInput);
+	columns = parseInt(columnsInput);
+	createMap();
+	human.loc = getRandomLoc();
+	agent1.loc = getRandomLoc();
+	agent2.loc = getRandomLoc();
+	refreshMap();
 }
 
 // sets the speed of the autonomous bot
 function setSpeed() {
-  let speed = document.getElementById("speed").value;
-  if (!isValidNumber(speed)) {
-    alert("Incorrect input. Please enter a positive integer.");
-    return;
-  }
-  waitCount = parseInt(speed);
-}
-
-// creates/removes wall on the clicked cell
-function createWall(canvas, e) {
-  var rect = canvas.getBoundingClientRect();
-  var x = event.clientX - rect.left;
-  var y = event.clientY - rect.top;
-
-  let walledCellX = (x - (x % (canvasWidth/columns)));
-  let walledCellY = (y - (y % (canvasHeight/rows)));
-
-  let i = 0;
-  i = Math.round((walledCellX/(canvasWidth/columns)) + columns*(walledCellY/(canvasHeight/rows)));
-  console.log(walledCellX, walledCellY, i);
-
-  if (!map[i].isOccupied) {
-    map[i].isWall = !map[i].isWall;
-    refreshMap();
-  }
+	let speed = $('speed').value;
+	if (!isValidNumber(speed)) {
+		alert("Incorrect input. Please enter a positive integer.");
+		return;
+	}
+	waitCount = parseInt(speed);
 }
 
 // checks if the parameter is a valid positive integer
 function isValidNumber(str) {
-  return /^\s*\d+\s*$/.test(str);
+	return /^\s*\d+\s*$/.test(str);
 }
 
-// gets a raondom spawn location for the robot
-function getRandomLoc() {
-  let botIndex;
-  do {
-    botIndex = Math.floor(Math.random() * map.length);
-  } while(map[botIndex].isWall && map[botIndex].isOccupied);
-  return botIndex;
+// gets a random spawn location for the robot
+function getRandomLoc(grid) {
+	let botIndex;
+	do {
+		botIndex = Math.floor(Math.random() * grid.length);
+	} while(grid[botIndex].isWall);
+	return botIndex;
 }
-
-// document arrow keys event listener
-document.addEventListener('keydown', function(e) {
-  if (e.keyCode === 37) {
-    e.preventDefault();
-    if (Math.floor(map[userBot.loc].x) != 1 && !map[userBot.loc - 1].isWall && !map[userBot.loc - 1].isOccupied) {
-      map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
-      userBot.loc--;
-      userBot.dir = 4;
-      refreshMap();
-    }
-  } else if (e.keyCode === 38) {
-    e.preventDefault();
-    if (Math.floor(map[userBot.loc].y) != 1 && !map[userBot.loc - columns].isWall && !map[userBot.loc - columns].isOccupied) {
-      map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
-      userBot.loc -= columns;
-      userBot.dir = 1;
-      refreshMap();
-    }
-  } else if (e.keyCode === 39) {
-    e.preventDefault();
-    if (Math.floor(map[userBot.loc].x) != Math.floor(1 + (columns - 1) * (canvasWidth / columns)) && !map[userBot.loc + 1].isWall && !map[userBot.loc + 1].isOccupied) {
-      map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
-      userBot.loc++;
-      userBot.dir = 2;
-      refreshMap();
-    }
-  } else if (e.keyCode === 40) {
-    e.preventDefault();
-    if (Math.floor(map[userBot.loc].y) != Math.floor(1 + (rows - 1) * (canvasHeight / rows)) && !map[userBot.loc + columns].isWall && !map[userBot.loc + columns].isOccupied) {
-      map[userBot.loc].isOccupied = !map[userBot.loc].isOccupied;
-      userBot.loc += columns;
-      userBot.dir = 3;
-      refreshMap();
-    }
-  }
-});
-
-// canvas onclick event listener
-canvas.addEventListener("click", function(e) {
-  createWall(canvas, e);
-});
-
-requestAnimationFrame(loop);

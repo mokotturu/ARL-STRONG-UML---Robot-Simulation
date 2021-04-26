@@ -47,7 +47,8 @@ var uuid;
 var data = [{ movement: [], human: [], agent1: [], agent2: [] }, { movement: [], human: [], agent1: [], agent2: [] }];
 var obstacles = [];
 var human, agent1, agent2;
-var victim1, victim2, hazard1, hazard2;
+var victim0, victim1, victim2, victim3, victim4, victim5, victim6, victim7, victim8, victim9, 
+	hazard0, hazard1, hazard2, hazard3, hazard4, hazard5, hazard6, hazard7, hazard8, hazard9;
 var mapPaths = [
 	"src/data9.min.json",	//  0
 	"src/data9.min.json",	//  1
@@ -119,7 +120,7 @@ $(document).ready(() => {
 			// moveAgent1(agent1);
 			// moveAgent2(agent2);
 			randomWalk(agent1);
-			randomWalk(agent2);
+			// randomWalk(agent2);
 		}
 	});
 
@@ -305,12 +306,6 @@ function showExploredInfo() {
 
 // redraw the map and hide pop-up
 function hideExploredInfo() {
-	if (agentNum == 1) {
-		++agentNum;
-		showExploredInfo();
-		return;
-	}
-
 	if (intervalCount == 5) {
 		$.ajax({
 			url: "/simulation/1",
@@ -336,13 +331,8 @@ function hideExploredInfo() {
 	agent1Explored.forEach(function(key, item, set) {
 		draw(grid[item], 1);
 	});
-
-	agent2Explored.forEach(function(key, item, set) {
-		draw(grid[item], 2);
-	});
 	
 	tempAgent1Explored.clear();
-	tempAgent2Explored.clear();
 	refreshMap();
 
 	$(document).on('keydown', e => {
@@ -360,38 +350,23 @@ function hideExploredInfo() {
 }
 
 function confirmExploredArea() {
-	if (agentNum == 1) {
-		tempAgent1Explored.forEach(item => {
-			grid[item].isAgentExplored = true;
-			agent1Explored.add(item);
-		});
+	tempAgent1Explored.forEach(item => {
+		grid[item].isAgentExplored = true;
+		agent1Explored.add(item);
+	});
 
-		tempHumanExplored.forEach(item => {
-			grid[item.isHumanExplored] = true;
-			humanExplored.add(item);
-		});
+	tempHumanExplored.forEach(item => {
+		grid[item.isHumanExplored] = true;
+		humanExplored.add(item);
+	});
 
-		log.agent1.push({interval: intervalCount, trusted: true});
-		hideExploredInfo();
-	} else if (agentNum == 2) {
-		tempAgent2Explored.forEach(item => {
-			grid[item].isAgentExplored = true;
-			agent2Explored.add(item);
-		});
-
-		log.agent2.push({interval: intervalCount++, trusted: true});
-		hideExploredInfo();
-	}
+	log.agent1.push({interval: intervalCount++, trusted: true});
+	hideExploredInfo();
 }
 
 function undoExploration() {
-	if (agentNum == 1) {
-		log.agent1.push({interval: intervalCount, trusted: false});
-		hideExploredInfo();
-	} else if (agentNum == 2) {
-		log.agent2.push({interval: intervalCount++, trusted: false});
-		hideExploredInfo();
-	}
+	log.agent1.push({interval: intervalCount++, trusted: false});
+	hideExploredInfo();
 }
 
 function updateScrollingPosition(loc) {
@@ -404,7 +379,6 @@ function updateTime() {
 	++seconds;
 	if (seconds % duration == 0) {
 		seconds = 0;
-		agentNum = 1;
 		showExploredInfo();
 	}
 	$timer.text(seconds);
@@ -457,14 +431,31 @@ function createMap(currentPath, cb) {
 		// let tempLoc2 = agent2Traversal[agent2Index++];
 		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
 		agent1 = { id: "agent1", loc: 131320/* tempLoc1.y + tempLoc1.x*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
-		agent2 = { id: "agent2", loc: 141348/* tempLoc2.current[0][1] + tempLoc2.current[0][0]*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
-		victim1 = { id: "victim", loc: 161644, color: VICTIM_COLOR, isFound: false };
-		victim2 = { id: "victim", loc: 172422, color: VICTIM_COLOR, isFound: false };
-		hazard1 = { id: "hazard", loc: 162259, color: HAZARD_COLOR, isFound: false };
-		hazard2 = { id: "hazard", loc: 158390, color: HAZARD_COLOR, isFound: false };
-		obstacles.push(victim1, victim2, hazard1, hazard2);
+		victim0 = { id: "victim", loc: 48738, color: VICTIM_COLOR, isFound: false };
+		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false };
+		victim2 = { id: "victim", loc: 191231, color: VICTIM_COLOR, isFound: false };
+		victim3 = { id: "victim", loc: 84339, color: VICTIM_COLOR, isFound: false };
+		victim4 = { id: "victim", loc: 173364, color: VICTIM_COLOR, isFound: false };
+		victim5 = { id: "victim", loc: 193849, color: VICTIM_COLOR, isFound: false };
+		victim6 = { id: "victim", loc: 175311, color: VICTIM_COLOR, isFound: false };
+		victim7 = { id: "victim", loc: 145639, color: VICTIM_COLOR, isFound: false };
+		victim8 = { id: "victim", loc: 59230, color: VICTIM_COLOR, isFound: false };
+		victim9 = { id: "victim", loc: 75719, color: VICTIM_COLOR, isFound: false };
 
-		spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+		hazard0 = { id: "hazard", loc: 84821, color: HAZARD_COLOR, isFound: false };
+		hazard1 = { id: "hazard", loc: 183849, color: HAZARD_COLOR, isFound: false };
+		hazard2 = { id: "hazard", loc: 141711, color: HAZARD_COLOR, isFound: false };
+		hazard3 = { id: "hazard", loc: 49692, color: HAZARD_COLOR, isFound: false };
+		hazard4 = { id: "hazard", loc: 112321, color: HAZARD_COLOR, isFound: false };
+		hazard5 = { id: "hazard", loc: 170831, color: HAZARD_COLOR, isFound: false };
+		hazard6 = { id: "hazard", loc: 95178, color: HAZARD_COLOR, isFound: false };
+		hazard7 = { id: "hazard", loc: 174791, color: HAZARD_COLOR, isFound: false };
+		hazard8 = { id: "hazard", loc: 190289, color: HAZARD_COLOR, isFound: false };
+		hazard9 = { id: "hazard", loc: 188702, color: HAZARD_COLOR, isFound: false };
+		obstacles.push(victim0, victim1, victim2, victim3, victim4, victim5, victim6, victim7, victim8, victim9, hazard0, hazard1, hazard2, hazard3, hazard4, hazard5, hazard6, hazard7, hazard8, hazard9);
+
+		spawn([human, agent1], 1);
+		spawn(obstacles, 1);
 		refreshMap();
 
 		console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
@@ -478,10 +469,6 @@ function createMap(currentPath, cb) {
 
 		tracker = { loc: agent1.loc, t: Math.round((performance.now()/1000) * 100)/100 };
 		data[half].agent1.push(tracker);
-		// console.log(tracker);
-
-		tracker = { loc: agent2.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-		data[half].agent2.push(tracker);
 		// console.log(tracker);
 
 		updateScrollingPosition(grid[human.loc]);
@@ -634,21 +621,6 @@ function refreshMap() {
 		}
 	});
 
-	// agent 2
-	agentFOV = findLineOfSight(agent2);
-	agentFOVSet = new Set(agentFOV);	// convert array to set
-
-	agentFOVSet.forEach(item => {
-		tempAgent2Explored.add(item);
-		draw(grid[item], 2);
-
-		for (let i = 0; i < obstacles.length; ++i) {
-			if (item == obstacles[i].loc) {
-				obstacles[i].isFound = true;
-			}
-		}
-	});
-
 	/* agentFOV = agent2Traversal[agent2Index - 1].explored;
 	agentFOVSet = new Set(agentFOV);
 
@@ -673,7 +645,8 @@ function refreshMap() {
 		}
 	}); */
 
-	spawn([human, agent1, agent2, victim1, victim2, hazard1, hazard2], 1);
+	spawn([human, agent1], 1);
+	spawn(obstacles, 1);
 
 	// testing purposes
 	/* if (tempAgent1Explored.size >= 49827) {
