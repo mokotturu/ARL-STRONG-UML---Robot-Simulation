@@ -117,9 +117,9 @@ $(document).ready(() => {
 
 		if (!pause) {
 			if (intervalCount >= intervals) terminate();
-			// moveAgent1(agent1);
+			moveAgent1(agent1);
 			// moveAgent2(agent2);
-			randomWalk(agent1);
+			// randomWalk(agent1);
 			// randomWalk(agent2);
 		}
 	});
@@ -409,11 +409,12 @@ function createMap(currentPath, cb) {
 		});
 	}); */
 
-	/* $.getJSON('src/data9_9x9.json', data => {
+	// agent 1 human-like
+	$.getJSON('src/data10_human2.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
-			agent2Traversal.push({ current: value.current, explored: value.explored.concat(value.visited) });
+			agent1Traversal.push({ current: value.current, explored: value.visited });
 		});
-	}); */
+	});
 
 	$.getJSON(currentPath, data => {
 		rows = data.dimensions[0].rows;
@@ -421,16 +422,16 @@ function createMap(currentPath, cb) {
 		boxWidth = canvasWidth/rows;
 		boxHeight = canvasHeight/columns;
 		$.each(data.map, (i, value) => {
-			grid.push({x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isAgentExplored: false});
+			grid.push({ x: value.x, y: value.y, isWall: value.isWall == "true", isHumanExplored: false, isAgentExplored: false });
 		});
 	}).fail(() => {
 		alert("An error has occured.");
 	}).done(() => {
 		// data 9: 177414
-		// let tempLoc1 = agent1Traversal[agent1Index++];
+		let tempLoc1 = agent1Traversal[agent1Index++].current;
 		// let tempLoc2 = agent2Traversal[agent2Index++];
 		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
-		agent1 = { id: "agent1", loc: 131320/* tempLoc1.y + tempLoc1.x*columns */, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		agent1 = { id: "agent1", loc: /* 131320 */tempLoc1[0][1] + tempLoc1[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
 		victim0 = { id: "victim", loc: 48738, color: VICTIM_COLOR, isFound: false };
 		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false };
 		victim2 = { id: "victim", loc: 191231, color: VICTIM_COLOR, isFound: false };
@@ -607,8 +608,8 @@ function refreshMap() {
 
 	// bot surroundings
 	// agent 1
-	let agentFOV = findLineOfSight(agent1);
-	let agentFOVSet = new Set(agentFOV);	// convert array to set
+	// let agentFOV = findLineOfSight(agent1);
+	/* let agentFOVSet = new Set(agentFOV);	// convert array to set
 
 	agentFOVSet.forEach(item => {
 		tempAgent1Explored.add(item);
@@ -619,22 +620,23 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-	});
+	}); */
 
-	/* agentFOV = agent2Traversal[agent2Index - 1].explored;
-	agentFOVSet = new Set(agentFOV);
+	// AGENT 1 HUMAN LIKE
+	let agentFOV = agent1Traversal[agent1Index - 1].explored;
+	let agentFOVSet = new Set(agentFOV);
 
 	agentFOVSet.forEach(item => {
 		let thisCell = item[1] + item[0]*columns;
 		let neighbours = [thisCell - 1, thisCell - 1 + columns, thisCell + columns, thisCell + columns + 1, thisCell + 1, thisCell - columns + 1, thisCell - columns, thisCell - columns - 1];
 
-		tempAgent2Explored.add(thisCell);
-		draw(grid[thisCell], 2);
+		tempAgent1Explored.add(thisCell);
+		draw(grid[thisCell], 1);
 		
 		neighbours.forEach((data, i) => {
 			if (grid[data].isWall) {
-				tempAgent2Explored.add(data);
-				draw(grid[data], 2);
+				tempAgent1Explored.add(data);
+				draw(grid[data], 1);
 			}
 		});
 
@@ -643,7 +645,7 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-	}); */
+	});
 
 	spawn([human, agent1], 1);
 	spawn(obstacles, 1);
@@ -693,10 +695,14 @@ function getSetBoundaries(thisSet, who) {
 	}
 }
 
+// random walk
 function moveAgent1(agent) {
-	let tempLoc = agent1Traversal[agent1Index++];
-	agent.loc = tempLoc.y + tempLoc.x*columns;
+	let tempPrevLoc = agent1Traversal[agent1Index - 1].current;
+	let tempLoc = agent1Traversal[agent1Index++].current;
+	agent.loc = tempLoc[0][1] + tempLoc[0][0]*columns;
+	updateScrollingPosition(grid[agent.loc]);
 
+	draw(grid[tempPrevLoc[0][1] + tempPrevLoc[0][0]*columns], 0);
 	refreshMap();
 
 	let tracker = { loc: agent.loc, t: Math.round((performance.now()/1000) * 100)/100 };
