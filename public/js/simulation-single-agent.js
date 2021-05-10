@@ -700,7 +700,6 @@ function moveAgent1(agent) {
 	let tempPrevLoc = agent1Traversal[agent1Index - 1].current;
 	let tempLoc = agent1Traversal[agent1Index++].current;
 	agent.loc = tempLoc[0][1] + tempLoc[0][0]*columns;
-	updateScrollingPosition(grid[agent.loc]);
 
 	draw(grid[tempPrevLoc[0][1] + tempPrevLoc[0][0]*columns], 0);
 	refreshMap();
