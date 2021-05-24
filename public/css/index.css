@@ -79,6 +79,7 @@ nav {
 	position: fixed;
 	z-index: 10000;
 	transition: 0.3s linear;
+	animation: bottomFadeIn 1s linear;
 }
 
 nav.scrolled {
@@ -129,17 +130,32 @@ nav .items p {
 	padding-top: 20%;
 	padding-bottom: 30px;
 	margin: 0;
+	position: relative;
 	text-align: center;
 	line-height: 0.7;
 	text-shadow: 0 0 10px grey;
 	border-bottom: 5px solid #808080;
 	color: white;
 	line-height: 120%;
+	animation: bottomFadeIn 1s linear;
+}
+
+@keyframes bottomFadeIn {
+	0% {
+		bottom: 0;
+		opacity: 0;
+	}
+
+	100% {
+		bottom: 0;
+		opacity: 1;
+	}
 }
 
 .main-content .buttonsCollection {
 	display: flex;
 	align-items: center;
+	animation: bottomFadeIn 0.5s linear;
 }
 
 .main-content .buttonsCollection a {
