@@ -1,5 +1,6 @@
 const $mapContainer = $('#map-container');
 const $map = $('#map');
+var context = $map[0].getContext('2d', { alpha: false });
 const $timer = $('#timer');
 const $popupModal = $('#popup-modal');
 const $minimapImage = $('#minimap');
@@ -107,6 +108,7 @@ class Human {
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			}
+			grid[cell.x][cell.y].isHumanExplored = true;
 		})
 	}
 
@@ -164,11 +166,34 @@ class Agent extends Human {
 }
 
 class Obstacle {
-	constructor (x, y, color, isFound) {
+	constructor (x, y, color, isFound, variant) {
 		this.x = x;
 		this.y = y;
 		this.color = color;
 		this.isFound = isFound;
+		this.variant = variant;
+	}
+
+	spawn(size) {
+		if (grid[this.x][this.y].isHumanExplored || grid[this.x][this.y].isAgentExplored) {
+			this.isFound = true;
+			if (this.variant == 'victim') {
+				$map.drawEllipse({
+					fromCenter: true,
+					fillStyle: this.color,
+					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
+					width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+				});
+			} else if (this.variant == 'hazard') {
+				$map.drawPolygon({
+					fromCenter: true,
+					fillStyle: this.color,
+					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
+					radius: ((boxWidth - 1)/2)*size,
+					sides: 3
+				});
+			}
+		}
 	}
 }
 
@@ -184,8 +209,20 @@ $(document).ready(async () => {
 
 	await initMap(currentPath);
 
-	human = new Human(262, 348, 1, colors.human, 8, new Set(), new Set());
+	// initialize the canvas with some plain grey background
+	$map.drawRect({
+		fillStyle: '#252525',
+		x: 0, y: 0,
+		width: canvasWidth, height: canvasHeight
+	});
+
+	human = new Human(/* ...getRandomLoc(grid), */262, 348, 1, colors.human, 8, new Set(), new Set());
 	agent1 = new Agent('1', 261, 347, 1, colors.agent1, 5, new Set(), new Set());
+
+	for (let i = 0; i < 10; ++i) {
+		obstacles.victims.push(new Obstacle(...getRandomLoc(grid), colors.victim, false, 'victim'));
+		obstacles.hazards.push(new Obstacle(...getRandomLoc(grid), colors.hazard, false, 'hazard'));
+	}
 
 	$('.loader').css('visibility', 'hidden');
 	$('.body-container').css('visibility', 'visible');
@@ -209,7 +246,7 @@ function loop() {
 // initialize the grid array with map data from json
 async function initMap(path) {
 	grid = [];
-	await $.getJSON(currentPath, data => {
+	await $.getJSON(path, data => {
 		rows = data.dimensions[0].rows;
 		columns = data.dimensions[0].columns;
 		boxWidth = Math.floor(canvasWidth/rows);
@@ -229,22 +266,6 @@ async function initMap(path) {
 function spawn(members, size) {
 	members.forEach(member => {
 		member.spawn(size);
-		/* if (member.id == 'victim' && member.isFound) {
-			$map.drawEllipse({
-				fromCenter: true,
-				fillStyle: member.color,
-				x: member.x * boxWidth + boxWidth/2, y: member.y * boxHeight + boxHeight/2,
-				width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
-			});
-		} else if (member.id == 'hazard' && member.isFound) {
-			$map.drawPolygon({
-				fromCenter: true,
-				fillStyle: member.color,
-				x: member.x * boxWidth + boxWidth/2, y: member.y * boxHeight + boxHeight/2,
-				radius: ((boxWidth - 1)/2)*size,
-				sides: 3
-			});
-		} */
 	});
 }
 
@@ -270,7 +291,7 @@ function refreshMap() {
 	// compute agent FOV
 
 	// spawn players
-	spawn([human, agent1], 1);
+	spawn([human, agent1, ...obstacles.victims, ...obstacles.hazards], 1);
 }
 
 // divides the square field of view around the human/agent into 4 distinct "quadrants"
@@ -602,6 +623,16 @@ function eventKeyHandlers(e) {
 
 function updateScrollingPosition(x, y) {
 	$mapContainer[0].scroll(x * boxWidth - $mapContainer.width()/2, y * boxHeight - $mapContainer.height()/2);
+}
+
+// gets a random spawn location in a given map
+function getRandomLoc(grid) {
+	let x, y;
+	do {
+		x = Math.floor(Math.random() * grid.length);
+		y = Math.floor(Math.random() * grid[x].length);
+	} while (grid[x][y].isWall);
+	return [x, y];
 }
 
 // SET METHODS

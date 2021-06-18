@@ -332,10 +332,10 @@ nav {
 }
 
 #simulation {
-	width: 100%;
 	height: 100%;
 	display: flex;
 	justify-content: space-around;
+	padding: 0 15px;
 	align-items: center;
 	color: white;
 }
@@ -428,7 +428,6 @@ nav {
 
 #map {
 	background-color: #252525;
-	border: 1px solid #bb86fc;
 }
 
 input {
