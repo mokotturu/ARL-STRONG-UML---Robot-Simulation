@@ -41,6 +41,7 @@
 						<p>Human explored area (blue)</p>
 					</div>
 				</div>
+				<div id="prob">probability of discovery</div>
 				<div class="tableItems"></div>
 				<div id="userInputButtons">
 					<button onclick="confirmExploredArea()">Integrate</button>
@@ -67,12 +68,12 @@
 					<p>Yellow triangle represents a hazard</p>
 				</div>
 				<div id="timer">0</div>
-				{{!-- <button id="terminate" onclick="terminate()">Terminate Simulation</button> --}}
 			</div>
 			<div id="map-container">
 				<canvas width="4000" height="4000" id="map"></canvas>
 			</div>
 		</div>
+		<div id="agentSnackbar">text message</div>
 	</div>
 
 	<!-- Load the CDN first -->

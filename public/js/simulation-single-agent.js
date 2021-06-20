@@ -9,6 +9,8 @@ const $log = $('.tableItems');
 const $dropdown = $('#maps');
 const $progressbar = $('.background');
 const $agentText = $('.agent-text');
+const $prob = $('#prob');
+const $agentSnackbar = $('#agentSnackbar');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows;
@@ -73,7 +75,7 @@ var viewRadius = 9;
 var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 10, duration = 30;
+var intervalCount = 0, half = 0, intervals = 10, duration = 5;
 var log = { agent1: [], agent2: [] };
 
 var victimMarker = new Image();
@@ -261,6 +263,7 @@ function showExploredInfo() {
 	$log.empty();
 
 	if (agentNum == 1) {
+		$prob.text('I have detected a victim with a probability of 0.9');
 		$agentText.toggleClass("changed", false);
 		$agentText.css("color", "#99ffb7");
 		$agentText.html(`Agent ${agentNum} explored area (green)
@@ -347,6 +350,9 @@ function hideExploredInfo() {
 	clearInterval(timeout);
 	timeout = setInterval(updateTime, 1000);
 	pause = false;
+	$agentSnackbar.text('Agent 1 says: This is agent 1 reporting.')
+	$agentSnackbar.addClass('show');
+	setTimeout(() => { $agentSnackbar.removeClass('show'); }, 3000);
 }
 
 function confirmExploredArea() {
@@ -381,7 +387,7 @@ function updateTime() {
 		seconds = 0;
 		showExploredInfo();
 	}
-	$timer.text(seconds);
+	$timer.text(seconds + 's');
 }
 
 // creates an array containing cells with x and y positions and additional details
@@ -431,7 +437,7 @@ function createMap(currentPath, cb) {
 		let tempLoc1 = agent1Traversal[agent1Index++].current;
 		// let tempLoc2 = agent2Traversal[agent2Index++];
 		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
-		agent1 = { id: "agent1", loc: /* 131320 */tempLoc1[0][1] + tempLoc1[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0 };
+		agent1 = { id: "agent1", loc: /* 131320 */tempLoc1[0][1] + tempLoc1[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0, prob: 0.9 };
 		victim0 = { id: "victim", loc: 48738, color: VICTIM_COLOR, isFound: false };
 		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false };
 		victim2 = { id: "victim", loc: 191231, color: VICTIM_COLOR, isFound: false };
