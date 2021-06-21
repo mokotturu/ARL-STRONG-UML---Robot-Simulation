@@ -641,7 +641,7 @@ function refreshMap() {
 		});
 
 		for (let i = 0; i < obstacles.length; ++i) {
-			if (item == obstacles[i].loc) {
+			if (thisCell == obstacles[i].loc) {
 				obstacles[i].isFound = true;
 			}
 		}
