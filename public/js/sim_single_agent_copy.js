@@ -10,7 +10,6 @@ const $dropdown = $('#maps');
 const $progressbar = $('.background');
 const $agentText = $('.agent-text');
 const $prob = $('#prob');
-const $lowPMsg = $('#lowPMsg'); //Added first cue 
 const $agentSnackbar = $('#agentSnackbar');
 $.jCanvas.defaults.fromCenter = false;
 
@@ -119,26 +118,12 @@ $(document).ready(() => {
 		count = 0;
 
 		if (!pause) {
-			
 			if (intervalCount >= intervals) terminate();
 			moveAgent1(agent1);
 			// moveAgent2(agent2);
 			// randomWalk(agent1);
 			// randomWalk(agent2);
 		}
-		
-		
-		if (pause){
-			//Added probability range and selection updater
-			
-			//At the beginning and every 2 rounds, change the confidence range 
-			if (intervalCount % 2 == 0) getProbRange();
-			
-            selectProb(); //Set new probability for agent1 each time
-
-            agent1.o_count = 0; //Reset object count			
-		}
-		
 	});
 
 	requestAnimationFrame(loop);
@@ -260,62 +245,7 @@ function terminate() {
 	});
 }
 
-//Function selects a confidence range out of 3 possible ranges 
-
-function getProbRange(){
-
-//var changeChoice = Math.floor(Math.random() * (4-1))+1; //Pick a number: 1 through 4 randomly
-
-//Change the confidence range if 2 is chosen 
-
-//if (changeChoice == 2){
-
-//confidence ranges
-
-const r_A = [0.2, 0.4]; 
-const r_B = [0.5,0.7];
-const r_C = [0.8, 0.99];
-
-
-
-var choice = Math.floor(Math.random() * (3 - 1)) + 1; //Choose a number between 1 (inclusive) and 3 (inclusive)
-
-//Set the confidence levels for the agent 
-switch(choice) {
-  case 1:
-    agent1.conf[0] = r_C[0];
-	agent1.conf[1] = r_C[1];
-    break;
-  case 2:
-    agent1.conf[0] = r_B[0];
-	agent1.conf[1] = r_B[1];
-    
-    break;
-  case 3:
-    agent1.conf[0] = r_A[0];
-	agent1.conf[1] = r_A[1];
-  
-    break;
-    
-}
-//}
-
-}
-
-function selectProb(){
-	
-	
-	
-	//Run a while loop to run until a value has been selected between a min and max confidence level
-	
-	var cmax = agent1.conf[1];
-	
-	var cmin = agent1.conf[0];
-	
-	agent1.curr_prob = Math.random() * (cmax - cmin) + cmin; //Random gen * (max - min) + min
-	
-	 
-}
+//Added argument of current probability ****EDIT*****
 
 function showExploredInfo() {
 	if (agentNum == 1) {
@@ -327,7 +257,7 @@ function showExploredInfo() {
 
 	$(document).off();
 
-	$popupModal.css('display', 'block'); 
+	$popupModal.css('display', 'block');
 	$popupModal.css('visibility', 'visible');
 	$popupModal.css('opacity', '1');
 	$minimapImage.attr("src", $map.getCanvasImage());
@@ -335,22 +265,7 @@ function showExploredInfo() {
 	$log.empty();
 
 	if (agentNum == 1) {
-		//Currently using global variable to grab data. Future uses will implement general argument for probability. 
-        
-		//Display probability of success if obstacles found
-        if (agent1.o_count > 0){		
-		$prob.text('I am ' + (agent1.curr_prob*100).toPrecision(2) + '% confident that I found victims');
-		$prob.css("visibility", "visible");
-		$lowPMsg.css("visibility", "hidden");
-		}
-		
-		//Display probability of failure if no obstacles found 
-		if (agent1.o_count == 0){
-		$lowPMsg.text('I am only '+  ( (1 - agent1.curr_prob) * 100).toPrecision(2) + '% confident that I found victims');
-		$prob.css("visibility", "hidden");
-		$lowPMsg.css("visibility", "visible");
-		}
-		
+		$prob.text('I have detected a victim with a probability of' + 2);
 		$agentText.toggleClass("changed", false);
 		$agentText.css("color", "#99ffb7");
 		$agentText.html(`Agent ${agentNum} explored area (green)
@@ -524,11 +439,9 @@ function createMap(currentPath, cb) {
 		let tempLoc1 = agent1Traversal[agent1Index++].current;
 		// let tempLoc2 = agent2Traversal[agent2Index++];
 		human = { id: "human", loc: 131348, color: HUMAN_COLOR, dir: 1 };
-		agent1 = { id: "agent1", loc: /* 131320 */tempLoc1[0][1] + tempLoc1[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0, conf: [0.8,0.99],curr_prob:0.8,o_count:0 };
-		//Replaced prob with conf (confidence), added array in place of single value. Array represents [min_prob, max_prob]
-		//Also added obstacle count and current probability measure
-		//48738
-		victim0 = { id: "victim", loc: 66659, color: VICTIM_COLOR, isFound: false };
+		agent1 = { id: "agent1", loc: /* 131320 */tempLoc1[0][1] + tempLoc1[0][0]*columns, color: AGENT_COLOR, dir: 1, step: 1, stepsCovered: 0, minSteps: 7, maxSteps: 0, conf: [0.1,0.5],curr_prob:0.2 };
+		//Replaced prob with conf, added array in place of single value. Array represents [min_prob, max_prob]
+		victim0 = { id: "victim", loc: 48738, color: VICTIM_COLOR, isFound: false };
 		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false };
 		victim2 = { id: "victim", loc: 191231, color: VICTIM_COLOR, isFound: false };
 		victim3 = { id: "victim", loc: 84339, color: VICTIM_COLOR, isFound: false };
@@ -554,9 +467,7 @@ function createMap(currentPath, cb) {
 		spawn([human, agent1], 1);
 		spawn(obstacles, 1);
 		refreshMap();
-        
-		//console.log(agent1);
-		
+
 		console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, human.loc);
 		// console.log(uuid);
 		// console.log("Spawn", Math.round((performance.now()/1000) * 100)/100, agent1.loc);
@@ -739,9 +650,7 @@ function refreshMap() {
 		});
 
 		for (let i = 0; i < obstacles.length; ++i) {
-			if (thisCell == obstacles[i].loc) {
-				//Add to the temporary obstacle counter for the agent too
-				agent1.o_count++;
+			if (item == obstacles[i].loc) {
 				obstacles[i].isFound = true;
 			}
 		}

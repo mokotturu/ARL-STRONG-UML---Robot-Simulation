@@ -317,16 +317,27 @@ nav {
 	padding: 10px 20px;
 	box-shadow: 0 0 10px black;
 	-webkit-box-shadow: 0 0 10px black;
-	-moz-box-shadow: 0 0 10px black;
+	-moz-box-shadow: 0 0 10px black; 
 }
 
 #prob {
 	text-align: center;
 	padding: 10px 0;
-	background-color: white;
+	background-color: green;
 	border: 1px solid black;
 	border-radius: 7px;
 }
+
+
+#lowPMsg {
+    text-align: center;
+	padding: 10px 0;
+	background-color: yellow;
+	border: 1px solid black;
+	border-radius: 7px;
+}
+
+
 
 .tableItems {
 	display: flex;
