@@ -120,9 +120,7 @@ or a false negative
 const flag_A = [0, 2, 0, 0, 1, 0, 0, 0, 0, 0];
 
 
-// UPDATE 6/26/2021: Adding set of predefined locations as array for phase 1
-
-const loc_A = [59160,69165,74170,54174,64178,84180,79182,59184,69188,56190];
+// UPDATE 6/26/2021:
 
 //Added trust cues for agent 
 
@@ -469,15 +467,13 @@ function updateAgentProps(){
 function chooseObColor(){
     
 	//Obstacle gets hot pink color if high probability
-    if (dis_A[intervalCount] > 0.6){
-	agent1.ob_color = HOT;
-	console.log("OBSTACLES HAS HIGH CHANCE OF BEING FOUND");
+    if (agent1.ob_color > 0.6){
+	agent1.curr_ob.color = HOT;
 	}
 					
 	//Obstacle gets blue color if low probability
-	else if (dis_A[intervalCount] < 0.6){
-	agent1.ob_color = COLD;
-	console.log("OBSTACLES HAS LOW CHANCE OF BEING FOUND");
+	else if (agent1.ob_color < 0.6){
+	agent1.curr_ob.color = COLD;
 	}
 	
 }
@@ -626,85 +622,10 @@ function confirmExploredArea() {
 		
 	selectCue();
 	
-	
-	
-	/* Go ahead and change the color to either the victim color (red), hazard color (yellow) , 
-	or false positive/negative color (floor color for false positive, white for false negative */
-	
-	/*NEW ADDITION 6/23/2021: False positive/false negative flags. Victim or hazard is either present, a false positive,
-or a false negative 
-
-0 = neutral (no false positives or false negatives)
-
-1 = false positive 
-
-2 = false negative
-
-*/
-	for (let i = 0; i < obstacles.length; i++){
-	
-		if (obstacles[i].loc == loc_A[intervalCount]){
-		
-			switch (flag_A[intervalCount]){
-				case 0:
-				
-				switch(obstacles[i].id){
-					case "victim":
-					    //Don't display victims if probability is below 0.6
-					    if (dis_A[intervalCount] < 0.6){
-						obstacles[i].accepted = false;
-						obstacles[i].color = LIGHT_TEMP_COLOR_1;
-						}
-						
-						//Display victim if probability is above 0.6
-						else if (dis_A[intervalCount] > 0.6){
-						obstacles[i].color = VICTIM_COLOR;
-						obstacles[i].accepted = true;
-						}
-						break;
-					
-					case "hazard":
-					    
-						//Don't display victims if probability is below 0.6
-					    if (dis_A[intervalCount] < 0.6){
-						obstacles[i].accepted = false;
-						obstacles[i].color = LIGHT_TEMP_COLOR_1;
-						}
-						
-						//Display victim if probability is above 0.6
-						else if (dis_A[intervalCount] > 0.6){
-						obstacles[i].color = HAZARD_COLOR;
-						obstacles[i].accepted = true;
-						}
-					}
-						
-					
-					break;
-				
-				case 1:
-				
-					obstacles[i].color = LIGHT_TEMP_COLOR_1;
-					obstacles[i].accepted = true;
-				
-				break;
-				
-				case 2: 
-				
-					obstacles[i].color = FN;
-					obstacles[i].accepted = true;
-				
-			}		
-		}			
-	
-	}
-	
-
-	
 	tempAgent1Explored.forEach(item => {
 		grid[item].isAgentExplored = true;
 		agent1Explored.add(item);
 	});
-	
 
 	tempHumanExplored.forEach(item => {
 		grid[item.isHumanExplored] = true;
@@ -713,19 +634,16 @@ or a false negative
 
 
 
-    /* UPDATE 6/26/2021: Temporatily disabling updating of found obstacles by agent.
-	Agent will only accept the location from the predefined location array for phase 1. */
-
-    /*
+    
 
     //Update the obstacles for color 
 	for (let i = 0; i < agent1.o_count; ++i){
 		for (let j = 0; j < obstacles.length; ++j){
-			//Each time, compare the locations the agent found to 
-			//the locations of all obstacles on the map
+			/*Each time, compare the locations the agent found to 
+			the locations of all obstacles on the map*/
 			if (agent1.ob_locs[i].loc == obstacles[j].loc){
-				//Check the ID and change color back to original hazard and victim colors
-				//This will indicate an object has been found on the map 
+				/*Check the ID and change color back to original hazard and victim colors
+				This will indicate an object has been found on the map */
 				switch (obstacles[j].loc){
 					case ("hazard"):
 					
@@ -782,11 +700,7 @@ or a false negative
 			}
 		}
 	}
-	
-	
-	*/
-	
-	
+		
 	log.agent1.push({interval: intervalCount++, trusted: true});
 	
 	updateAgentProps();	//Update agent probability, flags, confidence interval
@@ -880,55 +794,55 @@ function createMap(currentPath, cb) {
 		// UPDATE 6/25/2021: Added curr_ob to keep track of current obstacle locations agent finds during each interval
 		
 		//Agent test 1
-		victim0 = { id: "victim", loc: 59160, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim0 = { id: "victim", loc: 89200, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
 		
-		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim1 = { id: "victim", loc: 147482, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 2
-		victim2 = { id: "FNV", loc: 69165, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false};
+		victim2 = { id: "FNV", loc: 69151, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false};
 		
-		victim3 = { id: "victim", loc: 84339, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim3 = { id: "victim", loc: 84339, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 3
-		victim4 = { id: "victim", loc: 74170, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim4 = { id: "victim", loc: 84190, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		victim5 = { id: "victim", loc: 193849, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim5 = { id: "victim", loc: 193849, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 4
-		victim6 = { id: "victim", loc: 54174, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim6 = { id: "victim", loc: 64155, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		victim7 = { id: "victim", loc: 145639, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim7 = { id: "victim", loc: 145639, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 5
-		victim8 = { id: "FPV", loc: 64178, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim8 = { id: "FPV", loc: 74185, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		victim9 = { id: "victim", loc: 75719, color: VICTIM_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		victim9 = { id: "victim", loc: 75719, color: VICTIM_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 
         //Agent test 6
-		hazard0 = { id: "hazard", loc: 84180, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard0 = { id: "hazard", loc: 74174, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		hazard1 = { id: "hazard", loc: 183849, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard1 = { id: "hazard", loc: 183849, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		
-		hazard2 = { id: "hazard", loc: 141711, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard2 = { id: "hazard", loc: 141711, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 7
-		hazard3 = { id: "hazard", loc: 79182, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard3 = { id: "hazard", loc: 61712, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 8
-		hazard4 = { id: "hazard", loc: 59184, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard4 = { id: "hazard", loc: 69220, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		hazard5 = { id: "hazard", loc: 170831, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard5 = { id: "hazard", loc: 170831, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 9
-		hazard6 = { id: "hazard", loc: 69188, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard6 = { id: "hazard", loc: 70230, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		hazard7 = { id: "hazard", loc: 174791, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard7 = { id: "hazard", loc: 174791, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		//Agent test 10
-		hazard8 = { id: "hazard", loc: 56190, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard8 = { id: "hazard", loc: 71660, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
-		hazard9 = { id: "hazard", loc: 188702, color: HAZARD_COLOR, isFound: false, accepted: false, fp: false, fn:false };
+		hazard9 = { id: "hazard", loc: 188702, color: HAZARD_COLOR, isFound: false, accepted: true, fp: false, fn:false };
 		
 		obstacles.push(victim0, victim1, victim2, victim3, victim4, victim5, victim6, victim7, victim8, victim9, hazard0, hazard1, hazard2, hazard3, hazard4, hazard5, hazard6, hazard7, hazard8, hazard9);
 
@@ -962,12 +876,12 @@ function createMap(currentPath, cb) {
 
 function drawMarkers(members) {
 	members.forEach(member => {
-		if (member.id == "victim" && member.accepted == true) {
+		if (member.id == "victim" && member.isFound) {
 			$map.drawImage({
 				source: 'img/victim-marker-big.png',
 				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
 			});
-		} else if (member.id == "hazard" && member.accepted == true) {
+		} else if (member.id == "hazard" && member.isFound) {
 			$map.drawImage({
 				source: 'img/hazard-marker-big.png',
 				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
@@ -977,7 +891,7 @@ function drawMarkers(members) {
 		
 		//NEW ADDITIONS 6/25/2021: false negative and false positive markers  for hazards and victims
 		
-		  else if ((member.id == "FPV" || member.id == "FPH") && member.accepted == true) {
+		  else if ((member.id == "FPV" || member.id == "FPH") && member.isFound) {
 			$map.drawImage({
 				source: 'img/false-positive-big.png',
 				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
@@ -985,7 +899,7 @@ function drawMarkers(members) {
 		
 		}
 		
-		  else if ( (member.id == "FNV" || member.id == "FNH") && member.accepted == true) {
+		  else if ( (member.id == "FNV" || member.id == "FNH") && member.isFound) {
 			$map.drawImage({
 				source: 'img/false-negative-big.png',
 				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
@@ -1092,12 +1006,6 @@ function spawn(members, size) {
 
 // redraws the map and spawns the bots in their new location
 function refreshMap() {
-	
-	//console.log("refresh happening");
-	//console.log(intervalCount);
-	
-	
-	
 	// human surroundings
 	let humanFOV = findLineOfSight(human);
 	let humanFOVSet = new Set(humanFOV);	// convert array to set
@@ -1110,22 +1018,7 @@ function refreshMap() {
 
 		for (let i = 0; i < obstacles.length; ++i) {
 			if (item == obstacles[i].loc) {
-				
-				/*Only set the obstacle to foun if the human does
-				not find the false positives or false negatives */
-				
-				switch(obstacles[i].id){
-					case "victim":
-						obstacles[i].isFound = true;
-						obstacles[i].accepted = true;
-					break;
-					
-					case "hazard":
-					    obstacles[i].isFound = true;
-						obstacles[i].accepted = true;
-					break;
-					
-				}
+				obstacles[i].isFound = true;
 			}
 		}
 	});
@@ -1164,20 +1057,10 @@ function refreshMap() {
 			}
 		});
 
-
-/*UPDATE 6/26/2021: Temporarily turn off detection behavior for now.
-				Agent's findings will be predetermined by an array for phase 1. */
-				
-				
-				/*
 		for (let i = 0; i < obstacles.length; ++i) {
 			if (thisCell == obstacles[i].loc) {
 				//Add to the temporary obstacle counter for the agent too
 				//agent1.o_count++;
-				
-				
-				
-				
 				if (obstacles[i].isFound == false){
 				//Count how many victims and hazards were found by the agent
 				    
@@ -1316,48 +1199,7 @@ function refreshMap() {
 				obstacles[i].isFound = true;
 			}
 		}
-		
-		*/
-		
-		/* PHASE 1 OBJECT REVEAL*/
-		
-		
-		
-		
-		
 	});
-	
-	
-	for (let m = 0; m < obstacles.length; m++){
-			if ( (loc_A[intervalCount] == obstacles[m].loc) && obstacles[m].isFound == false){
-				chooseObColor();
-				obstacles[m].color = agent1.ob_color;
-				obstacles[m].isFound = true;
-				console.log("GOT THE LOCATION MARKED UP");
-				//console.log(loc_A[intervalCount]);
-				console.log(obstacles);
-				
-				if (dis_A[intervalCount] > 0.6 && obstacles[m].id == "victim"){
-				agent1.v_count++;
-				}
-				
-				
-				else if (dis_A[intervalCount] > 0.6 && obstacles[m].id == "hazard"){
-				agent1.h_count++;
-				}
-		}
-		
-		
-		else {
-		console.log("FOUND NOTHING");
-		//console.log(obstacles);
-	    //console.log("LOC_A " + loc_A[intervalCount]);
-		//console.log("OBSTACLES " + obstacles[m].loc); 
-		//console.log("I DIDN'T SEE THAT LOC_A = OBSTACLES");
-		}
-		
-		
-		}
 
 	spawn([human, agent1], 1);
 	spawn(obstacles, 1);

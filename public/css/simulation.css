@@ -273,31 +273,30 @@ nav {
 }
 
 .tooltip .tooltiptext {
-	visibility: hidden;
-	width: 200px;
-	background-color: rgba(255, 255, 255, 0.7);
-	color: black;
-	text-align: center;
-	border-radius: 7px;
-	padding: 10px 5px;
-	position: absolute;
-	z-index: 1;
-	top: 150%;
-	left: 50%;
-	margin-left: -100px;
-	font-family: 'Montserrat', 'sans-serif';
-	font-size: 14px;
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: black;
+    text-align: center;
+    border-radius: 7px;
+    padding: 10px 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -100px;
+    font-family: 'Montserrat', 'sans-serif';
+    font-size: 14px;mark
 }
-
 .tooltip .tooltiptext::after {
-	content: "";
-	position: absolute;
-	bottom: 100%;
-	lefT: 50%;
-	margin-left: -10px;
-	border: 5px;
-	border-style: solid;
-	border-color: transparent transparent rgba(255, 255, 255, 0.7) transparent;
+    content: "";
+    position: absolute;
+    top: 100%;
+    lefT: 50%;
+    margin-left: -10px;
+    border: 5px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.7) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {
@@ -323,21 +322,32 @@ nav {
 #prob {
 	text-align: center;
 	padding: 10px 0;
-	background-color: green;
+	background-color: lightgrey;
 	border: 1px solid black;
 	border-radius: 7px;
 }
 
+#hv_count{
+	text-align: center;
+	padding: 10px 0;
+	background-color: lightgrey;
+	border: 1px solid black;
+	border-radius: 7px;
+	white-space: pre-line;
+}
+
+/*
 
 #lowPMsg {
     text-align: center;
+	visibility: hidden;
 	padding: 10px 0;
 	background-color: yellow;
 	border: 1px solid black;
 	border-radius: 7px;
 }
 
-
+*/
 
 .tableItems {
 	display: flex;
@@ -416,6 +426,7 @@ nav {
 	visibility: hidden;
 	min-width: 250px;
 	margin-left: -125px;
+	margin-right: 250px;
 	background-color: white;
 	color: black;
 	text-align: center;
@@ -425,12 +436,13 @@ nav {
 	z-index: 1;
 	left: 50%;
 	bottom: 30px;
+	white-space: pre-line;
 }
 
 #agentSnackbar.show {
 	visibility: visible;
-	-webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-	animation: fadein 0.5s, fadeout 0.5s 2.5s;
+	-webkit-animation: fadein 0.5s, fadeout 0.5s 8s;
+	animation: fadein 0.5s, fadeout 0.5s 8s;
 }
 
 @-webkit-keyframes fadein {
