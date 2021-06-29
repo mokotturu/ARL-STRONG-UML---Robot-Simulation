@@ -6,6 +6,15 @@ $(document).ready(() => {
 	});
 });
 
+$(window).scroll(() => {
+	let fadeInElems = document.getElementsByClassName('fadeIn');
+	for (const elem of fadeInElems) {
+		if (elem.getBoundingClientRect().top + elem.offsetHeight < window.innerHeight) {
+			elem.style.opacity = 1;
+		}
+	}
+});
+
 $(window).on('click', e => {
 	if ($popupModal.is(e.target)) {
 		$popupModal.css('visibility', 'hidden');
