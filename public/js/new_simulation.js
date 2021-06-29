@@ -72,7 +72,7 @@ victimMarker.src = 'img/victim-marker-big.png';
 hazardMarker.src = 'img/hazard-marker-big.png';
 
 class Player {
-	constructor (x, y, dir, fovSize, explored, tempExplored) {
+	constructor (x, y, dir, fovSize) {
 		this.id = 'human';
 		this.x = x;
 		this.y = y;
@@ -80,8 +80,8 @@ class Player {
 		this.darkColor = colors.human;
 		this.lightColor = colors.lightHuman;
 		this.fovSize = fovSize;
-		this.explored = explored;
-		this.tempExplored = tempExplored;
+		this.explored = new Set();
+		this.tempExplored = new Set();
 	}
 
 	spawn(size) {
@@ -98,6 +98,8 @@ class Player {
 	drawCells(cells) {
 		let tempLightColor, tempDarkColor;
 		cells.forEach(cell => {
+			this.explored.add(cell);
+			grid[cell.x][cell.y].isHumanExplored = true;
 			tempLightColor = this.lightColor, tempDarkColor = this.darkColor;
 			if (cell.isAgentExplored && cell.isHumanExplored) {
 				tempLightColor = colors.lightTeam;
@@ -114,14 +116,12 @@ class Player {
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			} else {
-				this.tempExplored.add(cell);
 				$map.drawRect({
 					fillStyle: tempLightColor,
 					x: cell.x*boxWidth, y: cell.y*boxHeight,
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			}
-			grid[cell.x][cell.y].isHumanExplored = true;
 		});
 	}
 
@@ -163,14 +163,15 @@ class Player {
 }
 
 class Agent extends Player {
-	constructor (id, x, y, dir, speed, fovSize, lightColor, darkColor, explored, tempExplored) {
-		super(x, y, dir, fovSize, explored, tempExplored);
+	constructor (id, x, y, dir, speed, fovSize, lightColor, darkColor) {
+		super(x, y, dir, fovSize);
 		this.id = id;
 		this.speed = speed;
 		this.index = 0;
 		this.currentTick = 0;
 		this.lightColor = lightColor;
 		this.darkColor = darkColor;
+		this.traversal = [];
 	}
 
 	spawn(size) {
@@ -191,6 +192,7 @@ class Agent extends Player {
 	drawCells(cells) {
 		let tempLightColor, tempDarkColor;
 		cells.forEach(cell => {
+			this.tempExplored.add(cell);
 			tempLightColor = this.lightColor, tempDarkColor = this.darkColor;
 			if (cell.isAgentExplored && cell.isHumanExplored) {
 				tempLightColor = colors.lightTeam;
@@ -210,7 +212,6 @@ class Agent extends Player {
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			} else {
-				this.tempExplored.add(cell);
 				$map.drawRect({
 					fillStyle: tempLightColor,
 					x: cell.x*boxWidth, y: cell.y*boxHeight,
@@ -263,21 +264,21 @@ $(document).ready(async () => {
 	$('.loader').css('visibility', 'visible');
 	$('.loader').css('opacity', '1');
 
-	await initMap(currentPath);
+	human = new Player(232, 348, 1, 10);
+	agent1 = new Agent(1, 261, 347, 1, 10, 5, colors.lightAgent1, colors.agent1);
+	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2);
+	agents.push(agent1/* , agent2 */);
+	data.forEach(obj => {
+		obj.agents.push([], []);
+	});
+
+	await initMaps(currentPath);
 
 	// initialize the canvas with a plain grey background
 	$map.drawRect({
 		fillStyle: '#252525',
 		x: 0, y: 0,
 		width: canvasWidth, height: canvasHeight
-	});
-
-	human = new Player(232, 348, 1, 10, new Set(), new Set());
-	agent1 = new Agent(1, 261, 347, 1, 10, 5, colors.lightAgent1, colors.agent1, new Set(), new Set());
-	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2, new Set(), new Set());
-	agents.push(agent1/* , agent2 */);
-	data.forEach(obj => {
-		obj.agents.push([], []);
 	});
 
 	for (let i = 0; i < 10; ++i) {
@@ -320,7 +321,7 @@ function loop() {
 }
 
 // initialize the grid array with map data from json
-async function initMap(path) {
+async function initMaps(path) {
 	grid = [];
 	await $.getJSON(path, data => {
 		rows = data.dimensions[0].rows;
@@ -337,6 +338,12 @@ async function initMap(path) {
 	}).fail(() => {
 		alert('An error has occured while loading the map.');
 	});
+
+	/* await $.getJSON('src/data10_5x5.json', data => {
+		Object.entries(data).forEach(([key, value]) => {
+			agent1.traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y })
+		});
+	}); */
 }
 
 function spawn(members, size) {
@@ -373,9 +380,9 @@ function terminate() {
 			humanTraversal: data[half].human,
 			agent1Traversal: data[half].agents[0],
 			// agent2Traversal: data[half].agents[1],
-			humanExplored: [...human.explored],
-			agent1Explored: [...agent1.explored],
-			// agent2Explored: [...agent1.explored],
+			humanExplored: [...human.explored].filter(cell => !cell.isWall),
+			agent1Explored: [...agent1.explored].filter(cell => !cell.isWall),
+			// agent2Explored: [...agent1.explored].filter(cell => !cell.isWall),
 			obstacles: obstacles,
 			decisions: { agent1: log[0], agent2: log[1] }
 		}),
@@ -425,7 +432,7 @@ function showExploredInfo() {
 		});
 	}
 
-	getSetBoundaries(human.tempExplored, 0);
+	getSetBoundaries(human.explored, 0);
 
 	getSetBoundaries(agents[agentNum - 1].tempExplored, 1);
 	scaleImages();
@@ -440,11 +447,6 @@ function showExploredInfo() {
 }
 
 function confirmExploredArea() {
-	human.tempExplored.forEach(item => {
-		grid[item.x][item.y].isHumanExplored = true;
-		human.explored.add(item);
-	});
-
 	agents[agentNum - 1].tempExplored.forEach(item => {
 		grid[item.x][item.y].isAgentExplored = true;
 		agents[agentNum - 1].explored.add(item);
@@ -457,10 +459,6 @@ function confirmExploredArea() {
 
 function undoExploration() {
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
-	human.tempExplored.forEach(item => {
-		grid[item.x][item.y].isHumanExplored = true;
-		human.explored.add(item);
-	});
 	hideExploredInfo();
 }
 
@@ -496,7 +494,7 @@ function hideExploredInfo() {
 		width: canvasWidth, height: canvasHeight
 	});
 
-	human.drawCells(human.tempExplored);
+	human.drawCells(human.explored);
 	for (const agent of agents) {
 		agent.drawCells(agent.explored);
 		agent.tempExplored.clear();
