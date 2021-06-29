@@ -34,9 +34,8 @@ const colors = {
 
 var grid;
 var uuid;
-var data = [{ movement: [], human: [], agent1: [], agent2: [] }, { movement: [], human: [], agent1: [], agent2: [] }];
+var data = [{ movement: [], human: [], agents: [] }, { movement: [], human: [], agents: [] }];
 var obstacles = { victims: [], hazards: [] };
-// var victim0, victim1, victim2, victim3, victim4, victim5, victim6, victim7, victim8, victim9, hazard0, hazard1, hazard2, hazard3, hazard4, hazard5, hazard6, hazard7, hazard8, hazard9;
 var mapPaths = [
 	'src/data9.min.json',	//  0
 	'src/data9.min.json',	//  1
@@ -56,27 +55,30 @@ var mapPaths = [
 ];
 var pathIndex = 10;
 var currentPath = mapPaths[pathIndex];
+var currentFrame;
 
 var human, agent1;
+var agents = [];
 
-var count = 0, waitCount = 7, seconds = 0, timeout, startTime;
+var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 10, duration = 30;
-var log = { agent1: [], agent2: [] };
+var intervalCount = 0, half = 0, intervals = 10, duration = 10, agentNum = 1;
+var log = [[], []];
 
 var victimMarker = new Image();
 var hazardMarker = new Image();
 victimMarker.src = 'img/victim-marker-big.png';
 hazardMarker.src = 'img/hazard-marker-big.png';
 
-class Human {
-	constructor (x, y, dir, color, fovSize, explored, tempExplored) {
+class Player {
+	constructor (x, y, dir, fovSize, explored, tempExplored) {
 		this.id = 'human';
 		this.x = x;
 		this.y = y;
 		this.dir = dir;
-		this.color = color;
+		this.darkColor = colors.human;
+		this.lightColor = colors.lightHuman;
 		this.fovSize = fovSize;
 		this.explored = explored;
 		this.tempExplored = tempExplored;
@@ -84,32 +86,43 @@ class Human {
 
 	spawn(size) {
 		$map.drawRect({
-			fillStyle: this.color,
+			fillStyle: this.darkColor,
 			x: this.x * boxWidth, y: this.y * boxHeight,
 			width: (boxWidth - 1) * size, height: (boxHeight - 1) * size
 		});
+
+		let tracker = { x: this.x, y: this.y, t: Math.round((performance.now()/1000) * 100)/100 };
+		data[half].human.push(tracker);
 	}
 
-	drawFOVCells(fovSet) {
-		fovSet.forEach(cell => {
+	drawCells(cells) {
+		let tempLightColor, tempDarkColor;
+		cells.forEach(cell => {
+			tempLightColor = this.lightColor, tempDarkColor = this.darkColor;
+			if (cell.isAgentExplored && cell.isHumanExplored) {
+				tempLightColor = colors.lightTeam;
+				tempDarkColor = colors.team;
+			}
+
 			if (cell.isWall) {
 				$map.drawRect({
 					fillStyle: colors.wall,
-					strokeStyle: colors.human,
+					strokeStyle: tempDarkColor,
 					strokeWidth: 1,
 					cornerRadius: 2,
 					x: cell.x*boxWidth, y: cell.y*boxHeight,
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			} else {
+				this.tempExplored.add(cell);
 				$map.drawRect({
-					fillStyle: colors.lightHuman,
+					fillStyle: tempLightColor,
 					x: cell.x*boxWidth, y: cell.y*boxHeight,
 					width: boxWidth - 1, height: boxHeight - 1
 				});
 			}
 			grid[cell.x][cell.y].isHumanExplored = true;
-		})
+		});
 	}
 
 	moveLeft() {
@@ -118,6 +131,7 @@ class Human {
 			this.dir = 4;
 			updateScrollingPosition(this.x, this.y);
 		}
+		refreshMap();
 	}
 
 	moveRight() {
@@ -126,6 +140,7 @@ class Human {
 			this.dir = 2;
 			updateScrollingPosition(this.x, this.y);
 		}
+		refreshMap();
 	}
 
 	moveUp() {
@@ -134,6 +149,7 @@ class Human {
 			this.dir = 1;
 			updateScrollingPosition(this.x, this.y);
 		}
+		refreshMap();
 	}
 
 	moveDown() {
@@ -142,14 +158,19 @@ class Human {
 			this.dir = 3;
 			updateScrollingPosition(this.x, this.y);
 		}
+		refreshMap();
 	}
 }
 
-class Agent extends Human {
-	constructor (id, x, y, dir, color, fovSize, explored, tempExplored) {
-		super(x, y, dir, color, fovSize, explored, tempExplored);
+class Agent extends Player {
+	constructor (id, x, y, dir, speed, fovSize, lightColor, darkColor, explored, tempExplored) {
+		super(x, y, dir, fovSize, explored, tempExplored);
 		this.id = id;
+		this.speed = speed;
 		this.index = 0;
+		this.currentTick = 0;
+		this.lightColor = lightColor;
+		this.darkColor = darkColor;
 	}
 
 	spawn(size) {
@@ -161,6 +182,41 @@ class Agent extends Human {
 			fontSize: boxWidth,
 			fontFamily: 'Montserrat, sans-serif',
 			text: this.id
+		});
+
+		let tracker = { x: this.x, y: this.y, t: Math.round((performance.now()/1000) * 100)/100 };
+		data[half].agents[this.id - 1].push(tracker);
+	}
+
+	drawCells(cells) {
+		let tempLightColor, tempDarkColor;
+		cells.forEach(cell => {
+			tempLightColor = this.lightColor, tempDarkColor = this.darkColor;
+			if (cell.isAgentExplored && cell.isHumanExplored) {
+				tempLightColor = colors.lightTeam;
+				tempDarkColor = colors.team;
+			} else if (cell.isAgentExplored && !cell.isHumanExplored) {
+				tempLightColor = colors.lightAgent;
+				tempDarkColor = colors.agent;
+			}
+
+			if (cell.isWall) {
+				$map.drawRect({
+					fillStyle: colors.wall,
+					strokeStyle: tempDarkColor,
+					strokeWidth: 1,
+					cornerRadius: 2,
+					x: cell.x*boxWidth, y: cell.y*boxHeight,
+					width: boxWidth - 1, height: boxHeight - 1
+				});
+			} else {
+				this.tempExplored.add(cell);
+				$map.drawRect({
+					fillStyle: tempLightColor,
+					x: cell.x*boxWidth, y: cell.y*boxHeight,
+					width: boxWidth - 1, height: boxHeight - 1
+				});
+			}
 		});
 	}
 }
@@ -209,15 +265,20 @@ $(document).ready(async () => {
 
 	await initMap(currentPath);
 
-	// initialize the canvas with some plain grey background
+	// initialize the canvas with a plain grey background
 	$map.drawRect({
 		fillStyle: '#252525',
 		x: 0, y: 0,
 		width: canvasWidth, height: canvasHeight
 	});
 
-	human = new Human(/* ...getRandomLoc(grid), */262, 348, 1, colors.human, 8, new Set(), new Set());
-	agent1 = new Agent('1', 261, 347, 1, colors.agent1, 5, new Set(), new Set());
+	human = new Player(232, 348, 1, 10, new Set(), new Set());
+	agent1 = new Agent(1, 261, 347, 1, 10, 5, colors.lightAgent1, colors.agent1, new Set(), new Set());
+	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2, new Set(), new Set());
+	agents.push(agent1/* , agent2 */);
+	data.forEach(obj => {
+		obj.agents.push([], []);
+	});
 
 	for (let i = 0; i < 10; ++i) {
 		obstacles.victims.push(new Obstacle(...getRandomLoc(grid), colors.victim, false, 'victim'));
@@ -232,15 +293,30 @@ $(document).ready(async () => {
 		eventKeyHandlers(e);
 	});
 
-	requestAnimationFrame(loop);
+	updateScrollingPosition(human.x, human.y);
+	timeout = setInterval(updateTime, 1000);
 
+	currentFrame = requestAnimationFrame(loop);
+	// currentFrame = setInterval(loop, 50);
 });
+
+function updateTime() {
+	if (++seconds % duration == 0) {
+		seconds = 0;
+		agentNum = 1;
+		showExploredInfo();
+	}
+	$timer.text(`Time elapsed: ${seconds}s`);
+}
 
 // game loop
 function loop() {
-	refreshMap();
-	updateScrollingPosition(human.x, human.y);
-	requestAnimationFrame(loop);
+	if (!pause) {
+		if (intervalCount >= intervals) terminate();
+		randomWalk(agent1);
+		refreshMap();
+		currentFrame = requestAnimationFrame(loop);
+	}
 }
 
 // initialize the grid array with map data from json
@@ -271,27 +347,179 @@ function spawn(members, size) {
 
 function refreshMap() {
 	// compute human FOV
-	let humanFOV = getFOV(human);
-	let humanFOVSet = new Set(humanFOV);
-
-	/* humanFOVSet.forEach(item => {
-		grid[item].isHumanExplored = true;
-		tempHumanExplored.add(item);
-
-		draw(grid[item], 0);
-
-		for (let i = 0; i < obstacles.length; ++i) {
-			if (item == obstacles[i].loc) {
-				obstacles[i].isFound = true;
-			}
-		}
-	}); */
-	human.drawFOVCells(humanFOVSet);
+	let fov = new Set(getFOV(human));
+	human.drawCells(fov);
 
 	// compute agent FOV
+	for (const agent of agents) {
+		fov = new Set(getFOV(agent));
+		agent.drawCells(fov);
+	}
 
 	// spawn players
-	spawn([human, agent1, ...obstacles.victims, ...obstacles.hazards], 1);
+	spawn([human, ...agents, ...obstacles.victims, ...obstacles.hazards], 1);
+}
+
+function terminate() {
+	pause = true;
+	clearInterval(timeout);
+
+	$.ajax({
+		url: "/simulation/2",
+		type: "POST",
+		data: JSON.stringify({
+			uuid: uuid,
+			movement: data[half].movement,
+			humanTraversal: data[half].human,
+			agent1Traversal: data[half].agents[0],
+			// agent2Traversal: data[half].agents[1],
+			humanExplored: [...human.explored],
+			agent1Explored: [...agent1.explored],
+			// agent2Explored: [...agent1.explored],
+			obstacles: obstacles,
+			decisions: { agent1: log[0], agent2: log[1] }
+		}),
+		contentType: "application/json; charset=utf-8",
+		success: (data, status, jqXHR) => {
+			console.log(data, status, jqXHR);
+			window.location.href = "/survey-1";
+		},
+		error: (jqXHR, status, err) => {
+			console.log(jqXHR, status, err);
+			alert(err);
+		}
+	});
+}
+
+function showExploredInfo() {
+	if (agentNum == 1) {
+		$humanImage.attr("src", $map.getCanvasImage());
+		$botImage.attr("src", $map.getCanvasImage());
+	}
+
+	drawMarkers([...obstacles.victims, ...obstacles.hazards]);
+	$(document).off();
+
+	$popupModal.css('display', 'block');
+	$popupModal.css('visibility', 'visible');
+	$popupModal.css('opacity', '1');
+	$minimapImage.attr("src", $map.getCanvasImage());
+
+	$log.empty();
+
+	$agentText.toggleClass(`agent${agentNum - 1}`, false);
+	$agentText.toggleClass(`agent${agentNum + 1}`, false);
+	$agentText.toggleClass(`agent${agentNum}`, true);
+	$agentText.css("color", agents[agentNum - 1].lightColor);
+	$agentText.html(`Agent ${agents[agentNum - 1].id} explored area
+	<i class="fas fa-info-circle tooltip">
+		<span class="tooltiptext">If there is no area highlighted in the agent color, then the agent did not explore any new area.</span>
+	</i>`);
+	if (log[agentNum - 1][intervalCount - 1] != null) {
+		log[agentNum - 1].forEach((data, i) => {
+			if (data.trusted) {
+				$log.append(`<p style='background-color: ${colors.lightAgent1};'>${i + 1} - Integrated</p>`);
+			} else {
+				$log.append(`<p style='background-color: ${colors.lightAgent};'>${i + 1} - Discarded</p>`);
+			}
+		});
+	}
+
+	getSetBoundaries(human.tempExplored, 0);
+
+	getSetBoundaries(agents[agentNum - 1].tempExplored, 1);
+	scaleImages();
+
+	cancelAnimationFrame(currentFrame);
+	// clearInterval(currentFrame);
+	pause = true;
+	clearInterval(timeout);
+
+	setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
+	setTimeout(() => { $log.scrollLeft(10000) }, 500);
+}
+
+function confirmExploredArea() {
+	human.tempExplored.forEach(item => {
+		grid[item.x][item.y].isHumanExplored = true;
+		human.explored.add(item);
+	});
+
+	agents[agentNum - 1].tempExplored.forEach(item => {
+		grid[item.x][item.y].isAgentExplored = true;
+		agents[agentNum - 1].explored.add(item);
+	});
+
+	log[agentNum - 1].push({ interval: intervalCount, trusted: true });
+
+	hideExploredInfo();
+}
+
+function undoExploration() {
+	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
+	human.tempExplored.forEach(item => {
+		grid[item.x][item.y].isHumanExplored = true;
+		human.explored.add(item);
+	});
+	hideExploredInfo();
+}
+
+// redraw the map and hide pop-up
+function hideExploredInfo() {
+	if (agentNum < agents.length) {
+		++agentNum;
+		showExploredInfo();
+		return;
+	}
+
+	if (intervalCount == Math.floor(intervals / 2)) {
+		$.ajax({
+			url: "/simulation/1",
+			type: "POST",
+			data: JSON.stringify({
+				uuid: uuid,
+				map: pathIndex,
+				movement: data[half].movement,
+				humanTraversal: data[half].human,
+				agent1Traversal: data[half].agents[0],
+				// agent2Traversal: data[half].agents[1]
+			}),
+			contentType: "application/json; charset=utf-8"
+		});
+		++half;
+	}
+
+	$map.clearCanvas();
+	$map.drawRect({
+		fillStyle: '#252525',
+		x: 0, y: 0,
+		width: canvasWidth, height: canvasHeight
+	});
+
+	human.drawCells(human.tempExplored);
+	for (const agent of agents) {
+		agent.drawCells(agent.explored);
+		agent.tempExplored.clear();
+	}
+	
+	refreshMap();
+
+	$(document).on('keydown', e => {
+		eventKeyHandlers(e);
+	});
+
+	++intervalCount;
+
+	$popupModal.css('visibility', 'hidden');
+	$popupModal.css('display', 'none');
+	$popupModal.css('opacity', '0');
+	$progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
+	$progressbar.html(`<p>${Math.round(intervalCount*100/intervals)}%</p>`);
+	clearInterval(timeout);
+	timeout = setInterval(updateTime, 1000);
+	pause = false;
+	// currentFrame = setInterval(loop, 500);
+	currentFrame = requestAnimationFrame(loop);
 }
 
 // divides the square field of view around the human/agent into 4 distinct "quadrants"
@@ -607,18 +835,126 @@ function eventKeyHandlers(e) {
 		case 49:	// 1
 			e.preventDefault();
 			// data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
-			updateScrollingPosition(grid[agent1.loc]);
+			updateScrollingPosition(agent1.x, agent1.y);
 			break;
 		case 50:	// 2
 			e.preventDefault();
 			// data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
-			updateScrollingPosition(grid[agent2.loc]);
+			updateScrollingPosition(agent2.x, agent2.y);
 		default:	// nothing
 			break;
 	}
+}
 
-	let tracker = { loc: human.loc, t: Math.round((performance.now()/1000) * 100)/100 };
-	data[half].human.push(tracker);
+function randomWalk(agent) {
+	if (++agent.currentTick < agent.speed) return;
+	agent.currentTick = 0;
+	let dx, dy;
+	do {
+		switch (Math.floor(Math.random() * 4) + 1) {
+			case 1:	// up
+				dx = 0, dy = -1;
+				break;
+			case 2:	// right
+				dx = 1, dy = 0;
+				break;
+			case 3:	// down
+				dx = 0, dy = 1;
+				break;
+			case 4:	// left
+				dx = -1, dy = 0;
+				break;
+		}
+	} while (grid[agent.x + dx][agent.y + dy].isWall);
+
+	agent.x += dx;
+	agent.y += dy;
+}
+
+function drawMarkers(members) {
+	members.forEach(member => {
+		if (member.id == "victim" && member.isFound) {
+			$map.drawImage({
+				source: 'img/victim-marker-big.png',
+				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+			});
+		} else if (member.id == "hazard" && member.isFound) {
+			$map.drawImage({
+				source: 'img/hazard-marker-big.png',
+				x: grid[member.loc].x*boxWidth + boxWidth/2 - victimMarker.width/2, y: grid[member.loc].y*boxHeight + boxHeight/2 - victimMarker.height
+			});
+		}
+	});
+}
+
+// 0 - human, 1 - bot
+function getSetBoundaries(thisSet, who) {
+	if (who == 1) {
+		let setIterator = thisSet.values();
+		let firstElement = setIterator.next().value;
+		botLeft = firstElement.x;
+		botRight = firstElement.x;
+		botTop = firstElement.y;
+		botBottom = firstElement.y;
+
+		for (let i = setIterator.next().value; i != null; i = setIterator.next().value) {
+			if (i.x < botLeft) botLeft = i.x;
+			if (i.x > botRight) botRight = i.x;
+			if (i.y < botTop) botTop = i.y;
+			if (i.y > botBottom) botBottom = i.y;
+		}
+	} else {
+		let setIterator = thisSet.values();
+		let firstElement = setIterator.next().value;
+		humanLeft = firstElement.x;
+		humanRight = firstElement.x;
+		humanTop = firstElement.y;
+		humanBottom = firstElement.y;
+
+		if (humanLeft == null) humanLeft = firstElement.x;
+		if (humanRight == null) humanRight = firstElement.x;
+		if (humanTop == null) humanTop = firstElement.y;
+		if (humanBottom == null) humanBottom = firstElement.y;
+
+		for (let i = setIterator.next().value; i != null; i = setIterator.next().value) {
+			if (i.x < humanLeft) humanLeft = i.x;
+			if (i.x > humanRight) humanRight = i.x;
+			if (i.y < humanTop) humanTop = i.y;
+			if (i.y > humanBottom) humanBottom = i.y;
+		}
+	}
+}
+
+function scaleImages() {
+	let botWidth = columns/(botRight - botLeft + 5) * 100;
+	let botHeight = rows/(botBottom - botTop + 5) * 100;
+	let humanWidth = columns/(humanRight - humanLeft + 5) * 100;
+	let humanHeight = rows/(humanBottom - humanTop + 5) * 100;
+
+	botWidth = (botWidth < 100) ? 100 : botWidth;
+	botHeight = (botHeight < 100) ? 100 : botHeight;
+
+	humanWidth = (humanWidth < 100) ? 100 : humanWidth;
+	humanHeight = (humanHeight < 100) ? 100 : humanHeight;
+
+	if (botWidth > botHeight) {
+		$botImage.attr("width", botHeight + "%");
+		$botImage.attr("height", botHeight + "%");
+	} else {
+		$botImage.attr("width", botWidth + "%");
+		$botImage.attr("height", botWidth + "%");
+	}
+
+	if (humanWidth > humanHeight) {
+		$humanImage.attr("width", humanHeight + "%");
+		$humanImage.attr("height", humanHeight + "%");
+	} else {
+		$humanImage.attr("width", humanWidth + "%");
+		$humanImage.attr("height", humanWidth + "%");
+	}
+	
+	$botImage.parent()[0].scroll((botLeft + (botRight - botLeft + 1)/2)*($botImage.width()/columns) - $('.explored').width()/2, ((botTop + (botBottom - botTop + 1)/2)*($botImage.height()/rows)) - $('.explored').height()/2);
+	$humanImage.parent()[0].scroll((humanLeft + (humanRight - humanLeft + 1)/2)*($humanImage.width()/columns) - $('.explored').width()/2, ((humanTop + (humanBottom - humanTop + 1)/2)*($humanImage.height()/rows)) - $('.explored').height()/2);
 }
 
 function updateScrollingPosition(x, y) {

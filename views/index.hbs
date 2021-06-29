@@ -6,9 +6,7 @@
 </div>
 <div class="main-content">
 	<h1>ARL STRONG - UMass Lowell</h1>
-	<div class="buttonsCollection">
-		<a onclick="scrollDown()">Read Instructions</a>
-	</div>
+	<button onclick="scrollDown()">Read Instructions</button>
 </div>
 <div id="popup-modal">
 	<div id="popup-modal-container">
@@ -23,14 +21,14 @@
 </div>
 <div id="instructions">
 	<h2>Instructions</h2>
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<p>
 			Your goal is to explore a set of rooms and find as many victims and hazards as possible. You will 
 			have help from two autonomous agents. You do not need to do anything when you find a victim or a 
 			hazard, the system will record your exploration as you move.
 		</p>
 	</div>
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<p>
 			The blue colored square represents a human on the map. 
 			The light blue colored area shaded around the human is the area of the map 
@@ -39,7 +37,7 @@
 		<img src='img/blue.png'>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<img src='img/green.png'>
 		<p>
 			The red colored square marked by "1" represents the first agent on the map that moves autonomously.
@@ -48,7 +46,7 @@
 		</p>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<p>
 			The red colored square marked by "2" represents the second agent on the map that moves autonomously.
 			The orange colored area shaded around the agent is the area of the map 
@@ -57,7 +55,7 @@
 		<img src='img/orange.png'>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<img src='img/red.png'>
 		<p>
 			The light red colored area shaded on the map is the area of the map
@@ -65,7 +63,7 @@
 		</p>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<p>
 			The yellow colored area shaded on the map is the area of the map
 			that has been explored by both the agent and the human in the past intervals and has been integrated by the human.
@@ -73,21 +71,21 @@
 		<img src='img/yellow.png'>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<img src='img/victim-marker-front.png'>
 		<p>
 			This marker on the minimap in the trust confirmatin pop-up means that a victim has been found on the map.
 		</p>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<p>
 			This marker on the minimap in the trust confirmation pop-up means that a hazard has been found on the map.
 		</p>
 		<img src='img/hazard-marker-front.png'>
 	</div>
 
-	<div class="content-block">
+	<div class="content-block fadeIn">
 		<img src='img/pop-up.png'>
 		<p>
 			Use the arrow keys or awsd (or hjkl if you're a vim power user) to control the human. After every 30 seconds, you will be shown the images of 
@@ -98,7 +96,7 @@
 		</p>
 	</div>
 	
-	<button id="begin" onclick="showConsentForm()">Begin Simulation</button>
+	<button id="begin" class="fadeIn" onclick="showConsentForm()">Begin Simulation</button>
 </div>
 
 <script type="text/javascript" src="js/landing-page.js"></script>
