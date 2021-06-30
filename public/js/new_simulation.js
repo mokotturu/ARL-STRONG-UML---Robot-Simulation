@@ -29,13 +29,15 @@ const colors = {
 	agent2: '#ff8000',
 	lightAgent2: '#ffbf7f',
 	victim: 'red',
-	hazard: 'yellow'
+	hazard: 'yellow',
+	blueTarget: '#007FFF',
+	yellowTarget: '#FFC72C'
 };
 
 var grid;
 var uuid;
 var data = [{ movement: [], human: [], agents: [] }, { movement: [], human: [], agents: [] }];
-var obstacles = { victims: [], hazards: [] };
+var obstacles = { victims: [], hazards: [], targets: [] };
 var mapPaths = [
 	'src/data9.min.json',	//  0
 	'src/data9.min.json',	//  1
@@ -163,8 +165,9 @@ class Player {
 }
 
 class Agent extends Player {
-	constructor (id, x, y, dir, speed, fovSize, lightColor, darkColor) {
+	constructor (id, x, y, dir, speed, fovSize, shouldCalcFOV, lightColor, darkColor) {
 		super(x, y, dir, fovSize);
+		this.shouldCalcFOV = shouldCalcFOV;
 		this.id = id;
 		this.speed = speed;
 		this.index = 0;
@@ -172,6 +175,14 @@ class Agent extends Player {
 		this.lightColor = lightColor;
 		this.darkColor = darkColor;
 		this.traversal = [];
+		this.stepCount = 0;
+		this.tempTargetsFound = { blue: 0, yellow: 0 };
+		this.totalTargetsFound = { blue: 0, yellow: 0 };
+	}
+
+	updateLoc(x, y) {
+		this.x = x;
+		this.y = y;
 	}
 
 	spawn(size) {
@@ -193,6 +204,7 @@ class Agent extends Player {
 		let tempLightColor, tempDarkColor;
 		cells.forEach(cell => {
 			this.tempExplored.add(cell);
+			grid[cell.x][cell.y].isTempAgentExplored = true;
 			tempLightColor = this.lightColor, tempDarkColor = this.darkColor;
 			if (cell.isAgentExplored && cell.isHumanExplored) {
 				tempLightColor = colors.lightTeam;
@@ -223,31 +235,43 @@ class Agent extends Player {
 }
 
 class Obstacle {
-	constructor (x, y, color, isFound, variant) {
+	constructor (x, y, color, isFound, variant, score) {
 		this.x = x;
 		this.y = y;
 		this.color = color;
 		this.isFound = isFound;
 		this.variant = variant;
+		this.score = score || 0;
 	}
 
 	spawn(size) {
-		if (grid[this.x][this.y].isHumanExplored || grid[this.x][this.y].isAgentExplored) {
+		if (grid[this.x][this.y].isHumanExplored || grid[this.x][this.y].isAgentExplored || grid[this.x][this.y].isTempAgentExplored) {
 			this.isFound = true;
 			if (this.variant == 'victim') {
 				$map.drawEllipse({
 					fromCenter: true,
 					fillStyle: this.color,
 					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
-					width: (boxWidth - 1)*size, height: (boxHeight - 1)*size
+					width: boxWidth*2, height: boxHeight*2
 				});
 			} else if (this.variant == 'hazard') {
 				$map.drawPolygon({
 					fromCenter: true,
 					fillStyle: this.color,
 					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
-					radius: ((boxWidth - 1)/2)*size,
+					radius: boxWidth*2,
 					sides: 3
+				});
+			} else if (this.variant == 'target') {
+				$('canvas').drawPolygon({
+					fromCenter: true,
+					fillStyle: this.color,
+					strokeStyle: 'white',
+					strokeWidth: 1,
+					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
+					radius: boxWidth*2,
+					sides: 5,
+					concavity: 0.5
 				});
 			}
 		}
@@ -265,14 +289,18 @@ $(document).ready(async () => {
 	$('.loader').css('opacity', '1');
 
 	human = new Player(232, 348, 1, 10);
-	agent1 = new Agent(1, 261, 347, 1, 10, 5, colors.lightAgent1, colors.agent1);
+	agent1 = new Agent(1, -69, -69, 1, 10, 5, false, colors.lightAgent1, colors.agent1);
+	// agent1 = new Agent(1, 232, 345, 1, 10, 5, true, colors.lightAgent1, colors.agent1);
+	obstacles.targets.push(new Obstacle(232, 345, colors.blueTarget, false, 'target', 100));
+	obstacles.targets.push(new Obstacle(210, 380, colors.yellowTarget, false, 'target', -100));
 	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2);
 	agents.push(agent1/* , agent2 */);
 	data.forEach(obj => {
 		obj.agents.push([], []);
 	});
-
+	
 	await initMaps(currentPath);
+	agent1.updateLoc(agent1.traversal[agent1.stepCount].loc.x, agent1.traversal[agent1.stepCount++].loc.y);
 
 	// initialize the canvas with a plain grey background
 	$map.drawRect({
@@ -281,9 +309,13 @@ $(document).ready(async () => {
 		width: canvasWidth, height: canvasHeight
 	});
 
-	for (let i = 0; i < 10; ++i) {
-		obstacles.victims.push(new Obstacle(...getRandomLoc(grid), colors.victim, false, 'victim'));
-		obstacles.hazards.push(new Obstacle(...getRandomLoc(grid), colors.hazard, false, 'hazard'));
+	for (let i = 0; i < 20; ++i) {
+		let tempObstLoc = getRandomLoc(grid);
+		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, false, 'target', 100));
+		grid[tempObstLoc[0]][tempObstLoc[1]].isBlue = true;
+		tempObstLoc = getRandomLoc(grid);
+		obstacles.targets.push(new Obstacle(...getRandomLoc(grid), colors.yellowTarget, false, 'target', -100));
+		grid[tempObstLoc[0]][tempObstLoc[1]].isYellow = true;
 	}
 
 	$('.loader').css('visibility', 'hidden');
@@ -298,13 +330,15 @@ $(document).ready(async () => {
 	timeout = setInterval(updateTime, 1000);
 
 	currentFrame = requestAnimationFrame(loop);
-	// currentFrame = setInterval(loop, 50);
+	// currentFrame = setInterval(loop, 100);
 });
 
 function updateTime() {
 	if (++seconds % duration == 0) {
 		seconds = 0;
 		agentNum = 1;
+		pause = true;
+		clearInterval(timeout);
 		showExploredInfo();
 	}
 	$timer.text(`Time elapsed: ${seconds}s`);
@@ -314,7 +348,8 @@ function updateTime() {
 function loop() {
 	if (!pause) {
 		if (intervalCount >= intervals) terminate();
-		randomWalk(agent1);
+		// randomWalk(agent1);
+		moveAgent(agent1);
 		refreshMap();
 		currentFrame = requestAnimationFrame(loop);
 	}
@@ -332,18 +367,18 @@ async function initMaps(path) {
 		for (let x = 0; x < columns; ++x) {
 			grid.push([]);
 			for (let y = 0; y < rows; ++y) {
-				grid[x].push({ x: x, y: y, isWall: data.map[x * columns + y].isWall == "true", isHumanExplored: false, isAgentExplored: false });
+				grid[x].push({ x: x, y: y, isWall: data.map[x * columns + y].isWall == "true", isHumanExplored: false, isAgentExplored: false, isTempAgentExplored: false, isBlue: false, isYellow: false });
 			}
 		}
 	}).fail(() => {
 		alert('An error has occured while loading the map.');
 	});
 
-	/* await $.getJSON('src/data10_5x5.json', data => {
+	await $.getJSON('src/data10_5x5.json', data => {
 		Object.entries(data).forEach(([key, value]) => {
-			agent1.traversal.push({ cX: value.current_x, cY: value.current_y, vX: value.visited_x, vY: value.visited_y })
+			agent1.traversal.push({ loc: { x: value.current[0][0], y: value.current[0][1] }, explored: [value.current[0], ...value.visited] });
 		});
-	}); */
+	});
 }
 
 function spawn(members, size) {
@@ -359,12 +394,14 @@ function refreshMap() {
 
 	// compute agent FOV
 	for (const agent of agents) {
-		fov = new Set(getFOV(agent));
-		agent.drawCells(fov);
+		if (agent.shouldCalcFOV) {
+			fov = new Set(getFOV(agent));
+			agent.drawCells(fov);
+		}
 	}
 
 	// spawn players
-	spawn([human, ...agents, ...obstacles.victims, ...obstacles.hazards], 1);
+	spawn([human, ...agents, ...obstacles.targets], 1);
 }
 
 function terminate() {
@@ -436,11 +473,8 @@ function showExploredInfo() {
 
 	getSetBoundaries(agents[agentNum - 1].tempExplored, 1);
 	scaleImages();
-
 	cancelAnimationFrame(currentFrame);
 	// clearInterval(currentFrame);
-	pause = true;
-	clearInterval(timeout);
 
 	setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
 	setTimeout(() => { $log.scrollLeft(10000) }, 500);
@@ -453,12 +487,16 @@ function confirmExploredArea() {
 	});
 
 	log[agentNum - 1].push({ interval: intervalCount, trusted: true });
-
 	hideExploredInfo();
 }
 
 function undoExploration() {
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
+	for (const agent of agents) {
+		agent.tempExplored.forEach(cell => {
+			grid[cell.x][cell.y].isTempAgentExplored = false;
+		});
+	}
 	hideExploredInfo();
 }
 
@@ -516,7 +554,7 @@ function hideExploredInfo() {
 	clearInterval(timeout);
 	timeout = setInterval(updateTime, 1000);
 	pause = false;
-	// currentFrame = setInterval(loop, 500);
+	// currentFrame = setInterval(loop, 100);
 	currentFrame = requestAnimationFrame(loop);
 }
 
@@ -867,6 +905,44 @@ function randomWalk(agent) {
 
 	agent.x += dx;
 	agent.y += dy;
+}
+
+function moveAgent(agent) {
+	agent.drawCells([grid[agent.traversal[agent.stepCount - 1].loc.x][agent.traversal[agent.stepCount - 1].loc.y]]);
+	agent.updateLoc(agent.traversal[agent.stepCount].loc.x, agent.traversal[agent.stepCount++].loc.y);
+	if (grid[agent.x][agent.y].isBlue == true) ++agent.tempTargetsFound.blue;
+	if (grid[agent.x][agent.y].isYellow == true) ++agent.tempTargetsFound.yellow;
+
+	let fov = new Set(agent.traversal[agent.stepCount - 1].explored);
+	let fovToDraw = new Set();
+
+	fov.forEach(cell => {
+		let thisCell = { x: cell[0], y: cell[1] };
+		if (grid[thisCell.x][thisCell.y].isBlue == true) ++agent.tempTargetsFound.blue;
+		if (grid[thisCell.x][thisCell.y].isYellow == true) ++agent.tempTargetsFound.yellow;
+		let neighbours = [
+			{ x: cell[0],     y: cell[1] - 1 },
+			{ x: cell[0] + 1, y: cell[1] - 1 },
+			{ x: cell[0] + 1, y: cell[1]     },
+			{ x: cell[0] + 1, y: cell[1] + 1 },
+			{ x: cell[0],     y: cell[1] + 1 },
+			{ x: cell[0] - 1, y: cell[1] + 1 },
+			{ x: cell[0] - 1, y: cell[1]     },
+			{ x: cell[0] - 1, y: cell[1] - 1 }
+		];
+
+		let currTempExplored = [grid[thisCell.x][thisCell.y]];
+		agent.tempExplored.add(grid[thisCell.x][thisCell.y]);
+		fovToDraw.add(grid[thisCell.x][thisCell.y]);
+		neighbours.forEach((cell, i) => {
+			if (grid[cell.x][cell.y].isWall) {
+				agent.tempExplored.add(grid[cell.x][cell.y]);
+				fovToDraw.add(grid[cell.x][cell.y]);
+				currTempExplored.push(grid[cell.x][cell.y]);
+			}
+		});
+	})
+	agent.drawCells([...fovToDraw]);
 }
 
 function drawMarkers(members) {
