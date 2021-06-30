@@ -292,6 +292,22 @@ nav {
 	visibility: visible;
 }
 
+.message {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.message span {
+	width: 50%;
+	color: white;
+	background-color: #252525;
+	text-align: center;
+	padding: 20px;
+	border-radius: 7px;
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
 .userInputButtons {
 	display: flex;
 	justify-content: center;
@@ -310,6 +326,7 @@ nav {
 }
 
 .tableItems p {
+	min-height: 14px;
 	padding: 10px;
 	margin: 0 10px;
 	border-radius: 5px;

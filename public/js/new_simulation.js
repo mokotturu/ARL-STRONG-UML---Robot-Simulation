@@ -7,9 +7,11 @@ const $minimapImage = $('#minimap');
 const $humanImage = $('#human-image');
 const $botImage = $('#bot-image');
 const $log = $('.tableItems');
+const $message = $('.message span');
 const $dropdown = $('#maps');
 const $progressbar = $('.background');
 const $agentText = $('.agent-text');
+const $teamScore = $('#teamScore');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows, columns, boxWidth, boxHeight;
@@ -55,12 +57,25 @@ var mapPaths = [
 	'src/data13.min.json',	// 13
 	'src/data14.min.json'	// 14
 ];
+var obstacleLocs = [
+	[
+		[213, 210],
+		[153, 256],
+		[289, 202]
+	],
+	[
+		/* [203, 194],
+		[143, 241],
+		[279, 192] */
+	]
+];
 var pathIndex = 10;
 var currentPath = mapPaths[pathIndex];
 var currentFrame;
 
 var human, agent1;
 var agents = [];
+var teamScore = 0;
 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
@@ -242,6 +257,8 @@ class Obstacle {
 		this.isFound = isFound;
 		this.variant = variant;
 		this.score = score || 0;
+		if (this.variant == 'blue') grid[this.x][this.y].isBlue = true;
+		if (this.variant == 'yellow') grid[this.x][this.y].isYellow = true;
 	}
 
 	spawn(size) {
@@ -262,7 +279,7 @@ class Obstacle {
 					radius: boxWidth*2,
 					sides: 3
 				});
-			} else if (this.variant == 'target') {
+			} else if (this.variant == 'blue' || this.variant == 'yellow') {
 				$('canvas').drawPolygon({
 					fromCenter: true,
 					fillStyle: this.color,
@@ -291,8 +308,6 @@ $(document).ready(async () => {
 	human = new Player(232, 348, 1, 10);
 	agent1 = new Agent(1, -69, -69, 1, 10, 5, false, colors.lightAgent1, colors.agent1);
 	// agent1 = new Agent(1, 232, 345, 1, 10, 5, true, colors.lightAgent1, colors.agent1);
-	obstacles.targets.push(new Obstacle(232, 345, colors.blueTarget, false, 'target', 100));
-	obstacles.targets.push(new Obstacle(210, 380, colors.yellowTarget, false, 'target', -100));
 	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2);
 	agents.push(agent1/* , agent2 */);
 	data.forEach(obj => {
@@ -309,13 +324,17 @@ $(document).ready(async () => {
 		width: canvasWidth, height: canvasHeight
 	});
 
+	for (let i = 0; i < obstacleLocs[0].length; ++i) {
+		obstacles.targets.push(new Obstacle(obstacleLocs[0][i][0], obstacleLocs[0][i][1], colors.blueTarget, false, 'blue', 100));
+	}
+
 	for (let i = 0; i < 20; ++i) {
 		let tempObstLoc = getRandomLoc(grid);
-		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, false, 'target', 100));
-		grid[tempObstLoc[0]][tempObstLoc[1]].isBlue = true;
+		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, false, 'blue', 100));
+		// grid[tempObstLoc[0]][tempObstLoc[1]].isBlue = true;
 		tempObstLoc = getRandomLoc(grid);
-		obstacles.targets.push(new Obstacle(...getRandomLoc(grid), colors.yellowTarget, false, 'target', -100));
-		grid[tempObstLoc[0]][tempObstLoc[1]].isYellow = true;
+		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.yellowTarget, false, 'yellow', -100));
+		// grid[tempObstLoc[0]][tempObstLoc[1]].isYellow = true;
 	}
 
 	$('.loader').css('visibility', 'hidden');
@@ -459,6 +478,7 @@ function showExploredInfo() {
 	<i class="fas fa-info-circle tooltip">
 		<span class="tooltiptext">If there is no area highlighted in the agent color, then the agent did not explore any new area.</span>
 	</i>`);
+	$message.text(`Agent ${agentNum} says: "I found targets!"`);
 	if (log[agentNum - 1][intervalCount - 1] != null) {
 		log[agentNum - 1].forEach((data, i) => {
 			if (data.trusted) {
@@ -481,6 +501,10 @@ function showExploredInfo() {
 }
 
 function confirmExploredArea() {
+	agents[agentNum - 1].totalTargetsFound.blue += agents[agentNum - 1].tempTargetsFound.blue;
+	agents[agentNum - 1].totalTargetsFound.yellow += agents[agentNum - 1].tempTargetsFound.yellow;
+	agents[agentNum - 1].tempTargetsFound.blue = 0;
+	agents[agentNum - 1].tempTargetsFound.yellow = 0;
 	agents[agentNum - 1].tempExplored.forEach(item => {
 		grid[item.x][item.y].isAgentExplored = true;
 		agents[agentNum - 1].explored.add(item);
@@ -491,6 +515,8 @@ function confirmExploredArea() {
 }
 
 function undoExploration() {
+	agents[agentNum - 1].tempTargetsFound.blue = 0;
+	agents[agentNum - 1].tempTargetsFound.yellow = 0;
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
 	for (const agent of agents) {
 		agent.tempExplored.forEach(cell => {
@@ -551,6 +577,8 @@ function hideExploredInfo() {
 	$popupModal.css('opacity', '0');
 	$progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
 	$progressbar.html(`<p>${Math.round(intervalCount*100/intervals)}%</p>`);
+	teamScore = agents[agentNum - 1].totalTargetsFound.blue * 100 - agents[agentNum - 1].totalTargetsFound.yellow * 100;
+	$teamScore.text(`Team Score: ${teamScore}`);
 	clearInterval(timeout);
 	timeout = setInterval(updateTime, 1000);
 	pause = false;
@@ -910,16 +938,30 @@ function randomWalk(agent) {
 function moveAgent(agent) {
 	agent.drawCells([grid[agent.traversal[agent.stepCount - 1].loc.x][agent.traversal[agent.stepCount - 1].loc.y]]);
 	agent.updateLoc(agent.traversal[agent.stepCount].loc.x, agent.traversal[agent.stepCount++].loc.y);
-	if (grid[agent.x][agent.y].isBlue == true) ++agent.tempTargetsFound.blue;
-	if (grid[agent.x][agent.y].isYellow == true) ++agent.tempTargetsFound.yellow;
+	if (grid[agent.x][agent.y].isBlue && !grid[agent.x][agent.y].isTempAgentExplored && !grid[agent.x][agent.y].isAgentExplored) {
+		++agent.tempTargetsFound.blue;
+		console.log("agent found blue")
+	}
+	if (grid[agent.x][agent.y].isYellow && !grid[agent.x][agent.y].isTempAgentExplored && !grid[agent.x][agent.y].isAgentExplored) {
+		++agent.tempTargetsFound.yellow;
+		console.log("agent found yellow")
+	}
+	agent.tempExplored.add(grid[agent.x][agent.y]);
+	grid[agent.x][agent.y].isTempAgentExplored = true;
 
 	let fov = new Set(agent.traversal[agent.stepCount - 1].explored);
 	let fovToDraw = new Set();
 
 	fov.forEach(cell => {
 		let thisCell = { x: cell[0], y: cell[1] };
-		if (grid[thisCell.x][thisCell.y].isBlue == true) ++agent.tempTargetsFound.blue;
-		if (grid[thisCell.x][thisCell.y].isYellow == true) ++agent.tempTargetsFound.yellow;
+		if (grid[thisCell.x][thisCell.y].isBlue && !grid[thisCell.x][thisCell.y].isTempAgentExplored && !grid[thisCell.x][thisCell.y].isAgentExplored) {
+			++agent.tempTargetsFound.blue;
+			console.log("thisCell found blue")
+		}
+		if (grid[thisCell.x][thisCell.y].isYellow && !grid[thisCell.x][thisCell.y].isTempAgentExplored && !grid[thisCell.x][thisCell.y].isAgentExplored) {
+			++agent.tempTargetsFound.yellow;
+			console.log("thisCell found yellow")
+		}
 		let neighbours = [
 			{ x: cell[0],     y: cell[1] - 1 },
 			{ x: cell[0] + 1, y: cell[1] - 1 },
