@@ -1,5 +1,5 @@
-<div id="popup-modal">
-	<div id="popup-modal-container">
+<div class="popup-modal-container">
+	<div class="popup-modal">
 		The simulation data has been recorded.<br><br>Please take a few moments to respond to the following surveys.
 		<div id="userInputButtons">
 			<button onclick="disappear()">Continue</button>
@@ -194,7 +194,7 @@
 </div>
 
 <script>
-	const $popupModal = $('#popup-modal');
+	const $popupModal = $('.popup-modal-container');
 
 	$(document).ready(() => {
 		$popupModal.css('visibility', 'visible');

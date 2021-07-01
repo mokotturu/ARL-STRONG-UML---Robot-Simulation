@@ -1,4 +1,4 @@
-const $popupModal = $("#popup-modal");
+const $popupModal = $(".popup-modal-container");
 
 $(document).ready(() => {
 	$.get("/user/:uuid", data => {

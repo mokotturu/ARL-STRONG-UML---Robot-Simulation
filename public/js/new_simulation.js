@@ -2,16 +2,15 @@ const $mapContainer = $('#map-container');
 const $map = $('#map');
 var context = $map[0].getContext('2d', { alpha: false });
 const $timer = $('#timer');
-const $popupModal = $('#popup-modal');
+const $detailsModal = $('#exploration-details-modal');
+const $trustConfirmModal = $('#trust-confirm-modal');
 const $minimapImage = $('#minimap');
 const $humanImage = $('#human-image');
 const $botImage = $('#bot-image');
 const $log = $('.tableItems');
-const $message = $('.message span');
 const $dropdown = $('#maps');
 const $progressbar = $('.background');
 const $agentText = $('.agent-text');
-const $teamScore = $('#teamScore');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows, columns, boxWidth, boxHeight;
@@ -80,7 +79,7 @@ var teamScore = 0;
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 10, duration = 10, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 10, duration = 60, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -373,7 +372,8 @@ function updateTime() {
 		agentNum = 1;
 		pause = true;
 		clearInterval(timeout);
-		showExploredInfo();
+		// showExploredInfo();
+		showTrustPrompt();
 	}
 	$timer.text(`Time elapsed: ${seconds}s`);
 }
@@ -469,18 +469,32 @@ function terminate() {
 	});
 }
 
-function showExploredInfo() {
+function showTrustPrompt() {
+	$(document).off();
+	cancelAnimationFrame(currentFrame);
+	// clearInterval(currentFrame);
+
 	if (agentNum == 1) {
 		$humanImage.attr("src", $map.getCanvasImage());
 		$botImage.attr("src", $map.getCanvasImage());
 	}
 
-	drawMarkers([...obstacles.victims, ...obstacles.hazards]);
-	$(document).off();
+	$trustConfirmModal.css('display', 'flex');
+	$trustConfirmModal.css('visibility', 'visible');
+	$trustConfirmModal.css('opacity', '1');
+}
 
-	$popupModal.css('display', 'block');
-	$popupModal.css('visibility', 'visible');
-	$popupModal.css('opacity', '1');
+function showExploredInfo() {
+	let humanScore = human.totalTargetsFound.blue * 100 - human.totalTargetsFound.yellow * 100;
+	let agentScore = agents[agentNum - 1].totalTargetsFound.blue * 100 - agents[agentNum - 1].totalTargetsFound.yellow * 100;
+	teamScore = humanScore + agentScore;
+	$('#teamScoreMain').text(`Team Score: ${teamScore} points`);
+
+	drawMarkers([...obstacles.victims, ...obstacles.hazards]);
+
+	$detailsModal.css('display', 'block');
+	$detailsModal.css('visibility', 'visible');
+	$detailsModal.css('opacity', '1');
 	$minimapImage.attr("src", $map.getCanvasImage());
 
 	$log.empty();
@@ -493,13 +507,19 @@ function showExploredInfo() {
 	<i class="fas fa-info-circle tooltip">
 		<span class="tooltiptext">If there is no area highlighted in the agent color, then the agent did not explore any new area.</span>
 	</i>`);
-	$message.text(`Agent ${agentNum} says: "I found targets!"`);
+	$('#agentTargetsFound').text(`Blue: ${agents[agentNum - 1].tempTargetsFound.blue}, Yellow:  ${agents[agentNum - 1].tempTargetsFound.yellow}`);
+	$('#humanTargetsFound').text(`Blue: ${human.tempTargetsFound.blue}, Yellow:  ${human.tempTargetsFound.yellow}`);
+	$('#agentCurInt').text(agents[agentNum - 1].tempTargetsFound.blue * 100 - agents[agentNum - 1].tempTargetsFound.yellow * 100);
+	$('#humanCurInt').text(human.tempTargetsFound.blue * 100 - human.tempTargetsFound.yellow * 100);
+	$('#agentOverall').text(agentScore);
+	$('#humanOverall').text(humanScore);
+	$('#teamScore').text(`TEAM SCORE: ${teamScore} points`);
 	if (log[agentNum - 1][intervalCount - 1] != null) {
 		log[agentNum - 1].forEach((data, i) => {
 			if (data.trusted) {
-				$log.append(`<p style='background-color: ${colors.lightAgent1};'>${i + 1} - Integrated</p>`);
+				$log.append(`<p style='background-color: ${colors.lightAgent1};'>Interval ${i + 1}: Integrated</p>`);
 			} else {
-				$log.append(`<p style='background-color: ${colors.lightAgent};'>${i + 1} - Discarded</p>`);
+				$log.append(`<p style='background-color: ${colors.lightAgent};'>Interval ${i + 1}: Discarded</p>`);
 			}
 		});
 	}
@@ -508,23 +528,17 @@ function showExploredInfo() {
 
 	getSetBoundaries(agents[agentNum - 1].tempExplored, 1);
 	scaleImages();
-	cancelAnimationFrame(currentFrame);
-	// clearInterval(currentFrame);
 
-	setTimeout(() => { $popupModal.scrollTop(-10000) }, 500);
+	setTimeout(() => { $detailsModal.scrollTop(-10000) }, 500);
 	setTimeout(() => { $log.scrollLeft(10000) }, 500);
 }
 
-function confirmExploredArea() {
+function confirmExploration() {
+	++intervalCount;
 	agents[agentNum - 1].totalTargetsFound.blue += agents[agentNum - 1].tempTargetsFound.blue;
 	agents[agentNum - 1].totalTargetsFound.yellow += agents[agentNum - 1].tempTargetsFound.yellow;
 	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
 	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
-
-	agents[agentNum - 1].tempTargetsFound.blue = 0;
-	agents[agentNum - 1].tempTargetsFound.yellow = 0;
-	human.tempTargetsFound.blue = 0;
-	human.tempTargetsFound.yellow = 0;
 
 	agents[agentNum - 1].tempExplored.forEach(item => {
 		grid[item.x][item.y].isAgentExplored = true;
@@ -532,30 +546,46 @@ function confirmExploredArea() {
 	});
 
 	log[agentNum - 1].push({ interval: intervalCount, trusted: true });
-	hideExploredInfo();
+
+	$trustConfirmModal.css('visibility', 'hidden');
+	$trustConfirmModal.css('display', 'none');
+	$trustConfirmModal.css('opacity', '0');
+
+	showExploredInfo();
 }
 
 function undoExploration() {
-	agents[agentNum - 1].tempTargetsFound.blue = 0;
-	agents[agentNum - 1].tempTargetsFound.yellow = 0;
-	human.tempTargetsFound.blue = 0;
-	human.tempTargetsFound.yellow = 0;
+	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
+	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
+	++intervalCount;
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
 	for (const agent of agents) {
 		agent.tempExplored.forEach(cell => {
 			grid[cell.x][cell.y].isTempAgentExplored = false;
 		});
 	}
-	hideExploredInfo();
+
+	$trustConfirmModal.css('visibility', 'hidden');
+	$trustConfirmModal.css('display', 'none');
+	$trustConfirmModal.css('opacity', '0');
+
+	showExploredInfo();
 }
 
 // redraw the map and hide pop-up
 function hideExploredInfo() {
 	if (agentNum < agents.length) {
+		agents[agentNum - 1].tempTargetsFound.blue = 0;
+		agents[agentNum - 1].tempTargetsFound.yellow = 0;
 		++agentNum;
 		showExploredInfo();
 		return;
 	}
+
+	agents[agentNum - 1].tempTargetsFound.blue = 0;
+	agents[agentNum - 1].tempTargetsFound.yellow = 0;
+	human.tempTargetsFound.blue = 0;
+	human.tempTargetsFound.yellow = 0;
 
 	if (intervalCount == Math.floor(intervals / 2)) {
 		$.ajax({
@@ -593,15 +623,11 @@ function hideExploredInfo() {
 		eventKeyHandlers(e);
 	});
 
-	++intervalCount;
-
-	$popupModal.css('visibility', 'hidden');
-	$popupModal.css('display', 'none');
-	$popupModal.css('opacity', '0');
+	$detailsModal.css('visibility', 'hidden');
+	$detailsModal.css('display', 'none');
+	$detailsModal.css('opacity', '0');
 	$progressbar.css('width', `${Math.round(intervalCount*100/intervals)}%`);
 	$progressbar.html(`<p>${Math.round(intervalCount*100/intervals)}%</p>`);
-	teamScore = agents[agentNum - 1].totalTargetsFound.blue * 100 - agents[agentNum - 1].totalTargetsFound.yellow * 100;
-	$teamScore.text(`Team Score: ${teamScore}`);
 	clearInterval(timeout);
 	timeout = setInterval(updateTime, 1000);
 	pause = false;

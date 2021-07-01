@@ -17,8 +17,18 @@
 	<div class="loader"></div>
 	<div class="progressbar"><div class="progress background"><p>0%</p></div></div>
 	<div class="body-container">
-		<div id="popup-modal">
-			<div id="popup-modal-container">
+		<div class="popup-modal-container" id="trust-confirm-modal">
+			<div class="popup-modal" id="trust-confirm-modal-content">
+				<h2 style="color: white;font-size: 32px;padding-bottom: 10px;border-bottom: 3px solid white;">Make a blind decision!</h2>
+				<h3 style="color: white;font-size: 18px;">Do you trust the agent based on its performance in the previous rounds?</h3>
+				<div class="userInputButtons">
+					<button onclick="confirmExploration()">Yes, I trust the agent</button>
+					<button onclick="undoExploration()">No, I don't trust the agent</button>
+				</div>
+			</div>
+		</div>
+		<div class="popup-modal-container" id="exploration-details-modal">
+			<div class="popup-modal" id="exploration-details-modal-content">
 				<div class="map-info">
 					<div id="images-container">
 						<div class="explored">
@@ -42,11 +52,36 @@
 						<p>Human explored area (blue)</p>
 					</div>
 				</div>
-				<div class="message"><span>Agent x says: "pog"</span></div>
+				<table id="stats">
+					<tr>
+						<th class="tableTopLeft"></th>
+						<th id="teamScore">TEAM SCORE: x</th>
+						<th class="tableTopRight"></th>
+					</tr>
+					<tr>
+						<th></th>
+						<th>Agent explored</th>
+						<th>Human explored</th>
+					</tr>
+					<tr>
+						<th>Targets found</th>
+						<td id="agentTargetsFound">Blue: x, Yellow: x</td>
+						<td id="humanTargetsFound">Blue: x, Yellow: x</td>
+					</tr>
+					<tr>
+						<th>Last interval</th>
+						<td id="agentCurInt">x</td>
+						<td id="humanCurInt">x</td>
+					</tr>
+					<tr>
+						<th class="tableBottomLeft">Overall (including last interval)</th>
+						<td id="agentOverall">x</td>
+						<td class="tableBottomRight" id="humanOverall">x</td>
+					</tr>
+				</table>
 				<div class="tableItems"></div>
 				<div class="userInputButtons">
-					<button onclick="confirmExploredArea()">Integrate</button>
-					<button onclick="undoExploration()">Discard</button>
+					<button onclick="hideExploredInfo()">Continue</button>
 				</div>
 			</div>
 		</div>
@@ -69,7 +104,7 @@
 					<p>Yellow triangle represents a hazard</p>
 				</div>
 				<div id="timer">Time elapsed: 0s</div>
-				<div id="teamScore">Team Score: 0</div>
+				<div id="teamScoreMain">Team Score: 0</div>
 			</div>
 			<div id="map-container">
 				<canvas width="4000" height="4000" id="map" oncontextmenu="return false;"></canvas>

@@ -142,7 +142,7 @@ nav {
 	font-size: 22px;
 }
 
-#popup-modal {
+.popup-modal-container {
 	visibility: hidden;
 	display: none;
 	opacity: 0;
@@ -153,7 +153,6 @@ nav {
 	left: 0;
 	right: 0;
 	background-color: rgba(90, 90, 90);
-	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 	padding: 0 20px;
 	width: 95%;
 	height: 95%;
@@ -162,15 +161,70 @@ nav {
 	border-radius: 7px;
 	transition: visibility 0.2s linear, opacity 0.2s linear;
 	scroll-behavior: smooth;
-	box-shadow: 0 0 20px 5px black;
+	box-shadow: 0 0 0 9999px #000000dd;
 }
 
-#popup-modal-container {
+.popup-modal {
 	width: 100%;
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+}
+
+#trust-confirm-modal {
+	width: 40% !important;
+	height: 40% !important;
+}
+
+#trust-confirm-modal-content {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	text-align: center;
+}
+
+.hCenter {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#stats {
+	width: 50%;
+	color: white;
+	text-align: center;
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+	border-collapse: collapse;
+	border-radius: 7px;
+	margin: 30px auto;
+	table-layout: fixed;
+}
+
+#stats th {
+	background-color: #121212;
+	padding: 10px;
+}
+
+#stats td {
+	background-color: #252525;
+	padding: 10px;
+}
+
+.tableTopLeft {
+	border-top-left-radius: 7px;
+}
+
+.tableTopRight {
+	border-top-right-radius: 7px;
+}
+
+.tableBottomLeft {
+	border-bottom-left-radius: 7px;
+}
+
+.tableBottomRight {
+	border-bottom-right-radius: 7px;
 }
 
 .map-info {
@@ -263,14 +317,15 @@ nav {
 .tooltip .tooltiptext {
 	visibility: hidden;
 	width: 200px;
-	background-color: rgba(255, 255, 255, 0.7);
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(5px);
 	color: black;
 	text-align: center;
 	border-radius: 7px;
 	padding: 10px 5px;
 	position: absolute;
 	z-index: 1;
-	top: 150%;
+	bottom: 150%;
 	left: 50%;
 	margin-left: -100px;
 	font-family: 'Montserrat', 'sans-serif';
@@ -280,32 +335,17 @@ nav {
 .tooltip .tooltiptext::after {
 	content: "";
 	position: absolute;
-	bottom: 100%;
+	top: 100%;
 	left: 50%;
 	margin-left: -10px;
 	border: 5px;
 	border-style: solid;
-	border-color: transparent transparent rgba(255, 255, 255, 0.7) transparent;
+	border-color: rgba(255, 255, 255, 0.8) transparent transparent transparent;
+	backdrop-filter: blur(5px);
 }
 
 .tooltip:hover .tooltiptext {
 	visibility: visible;
-}
-
-.message {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.message span {
-	width: 50%;
-	color: white;
-	background-color: #252525;
-	text-align: center;
-	padding: 20px;
-	border-radius: 7px;
-	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 
 .userInputButtons {
@@ -313,12 +353,13 @@ nav {
 	justify-content: center;
 	align-items: center;
 	padding: 10px 0;
+	flex-wrap: wrap;
 }
 
 .tableItems {
 	display: flex;
 	flex-wrap: nowrap;
-	padding: 20px 0 10px 0;
+	padding: 20px 0;
 	margin: 0 80px;
 	text-align: center;
 	overflow-x: scroll;
@@ -415,7 +456,7 @@ input {
 button, select, option {
 	font-family: 'Montserrat', 'sans-serif';
 	font-size: 14px;
-	margin: 0 10px;
+	margin: 10px;
 	padding: 10px 20px;
 	box-shadow: 0 7px 14px rgba(0,0,0,0.25), 0 5px 5px rgba(0,0,0,0.22);
 	position: relative;
