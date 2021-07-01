@@ -178,19 +178,17 @@ nav {
 	flex-direction: column;
 }
 
-
-
-
+.hCenter {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
 #trust-popup {
-	/* visibility: hidden; 
-	display: none;
-	opacity: 0;
-	*/
-	/*Temporary display settings turned on*/
 	display: block;
-    visibility: hidden;
-    opacity: 1;
+	visibility: hidden;
+	opacity: 1;
 	position: fixed;
 	z-index: 1;
 	top: 0;
@@ -209,7 +207,7 @@ nav {
 	scroll-behavior: smooth;
 	box-shadow: 0 0 20px 5px black;
 }
- 
+
 #trust-popup-container {
 	width: 100%;
 	height: 100%;
@@ -231,56 +229,33 @@ nav {
 	position: relative;
 	text-align: center;
 	font-size: 200%;
-	color: white; 
+	color: white;
 	top: 170px;
 }
  
 #trust-text{
-	font-size: 200%; 
+	font-size: 200%;
 }
-
-
 
 table{
-	visbility: visible;
-	color:red;
-	opacity: 1;
 	border-collapse: collapse;
-	position: relative;
-	bottom: 100px;
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+	width: 50%;
 }
 
-
- th {
-  border: 1px solid #999;
-  padding: 0.5rem;
-  text-align: center;
-  background-color: #121212;
-  color: white;
+th {
+	padding: 0.5rem;
+	text-align: center;
+	background-color: #121212;
+	color: white;
 }
 
-td{
-	 border: 1px solid #999;
-	 padding: 0.5rem;
-     text-align: center;
-     background-color: #252525;
-     color: white;
+td {
+	padding: 0.5rem;
+	text-align: center;
+	background-color: #252525;
+	color: white;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #images-container {
 	display: flex;
