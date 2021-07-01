@@ -42,13 +42,70 @@
 						<p>Human explored area (blue)</p>
 					</div>
 				</div>
+				
+				
+				<table>
+		
+		<thead>
+				<tr>
+					<th></th>
+					<th>Agent</th>
+					<th>Human</th>
+				</tr>
+		</thead>
+		<tbody>
+				<tr>
+					
+				</tr>
+				<tr>
+					<td>Current interval</td>
+					<td>x</td>
+					<td>x</td>
+				</tr>
+				<tr>
+					<td>Overall</td>
+					<td>x</td>
+					<td>x</td>
+				</tr>
+		</tbody>
+		</table>
+		</div>
+		
+		
 				<div class="tableItems"></div>
 				<div class="userInputButtons">
 					<button onclick="confirmExploredArea()">Integrate</button>
 					<button onclick="undoExploration()">Discard</button>
 				</div>
+				
 			</div>
-		</div>
+			
+			
+			
+
+			
+			
+		
+		
+		
+		<div id = "trust-popup">
+			<div id = "trust-popup-container">
+				
+				<p id = "trust-msg"> Do you trust the agent based on its performance in the previous rounds?</p>
+				
+				<div id = "trustButtons">
+					<button id = "trust-text" onclick = "makeHidden()">Yes</button>
+					
+					<button id = "trust-text" onclick = "makeHidden()">No</button>
+					
+				</div>
+			</div>
+		</div> 
+		
+		
+		
+		
+		
 		<div id="simulation">
 			<div id="info">
 				<div id="legend">

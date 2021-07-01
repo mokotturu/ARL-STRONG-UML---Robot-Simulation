@@ -171,12 +171,116 @@ nav {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-}
+} 
 
 .map-info {
 	display: flex;
 	flex-direction: column;
 }
+
+
+
+
+
+#trust-popup {
+	/* visibility: hidden; 
+	display: none;
+	opacity: 0;
+	*/
+	/*Temporary display settings turned on*/
+	display: block;
+    visibility: hidden;
+    opacity: 1;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(90, 90, 90);
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+	padding: 0 20px;
+	width: 50%;
+	height: 50%;
+	margin: auto;
+	overflow-y: scroll;
+	border-radius: 7px;
+	transition: visibility 0.2s linear, opacity 0.2s linear;
+	scroll-behavior: smooth;
+	box-shadow: 0 0 20px 5px black;
+}
+ 
+#trust-popup-container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+#trustButtons {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 10px 0;
+	position: relative;
+	bottom:50px;
+}
+
+#trust-msg{
+	position: relative;
+	text-align: center;
+	font-size: 200%;
+	color: white; 
+	top: 170px;
+}
+ 
+#trust-text{
+	font-size: 200%; 
+}
+
+
+
+table{
+	visbility: visible;
+	color:red;
+	opacity: 1;
+	border-collapse: collapse;
+	position: relative;
+	bottom: 100px;
+}
+
+
+ th {
+  border: 1px solid #999;
+  padding: 0.5rem;
+  text-align: center;
+  background-color: #121212;
+  color: white;
+}
+
+td{
+	 border: 1px solid #999;
+	 padding: 0.5rem;
+     text-align: center;
+     background-color: #252525;
+     color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #images-container {
 	display: flex;
