@@ -99,6 +99,8 @@ class Player {
 		this.fovSize = fovSize;
 		this.explored = new Set();
 		this.tempExplored = new Set();
+		this.tempTargetsFound = { blue: 0, yellow: 0 };
+		this.totalTargetsFound = { blue: 0, yellow: 0 };
 	}
 
 	spawn(size) {
@@ -177,6 +179,20 @@ class Player {
 		}
 		refreshMap();
 	}
+
+	pickTarget() {
+		let pickedObstacle = obstacles.targets.filter(cell => cell.x == this.x && cell.y == this.y);
+		if (pickedObstacle.length == 0) return;
+		if (pickedObstacle[0].isPicked) {
+			pickedObstacle[0].isPicked = false;
+			if (pickedObstacle[0].variant == 'blue') --this.tempTargetsFound.blue;
+			else if (pickedObstacle[0].variant == 'yellow') --this.tempTargetsFound.yellow;
+		} else {
+			pickedObstacle[0].isPicked = true;
+			if (pickedObstacle[0].variant == 'blue') ++this.tempTargetsFound.blue;
+			else if (pickedObstacle[0].variant == 'yellow') ++this.tempTargetsFound.yellow;
+		}
+	}
 }
 
 class Agent extends Player {
@@ -191,8 +207,6 @@ class Agent extends Player {
 		this.darkColor = darkColor;
 		this.traversal = [];
 		this.stepCount = 0;
-		this.tempTargetsFound = { blue: 0, yellow: 0 };
-		this.totalTargetsFound = { blue: 0, yellow: 0 };
 	}
 
 	updateLoc(x, y) {
@@ -250,13 +264,14 @@ class Agent extends Player {
 }
 
 class Obstacle {
-	constructor (x, y, color, isFound, variant, score) {
+	constructor (x, y, color, variant, score) {
 		this.x = x;
 		this.y = y;
 		this.color = color;
-		this.isFound = isFound;
+		this.isFound = false;
 		this.variant = variant;
 		this.score = score || 0;
+		this.isPicked = false;
 		if (this.variant == 'blue') grid[this.x][this.y].isBlue = true;
 		if (this.variant == 'yellow') grid[this.x][this.y].isYellow = true;
 	}
@@ -283,8 +298,8 @@ class Obstacle {
 				$('canvas').drawPolygon({
 					fromCenter: true,
 					fillStyle: this.color,
-					strokeStyle: 'white',
-					strokeWidth: 1,
+					strokeStyle: (this.isPicked) ? '#39ff14' : 'white',
+					strokeWidth: (this.isPicked) ? 3 : 1,
 					x: this.x * boxWidth + boxWidth/2, y: this.y * boxHeight + boxHeight/2,
 					radius: boxWidth*2,
 					sides: 5,
@@ -325,15 +340,15 @@ $(document).ready(async () => {
 	});
 
 	for (let i = 0; i < obstacleLocs[0].length; ++i) {
-		obstacles.targets.push(new Obstacle(obstacleLocs[0][i][0], obstacleLocs[0][i][1], colors.blueTarget, false, 'blue', 100));
+		obstacles.targets.push(new Obstacle(obstacleLocs[0][i][0], obstacleLocs[0][i][1], colors.blueTarget, 'blue', 100));
 	}
 
 	for (let i = 0; i < 20; ++i) {
 		let tempObstLoc = getRandomLoc(grid);
-		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, false, 'blue', 100));
+		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, 'blue', 100));
 		// grid[tempObstLoc[0]][tempObstLoc[1]].isBlue = true;
 		tempObstLoc = getRandomLoc(grid);
-		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.yellowTarget, false, 'yellow', -100));
+		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.yellowTarget, 'yellow', -100));
 		// grid[tempObstLoc[0]][tempObstLoc[1]].isYellow = true;
 	}
 
@@ -420,7 +435,7 @@ function refreshMap() {
 	}
 
 	// spawn players
-	spawn([human, ...agents, ...obstacles.targets], 1);
+	spawn([...obstacles.targets, human, ...agents], 1);
 }
 
 function terminate() {
@@ -503,8 +518,14 @@ function showExploredInfo() {
 function confirmExploredArea() {
 	agents[agentNum - 1].totalTargetsFound.blue += agents[agentNum - 1].tempTargetsFound.blue;
 	agents[agentNum - 1].totalTargetsFound.yellow += agents[agentNum - 1].tempTargetsFound.yellow;
+	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
+	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
+
 	agents[agentNum - 1].tempTargetsFound.blue = 0;
 	agents[agentNum - 1].tempTargetsFound.yellow = 0;
+	human.tempTargetsFound.blue = 0;
+	human.tempTargetsFound.yellow = 0;
+
 	agents[agentNum - 1].tempExplored.forEach(item => {
 		grid[item.x][item.y].isAgentExplored = true;
 		agents[agentNum - 1].explored.add(item);
@@ -517,6 +538,8 @@ function confirmExploredArea() {
 function undoExploration() {
 	agents[agentNum - 1].tempTargetsFound.blue = 0;
 	agents[agentNum - 1].tempTargetsFound.yellow = 0;
+	human.tempTargetsFound.blue = 0;
+	human.tempTargetsFound.yellow = 0;
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
 	for (const agent of agents) {
 		agent.tempExplored.forEach(cell => {
@@ -896,6 +919,10 @@ function eventKeyHandlers(e) {
 			e.preventDefault();
 			human.moveDown();
 			break;
+		case 32:	// space bar
+			e.preventDefault();
+			human.pickTarget();
+			break;
 		case 49:	// 1
 			e.preventDefault();
 			// data[half].movement.push({ key: e.key, t: Math.round((performance.now()/1000) * 100)/100 });
@@ -940,11 +967,9 @@ function moveAgent(agent) {
 	agent.updateLoc(agent.traversal[agent.stepCount].loc.x, agent.traversal[agent.stepCount++].loc.y);
 	if (grid[agent.x][agent.y].isBlue && !grid[agent.x][agent.y].isTempAgentExplored && !grid[agent.x][agent.y].isAgentExplored) {
 		++agent.tempTargetsFound.blue;
-		console.log("agent found blue")
 	}
 	if (grid[agent.x][agent.y].isYellow && !grid[agent.x][agent.y].isTempAgentExplored && !grid[agent.x][agent.y].isAgentExplored) {
 		++agent.tempTargetsFound.yellow;
-		console.log("agent found yellow")
 	}
 	agent.tempExplored.add(grid[agent.x][agent.y]);
 	grid[agent.x][agent.y].isTempAgentExplored = true;
@@ -956,11 +981,9 @@ function moveAgent(agent) {
 		let thisCell = { x: cell[0], y: cell[1] };
 		if (grid[thisCell.x][thisCell.y].isBlue && !grid[thisCell.x][thisCell.y].isTempAgentExplored && !grid[thisCell.x][thisCell.y].isAgentExplored) {
 			++agent.tempTargetsFound.blue;
-			console.log("thisCell found blue")
 		}
 		if (grid[thisCell.x][thisCell.y].isYellow && !grid[thisCell.x][thisCell.y].isTempAgentExplored && !grid[thisCell.x][thisCell.y].isAgentExplored) {
 			++agent.tempTargetsFound.yellow;
-			console.log("thisCell found yellow")
 		}
 		let neighbours = [
 			{ x: cell[0],     y: cell[1] - 1 },
