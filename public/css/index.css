@@ -37,6 +37,20 @@ html, body {
 	pointer-events: none;
 }
 
+.navRight {
+	margin: 0 30px;
+	padding: 10px;
+	background-color: #FF9800;
+	border-radius: 50px;
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+}
+
+.navRight > * {
+	margin: 0 5px;
+}
+
 #background-video {
 	position: absolute;
 	top: 0;
@@ -74,8 +88,8 @@ nav {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0;
-	height: 8%;
+	padding: 15px 0;
+	height: 30px;
 	position: fixed;
 	z-index: 10000;
 	transition: 0.3s linear;

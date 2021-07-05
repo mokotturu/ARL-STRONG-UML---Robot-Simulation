@@ -8,7 +8,13 @@ router.get('/user/:uuid', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-	res.render('index', { title: 'ARL STRONG UML | Home' });
+	res.render(
+		'index',
+		{
+			title: 'ARL STRONG UML | Home',
+			navRight: `<span class="material-icons">warning</span><p>This is a testing site.</p>`
+		}
+	);
 });
 
 router.get('/simulation', (req, res) => {

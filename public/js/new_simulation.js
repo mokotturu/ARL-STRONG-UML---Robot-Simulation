@@ -68,18 +68,40 @@ var obstacleLocs = [
 		[279, 192] */
 	]
 ];
+
+var fakeBotImageScales = [
+	{ left: 96, right: 119, top: 195, bottom: 257 },
+	{ left: 117, right: 192, top: 229, bottom: 257 },
+	{ left: 186, right: 263, top: 201, bottom: 231 },
+	{ left: 262, right: 338, top: 196, bottom: 214 },
+	{ left: 220, right: 319, top: 208, bottom: 213 },
+	{ left: 196, right: 268, top: 208, bottom: 215 },
+	{ left: 267, right: 332, top: 213, bottom: 220 }
+];
+
+var fakeAgentScores = [
+	{ score:  100, blue: 2, yellow: 1 },
+	{ score: -100, blue: 1, yellow: 2 },
+	{ score: -100, blue: 1, yellow: 2 },
+	{ score: -100, blue: 2, yellow: 3 },
+	{ score:  200, blue: 4, yellow: 2 },
+	{ score:  300, blue: 3, yellow: 0 },
+	{ score:  200, blue: 3, yellow: 1 }
+];
+
+var fakeAgentNum = 0;
 var pathIndex = 10;
 var currentPath = mapPaths[pathIndex];
 var currentFrame;
 
 var human, agent1;
 var agents = [];
-var teamScore = 0;
+var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, currHumanScore = 0, currAgentScore = 0;
 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 10, duration = 60, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 20, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -320,17 +342,11 @@ $(document).ready(async () => {
 	$('.loader').css('opacity', '1');
 
 	human = new Player(232, 348, 1, 10);
-	agent1 = new Agent(1, -69, -69, 1, 10, 5, false, colors.lightAgent1, colors.agent1);
-	// agent1 = new Agent(1, 232, 345, 1, 10, 5, true, colors.lightAgent1, colors.agent1);
-	// agent2 = new Agent(2, 251, 337, 1, 10, 5, colors.lightAgent2, colors.agent2);
-	agents.push(agent1/* , agent2 */);
 	data.forEach(obj => {
 		obj.agents.push([], []);
 	});
 	
 	await initMaps(currentPath);
-	agent1.updateLoc(agent1.traversal[agent1.stepCount].loc.x, agent1.traversal[agent1.stepCount++].loc.y);
-
 	// initialize the canvas with a plain grey background
 	$map.drawRect({
 		fillStyle: '#252525',
@@ -345,10 +361,8 @@ $(document).ready(async () => {
 	for (let i = 0; i < 20; ++i) {
 		let tempObstLoc = getRandomLoc(grid);
 		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.blueTarget, 'blue', 100));
-		// grid[tempObstLoc[0]][tempObstLoc[1]].isBlue = true;
 		tempObstLoc = getRandomLoc(grid);
 		obstacles.targets.push(new Obstacle(...tempObstLoc, colors.yellowTarget, 'yellow', -100));
-		// grid[tempObstLoc[0]][tempObstLoc[1]].isYellow = true;
 	}
 
 	$('.loader').css('visibility', 'hidden');
@@ -382,8 +396,6 @@ function updateTime() {
 function loop() {
 	if (!pause) {
 		if (intervalCount >= intervals) terminate();
-		// randomWalk(agent1);
-		moveAgent(agent1);
 		refreshMap();
 		currentFrame = requestAnimationFrame(loop);
 	}
@@ -407,12 +419,6 @@ async function initMaps(path) {
 	}).fail(() => {
 		alert('An error has occured while loading the map.');
 	});
-
-	await $.getJSON('src/data10_5x5.json', data => {
-		Object.entries(data).forEach(([key, value]) => {
-			agent1.traversal.push({ loc: { x: value.current[0][0], y: value.current[0][1] }, explored: [value.current[0], ...value.visited] });
-		});
-	});
 }
 
 function spawn(members, size) {
@@ -435,7 +441,7 @@ function refreshMap() {
 	}
 
 	// spawn players
-	spawn([...obstacles.targets, human, ...agents], 1);
+	spawn([...obstacles.targets, human/* , ...agents */], 1);
 }
 
 function terminate() {
@@ -449,11 +455,11 @@ function terminate() {
 			uuid: uuid,
 			movement: data[half].movement,
 			humanTraversal: data[half].human,
-			agent1Traversal: data[half].agents[0],
-			// agent2Traversal: data[half].agents[1],
+			agent1Traversal: [],
+			agent2Traversal: [],
 			humanExplored: [...human.explored].filter(cell => !cell.isWall),
-			agent1Explored: [...agent1.explored].filter(cell => !cell.isWall),
-			// agent2Explored: [...agent1.explored].filter(cell => !cell.isWall),
+			agent1Explored: [],
+			agent2Explored: [],
 			obstacles: obstacles,
 			decisions: { agent1: log[0], agent2: log[1] }
 		}),
@@ -476,7 +482,7 @@ function showTrustPrompt() {
 
 	if (agentNum == 1) {
 		$humanImage.attr("src", $map.getCanvasImage());
-		$botImage.attr("src", $map.getCanvasImage());
+		$botImage.attr("src", `img/fakeAgentImages/agentExploration${intervalCount + 1}.png`);
 	}
 
 	$trustConfirmModal.css('display', 'flex');
@@ -485,9 +491,12 @@ function showTrustPrompt() {
 }
 
 function showExploredInfo() {
-	let humanScore = human.totalTargetsFound.blue * 100 - human.totalTargetsFound.yellow * 100;
-	let agentScore = agents[agentNum - 1].totalTargetsFound.blue * 100 - agents[agentNum - 1].totalTargetsFound.yellow * 100;
-	teamScore = humanScore + agentScore;
+	currHumanScore = human.tempTargetsFound.blue * 100 - human.tempTargetsFound.yellow * 100;
+	// currAgentScore = fakeAgentScores[fakeAgentNum].score;
+	let tempCurrAgentScore = fakeAgentScores[fakeAgentNum].score;
+	totalHumanScore += currHumanScore;
+	totalAgentScore += currAgentScore;
+	teamScore += currHumanScore + currAgentScore;
 	$('#teamScoreMain').text(`Team Score: ${teamScore} points`);
 
 	drawMarkers([...obstacles.victims, ...obstacles.hazards]);
@@ -502,18 +511,30 @@ function showExploredInfo() {
 	$agentText.toggleClass(`agent${agentNum - 1}`, false);
 	$agentText.toggleClass(`agent${agentNum + 1}`, false);
 	$agentText.toggleClass(`agent${agentNum}`, true);
-	$agentText.css("color", agents[agentNum - 1].lightColor);
-	$agentText.html(`Agent ${agents[agentNum - 1].id} explored area
-	<i class="fas fa-info-circle tooltip">
-		<span class="tooltiptext">If there is no area highlighted in the agent color, then the agent did not explore any new area.</span>
-	</i>`);
-	$('#agentTargetsFound').text(`Blue: ${agents[agentNum - 1].tempTargetsFound.blue}, Yellow:  ${agents[agentNum - 1].tempTargetsFound.yellow}`);
+	$('#agentTargetsFound').text(`Blue: ${fakeAgentScores[fakeAgentNum].blue}, Yellow:  ${fakeAgentScores[fakeAgentNum++].yellow}`);
 	$('#humanTargetsFound').text(`Blue: ${human.tempTargetsFound.blue}, Yellow:  ${human.tempTargetsFound.yellow}`);
-	$('#agentCurInt').text(agents[agentNum - 1].tempTargetsFound.blue * 100 - agents[agentNum - 1].tempTargetsFound.yellow * 100);
-	$('#humanCurInt').text(human.tempTargetsFound.blue * 100 - human.tempTargetsFound.yellow * 100);
-	$('#agentOverall').text(agentScore);
-	$('#humanOverall').text(humanScore);
-	$('#teamScore').text(`TEAM SCORE: ${teamScore} points`);
+
+	if (log[agentNum - 1][intervalCount - 1].trusted) {
+		if (currAgentScore > 0) $('#agentCurInt').html(`${currAgentScore} <span class="material-icons" style="color: ${colors.lightAgent1}">trending_up</span>`);
+		else if (currAgentScore < 0) $('#agentCurInt').html(`${currAgentScore} <span class="material-icons" style="color: ${colors.lightAgent}">trending_down</span>`);
+		else $('#agentCurInt').html(`${currAgentScore} <span class="material-icons" style="color: ${colors.yellowTarget}">trending_flat</span>`);
+	} else {
+		if (currAgentScore > 0) $('#agentCurInt').html(`${tempCurrAgentScore} <span class="material-icons" style="color: ${colors.yellowTarget}>trending_flat</span>`);
+		else if (currAgentScore < 0) $('#agentCurInt').html(`${tempCurrAgentScore} <span class="material-icons" style="color: ${colors.yellowTarget}">trending_flat</span>`);
+		else $('#agentCurInt').html(`${tempCurrAgentScore} <span class="material-icons" style="color: ${colors.yellowTarget}">trending_flat</span>`);
+	}
+
+	
+	if (currHumanScore > 0) $('#humanCurInt').html(`${currHumanScore} <span class="material-icons" style="color: ${colors.lightAgent1}">trending_up</span>`);
+	else if (currHumanScore < 0) $('#humanCurInt').html(`${currHumanScore} <span class="material-icons" style="color: ${colors.lightAgent}">trending_down</span>`);
+	else $('#humanCurInt').html(`${currHumanScore} <span class="material-icons" style="color: ${colors.yellowTarget}">trending_flat</span>`);
+
+	$('#agentOverall').text(totalAgentScore);
+	$('#humanOverall').text(totalHumanScore);
+	if (teamScore > tempTeamScore) $('#teamScore').html(`TEAM SCORE: ${teamScore} points <span class="material-icons" style="color: ${colors.lightAgent1}">trending_up</span>`);
+	else if (teamScore < tempTeamScore) $('#teamScore').html(`TEAM SCORE: ${teamScore} points <span class="material-icons" style="color: ${colors.lightAgent}">trending_down</span>`);
+	else $('#teamScore').html(`TEAM SCORE: ${teamScore} points <span class="material-icons" style="color: ${colors.yellowTarget}">trending_flat</span>`);
+	tempTeamScore = teamScore;
 	if (log[agentNum - 1][intervalCount - 1] != null) {
 		log[agentNum - 1].forEach((data, i) => {
 			if (data.trusted) {
@@ -525,8 +546,7 @@ function showExploredInfo() {
 	}
 
 	getSetBoundaries(human.explored, 0);
-
-	getSetBoundaries(agents[agentNum - 1].tempExplored, 1);
+	fakeGetSetBoundaries();
 	scaleImages();
 
 	setTimeout(() => { $detailsModal.scrollTop(-10000) }, 500);
@@ -535,16 +555,9 @@ function showExploredInfo() {
 
 function confirmExploration() {
 	++intervalCount;
-	agents[agentNum - 1].totalTargetsFound.blue += agents[agentNum - 1].tempTargetsFound.blue;
-	agents[agentNum - 1].totalTargetsFound.yellow += agents[agentNum - 1].tempTargetsFound.yellow;
 	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
 	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
-
-	agents[agentNum - 1].tempExplored.forEach(item => {
-		grid[item.x][item.y].isAgentExplored = true;
-		agents[agentNum - 1].explored.add(item);
-	});
-
+	currAgentScore = fakeAgentScores[fakeAgentNum].score;
 	log[agentNum - 1].push({ interval: intervalCount, trusted: true });
 
 	$trustConfirmModal.css('visibility', 'hidden');
@@ -555,9 +568,10 @@ function confirmExploration() {
 }
 
 function undoExploration() {
+	++intervalCount;
 	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
 	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
-	++intervalCount;
+	currAgentScore = 0;
 	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
 	for (const agent of agents) {
 		agent.tempExplored.forEach(cell => {
@@ -575,15 +589,15 @@ function undoExploration() {
 // redraw the map and hide pop-up
 function hideExploredInfo() {
 	if (agentNum < agents.length) {
-		agents[agentNum - 1].tempTargetsFound.blue = 0;
-		agents[agentNum - 1].tempTargetsFound.yellow = 0;
+		// agents[agentNum - 1].tempTargetsFound.blue = 0;
+		// agents[agentNum - 1].tempTargetsFound.yellow = 0;
 		++agentNum;
 		showExploredInfo();
 		return;
 	}
 
-	agents[agentNum - 1].tempTargetsFound.blue = 0;
-	agents[agentNum - 1].tempTargetsFound.yellow = 0;
+	// agents[agentNum - 1].tempTargetsFound.blue = 0;
+	// agents[agentNum - 1].tempTargetsFound.yellow = 0;
 	human.tempTargetsFound.blue = 0;
 	human.tempTargetsFound.yellow = 0;
 
@@ -596,8 +610,8 @@ function hideExploredInfo() {
 				map: pathIndex,
 				movement: data[half].movement,
 				humanTraversal: data[half].human,
-				agent1Traversal: data[half].agents[0],
-				// agent2Traversal: data[half].agents[1]
+				agent1Traversal: [],
+				agent2Traversal: []
 			}),
 			contentType: "application/json; charset=utf-8"
 		});
@@ -1050,6 +1064,13 @@ function drawMarkers(members) {
 			});
 		}
 	});
+}
+
+function fakeGetSetBoundaries() {
+	botLeft = fakeBotImageScales[intervalCount - 1].left;
+	botRight = fakeBotImageScales[intervalCount - 1].right;
+	botTop = fakeBotImageScales[intervalCount - 1].top;
+	botBottom = fakeBotImageScales[intervalCount - 1].bottom;
 }
 
 // 0 - human, 1 - bot

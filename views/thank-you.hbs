@@ -5,8 +5,8 @@
 	</div>
 </div>
 
-<div id="popup-modal">
-	<div id="popup-modal-container" style="padding: 20px 50px;">
+<div class="popup-modal-container">
+	<div class="popup-modal" style="padding: 20px 50px;">
 		<p style="font-size:25px;font-weight:bold;">Thank you for participating!</p>
 		<p>Your confirmation code is:</p>
 		<code></code>
@@ -17,7 +17,7 @@
 </div>
 
 <script>
-	const $popupModal = $("#popup-modal");
+	const $popupModal = $(".popup-modal-container");
 
 	$(document).ready(() => {
 		showCode();
@@ -34,6 +34,7 @@
 	});
 
 	function showCode() {
+		$('#copyButton').css('background-color', '#252525');
 		$popupModal.css('visibility', 'visible');
 		$popupModal.css('opacity', '1');
 		$('nav').addClass('disabled');
@@ -49,5 +50,6 @@
 		document.execCommand('copy');
 		$temp.remove();
 		$('#copyButton').text('Copied!');
+		$('#copyButton').css('background-color', '#4ca450');
 	}
 </script>

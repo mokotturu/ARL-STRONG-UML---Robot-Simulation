@@ -19,7 +19,6 @@
 	<div class="body-container">
 		<div class="popup-modal-container" id="trust-confirm-modal">
 			<div class="popup-modal" id="trust-confirm-modal-content">
-				<h2 style="color: white;font-size: 32px;padding-bottom: 10px;border-bottom: 3px solid white;">Make a blind decision!</h2>
 				<h3 style="color: white;font-size: 18px;">Do you trust the agent based on its performance in the previous rounds?</h3>
 				<div class="userInputButtons">
 					<button onclick="confirmExploration()">Yes, I trust the agent</button>
@@ -55,7 +54,7 @@
 				<table id="stats">
 					<tr>
 						<th class="tableTopLeft"></th>
-						<th id="teamScore">TEAM SCORE: x</th>
+						<th><div = id="teamScore" class="cellContent">TEAM SCORE: x</div></th>
 						<th class="tableTopRight"></th>
 					</tr>
 					<tr>
@@ -65,13 +64,13 @@
 					</tr>
 					<tr>
 						<th>Targets found</th>
-						<td id="agentTargetsFound">Blue: x, Yellow: x</td>
-						<td id="humanTargetsFound">Blue: x, Yellow: x</td>
+						<td><div class="cellContent" id="agentTargetsFound">Blue: x, Yellow: x</div></td>
+						<td><div class="cellContent" id="humanTargetsFound">Blue: x, Yellow: x</div></td>
 					</tr>
 					<tr>
 						<th>Last interval</th>
-						<td id="agentCurInt">x</td>
-						<td id="humanCurInt">x</td>
+						<td><div class="cellContent" id="agentCurInt">x</div></td>
+						<td><div class="cellContent" id="humanCurInt">x</div></td>
 					</tr>
 					<tr>
 						<th class="tableBottomLeft">Overall (including last interval)</th>
@@ -103,8 +102,10 @@
 					<div class="icon"><img src="img/hazard.png" style="width: 23px; height: 20px" /></div>
 					<p>Yellow triangle represents a hazard</p>
 				</div>
-				<div id="timer">Time elapsed: 0s</div>
-				<div id="teamScoreMain">Team Score: 0</div>
+				<div id="gameDetails">
+					<div id="timer">Time elapsed: 0s</div>
+					<div id="teamScoreMain" style="font-size: 22px;">Team Score: 0</div>
+				</div>
 			</div>
 			<div id="map-container">
 				<canvas width="4000" height="4000" id="map" oncontextmenu="return false;"></canvas>
