@@ -172,8 +172,9 @@ nav {
 }
 
 #trust-confirm-modal {
-	width: 40em !important;
-	height: 20em !important;
+	width: 45em !important;
+	height: 25em !important;
+	padding: 0 50px;
 }
 
 #trust-confirm-modal-content {
@@ -324,7 +325,6 @@ nav {
 	visibility: hidden;
 	width: 200px;
 	background-color: rgba(255, 255, 255, 0.8);
-	backdrop-filter: blur(5px);
 	color: black;
 	text-align: center;
 	border-radius: 7px;
@@ -347,7 +347,6 @@ nav {
 	border: 5px;
 	border-style: solid;
 	border-color: rgba(255, 255, 255, 0.8) transparent transparent transparent;
-	backdrop-filter: blur(5px);
 }
 
 .tooltip:hover .tooltiptext {
