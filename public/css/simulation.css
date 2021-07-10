@@ -190,7 +190,79 @@ nav {
 	align-items: center;
 }
 
+.scores{
+	/*
+	display: inline-flex;
+	background-color: rgb(38, 27, 202);
+	text-align: center;
+	gap: 5px;
+	color: white;
+	*/
+	display: inline-flex;
+    flex-wrap: wrap;
+	justify-content: space-evenly;
+	text-align:center;
+}
+
+#hScore{
+
+	background-color: #6e7ebd;
+    margin-top: 50px;
+	align-content: center;
+	border-radius:0.5em;
+	width:30vw;
+}
+
+#aScore{
+
+	background-color: #a7c98e;
+    margin-top: 50px;
+	align-content: center;
+	border-radius:0.5em;
+	width:30vw;
+}
+
+#oScore{
+	background-color: #cac9ca;
+    margin-top: 50px;
+	align-content: center;
+	border-radius:0.5em;
+	width:30vw;
+}
+
+.oYellowStar{
+	display: inline;
+}
+
+.oBlueStar{
+	display: inline;
+}
+
+
+.aYellowStar{
+	display: inline;
+}
+
+.aBlueStar{
+	display: inline;
+}
+
+.hYellowStar{
+	display: inline;
+}
+
+.hBlueStar{
+	display: inline;
+}
+
+#star{
+	vertical-align: middle; 
+	margin-left:center;
+	margin-right:center;
+}
+
 #stats {
+	visibility:hidden;
 	width: 50%;
 	color: white;
 	text-align: center;

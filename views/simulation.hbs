@@ -51,6 +51,54 @@
 						<p>Human explored area (blue)</p>
 					</div>
 				</div>
+
+
+				<div class = "scores">
+					<div id = "oScore">
+						<p>Overall score of current round</p>
+						<div class = "oYellowStar">
+							<img src = "img/yellow_star.png" id = "star" height = 50>
+						</div>
+						<img src = "img/bar.png" id = "star" height = 50>
+						<div class = "oBlueStar">
+							<img src = "img/blue_star.png" id = "star" height = 50>
+						</div>
+						<p>Overall total score</p>
+						<p><b>INSERT GRAPH HERE</b></p>
+
+
+					</div>
+					<div id = "aScore">
+						<p>Robot score in this round</p>
+						<div class = "aYellowStar">
+							<img src = "img/yellow_star.png" id = "star" height = 50>
+						</div>
+						<img src = "img/bar.png" id = "star" height = 50>
+						<div class = "aBlueStar">
+							<img src = "img/blue_star.png" id = "star" height = 50>
+						</div>
+						<p>Total score</p>
+						<p><b>INSERT GRAPH HERE</b></p>
+
+					</div>
+					<div id = "hScore">
+						<p>Human score in this round</p>
+						<div class = "hYellowStar">
+							<img src = "img/yellow_star.png" id = "star" height = 50>
+						</div>
+						<img src = "img/bar.png" id = "star" height = 50>
+						<div class = "hBlueStar">
+							<img src = "img/blue_star.png" id = "star" height = 50>
+						</div>
+						<p>Total score</p>
+						<p><b>INSERT GRAPH HERE</b></p>
+
+					</div>
+				</div>
+
+
+
+
 				<table id="stats">
 					<tr>
 						<th class="tableTopLeft"></th>
@@ -58,6 +106,7 @@
 						<th class="tableTopRight"></th>
 					</tr>
 					<tr>
+	
 						<th></th>
 						<th>Agent explored</th>
 						<th>Human explored</th>
@@ -78,6 +127,8 @@
 						<td class="tableBottomRight" id="humanOverall">x</td>
 					</tr>
 				</table>
+
+
 				<div class="tableItems"></div>
 				<div class="userInputButtons">
 					<button onclick="hideExploredInfo()">Continue</button>

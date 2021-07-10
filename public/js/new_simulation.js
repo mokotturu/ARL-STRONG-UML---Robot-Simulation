@@ -101,7 +101,7 @@ var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 7, duration = 20, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 10, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -551,6 +551,64 @@ function showExploredInfo() {
 
 	setTimeout(() => { $detailsModal.scrollTop(-10000) }, 500);
 	setTimeout(() => { $log.scrollLeft(10000) }, 500);
+
+	/*Adding updated star display messages*/
+
+	updateCurrentStars();
+}
+
+//Update the display for star count for targets on the results display
+function updateCurrentStars(){
+	let tempString = ' ';
+	for (let i = 0; i < human.tempTargetsFound.blue; i++){
+
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+	}
+	$("div.hBlueStar").html(tempString);
+
+	tempString = ' ';
+
+	for (let j = 0; j < human.tempTargetsFound.yellow; j++){
+
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+	}
+	$("div.hYellowStar").html(tempString);
+
+	tempString = ' '; 
+
+	for (let k = 0; k < fakeAgentScores[fakeAgentNum].blue; k++){
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+	}
+
+	$("div.aBlueStar").html(tempString);
+
+	tempString = ' ';
+
+	for (let l = 0; l < fakeAgentScores[fakeAgentNum].yellow; l++){
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+	}
+
+	$("div.aYellowStar").html(tempString);
+
+	tempString = ' ';
+
+	let totBlue = human.tempTargetsFound.blue + fakeAgentScores[fakeAgentNum].blue;
+
+	let totYellow = human.tempTargetsFound.yellow + fakeAgentScores[fakeAgentNum].yellow;
+
+	for (let m = 0; m < totBlue; m++){
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+	}
+
+	$("div.oBlueStar").html(tempString);
+
+	tempString = ' ';
+
+	for (let n = 0; n < totYellow; n++){
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+	}
+
+	$("div.oYellowStar").html(tempString);
 }
 
 function confirmExploration() {
