@@ -101,7 +101,7 @@ var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 7, duration = 10, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 40, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -484,7 +484,8 @@ function showTrustPrompt() {
 		$humanImage.attr("src", $map.getCanvasImage());
 		$botImage.attr("src", `img/fakeAgentImages/agentExploration${intervalCount + 1}.png`);
 	}
-
+	
+	$('#trustConfirmQuestion').html(`Round #${intervalCount + 1} finished.`);
 	$trustConfirmModal.css('display', 'flex');
 	$trustConfirmModal.css('visibility', 'visible');
 	$trustConfirmModal.css('opacity', '1');
