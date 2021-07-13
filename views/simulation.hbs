@@ -19,10 +19,11 @@
 	<div class="body-container">
 		<div class="popup-modal-container" id="trust-confirm-modal">
 			<div class="popup-modal" id="trust-confirm-modal-content">
-				<h3 style="color: white;font-size: 18px;">Do you trust the agent based on its performance in the previous rounds?</h3>
+				<h2 id="trustConfirmQuestion" style="color: white;font-size: 26px;">Do you want to integrate the map and score of the robot to the overall score?</h2>
+				<h3 style="color: white;font-size: 18px;">You can see the results after making a decision.</h3>
 				<div class="userInputButtons">
-					<button onclick="confirmExploration()">Yes, I trust the agent</button>
-					<button onclick="undoExploration()">No, I don't trust the agent</button>
+					<button onclick="confirmExploration()">Integrate</button>
+					<button onclick="undoExploration()">Discard</button>
 				</div>
 			</div>
 		</div>
@@ -51,55 +52,95 @@
 						<p>Human explored area (blue)</p>
 					</div>
 				</div>
-
-
 				<div class = "scores">
-					<div id = "oScore">
+					<div id = "oScore" class="scoreBlock">
 						<p>Overall score of current round</p>
-						<div class = "oYellowStar">
-							<img src = "img/yellow_star.png" id = "star" height = 50>
+						{{!-- <div class="resultsBlockItemWrapper">
+							<div class = "oYellowStar resultsBlockItemLeft">
+								<img src = "img/yellow_star.png" id = "star" height = 30>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30 style="padding: 0 5px;">
+							<div class = "oBlueStar resultsBlockItemRight">
+								<img src = "img/blue_star.png" id = "star" height = 30>
+							</div>
+						</div> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="currTeamScoreNegative"></p>
+								<div id="currTeamNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="currTeamPositive" class="positiveScore graph"></div>
+								<p id="currTeamScorePositive"></p>
+							</div>
 						</div>
-						<img src = "img/bar.png" id = "star" height = 50>
-						<div class = "oBlueStar">
-							<img src = "img/blue_star.png" id = "star" height = 50>
+						<p>Overall team score</p>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="overallScoreNegative"></p>
+								<div id="overallNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="overallPositive" class="positiveScore graph"></div>
+								<p id="overallScorePositive"></p>
+							</div>
 						</div>
-						<p>Overall total score</p>
-						<p><b>INSERT GRAPH HERE</b></p>
-
-
 					</div>
-					<div id = "aScore">
-						<p>Robot score in this round</p>
-						<div class = "aYellowStar">
-							<img src = "img/yellow_star.png" id = "star" height = 50>
+					<div id = "aScore" class="scoreBlock">
+						<p>Targets collected by agent in this round</p>
+						<div class="resultsBlockItemWrapper">
+							<div class = "aYellowStar resultsBlockItemLeft">
+								<img src = "img/yellow_star.png" id = "star" height = 30>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30 style="padding: 0 5px;">
+							<div class = "aBlueStar resultsBlockItemRight">
+								<img src = "img/blue_star.png" id = "star" height = 30>
+							</div>
 						</div>
-						<img src = "img/bar.png" id = "star" height = 50>
-						<div class = "aBlueStar">
-							<img src = "img/blue_star.png" id = "star" height = 50>
+						<p>Agent score in this round</p>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="agentScoreNegative"></p>
+								<div id="agentNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="agentPositive" class="positiveScore graph"></div>
+								<p id="agentScorePositive"></p>
+							</div>
 						</div>
-						<p>Total score</p>
-						<p><b>INSERT GRAPH HERE</b></p>
-
 					</div>
-					<div id = "hScore">
+					<div id = "hScore" class="scoreBlock">
+						<p>Targets collected by human in this round</p>
+						<div class="resultsBlockItemWrapper">
+							<div class = "hYellowStar resultsBlockItemLeft">
+								<img src = "img/yellow_star.png" id = "star" height = 30>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30 style="padding: 0 5px;">
+							<div class = "hBlueStar resultsBlockItemRight">
+								<img src = "img/blue_star.png" id = "star" height = 30>
+							</div>
+						</div>
 						<p>Human score in this round</p>
-						<div class = "hYellowStar">
-							<img src = "img/yellow_star.png" id = "star" height = 50>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="humanScoreNegative"></p>
+								<div id="humanNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="humanPositive" class="positiveScore graph"></div>
+								<p id="humanScorePositive"></p>
+							</div>
 						</div>
-						<img src = "img/bar.png" id = "star" height = 50>
-						<div class = "hBlueStar">
-							<img src = "img/blue_star.png" id = "star" height = 50>
-						</div>
-						<p>Total score</p>
-						<p><b>INSERT GRAPH HERE</b></p>
-
 					</div>
 				</div>
-
-
-
-
-				<table id="stats">
+				{{!-- <table id="stats">
 					<tr>
 						<th class="tableTopLeft"></th>
 						<th><div = id="teamScore" class="cellContent">TEAM SCORE: x</div></th>
@@ -126,9 +167,7 @@
 						<td id="agentOverall">x</td>
 						<td class="tableBottomRight" id="humanOverall">x</td>
 					</tr>
-				</table>
-
-
+				</table> --}}
 				<div class="tableItems"></div>
 				<div class="userInputButtons">
 					<button onclick="hideExploredInfo()">Continue</button>

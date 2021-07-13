@@ -94,6 +94,8 @@ var pathIndex = 10;
 var currentPath = mapPaths[pathIndex];
 var currentFrame;
 
+var initialTimeStamp = 0, finalTimeStamp = 0;
+
 var human, agent1;
 var agents = [];
 var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, currHumanScore = 0, currAgentScore = 0;
@@ -101,7 +103,7 @@ var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 7, duration = 10, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 40, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -480,6 +482,8 @@ function showTrustPrompt() {
 	cancelAnimationFrame(currentFrame);
 	// clearInterval(currentFrame);
 
+	initialTimeStamp = performance.now();
+
 	if (agentNum == 1) {
 		$humanImage.attr("src", $map.getCanvasImage());
 		$botImage.attr("src", `img/fakeAgentImages/agentExploration${intervalCount + 1}.png`);
@@ -554,15 +558,15 @@ function showExploredInfo() {
 
 	/*Adding updated star display messages*/
 
-	updateCurrentStars();
+	updateResults();
 }
 
 //Update the display for star count for targets on the results display
-function updateCurrentStars(){
+function updateResults(){
 	let tempString = ' ';
 	for (let i = 0; i < human.tempTargetsFound.blue; i++){
 
-		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=30>";
 	}
 	$("div.hBlueStar").html(tempString);
 
@@ -570,34 +574,34 @@ function updateCurrentStars(){
 
 	for (let j = 0; j < human.tempTargetsFound.yellow; j++){
 
-		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=30>";
 	}
 	$("div.hYellowStar").html(tempString);
 
 	tempString = ' '; 
 
-	for (let k = 0; k < fakeAgentScores[fakeAgentNum].blue; k++){
-		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+	for (let k = 0; k < fakeAgentScores[fakeAgentNum - 1].blue; k++){
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=30>";
 	}
 
 	$("div.aBlueStar").html(tempString);
 
 	tempString = ' ';
 
-	for (let l = 0; l < fakeAgentScores[fakeAgentNum].yellow; l++){
-		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+	for (let l = 0; l < fakeAgentScores[fakeAgentNum - 1].yellow; l++){
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=30>";
 	}
 
 	$("div.aYellowStar").html(tempString);
 
-	tempString = ' ';
+	/* tempString = ' ';
 
-	let totBlue = human.tempTargetsFound.blue + fakeAgentScores[fakeAgentNum].blue;
+	let totBlue = human.tempTargetsFound.blue + fakeAgentScores[fakeAgentNum - 1].blue;
 
-	let totYellow = human.tempTargetsFound.yellow + fakeAgentScores[fakeAgentNum].yellow;
+	let totYellow = human.tempTargetsFound.yellow + fakeAgentScores[fakeAgentNum - 1].yellow;
 
 	for (let m = 0; m < totBlue; m++){
-		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=50>";
+		tempString+= "<img src = 'img/blue_star.png' id = 'star' height=30>";
 	}
 
 	$("div.oBlueStar").html(tempString);
@@ -605,18 +609,68 @@ function updateCurrentStars(){
 	tempString = ' ';
 
 	for (let n = 0; n < totYellow; n++){
-		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=50>";
+		tempString+= "<img src = 'img/yellow_star.png' id = 'star' height=30>";
 	}
 
-	$("div.oYellowStar").html(tempString);
+	$("div.oYellowStar").html(tempString); */
+
+	if (currHumanScore + currAgentScore >= 0) {
+		$('#currTeamPositive').css('width', `${(currHumanScore + currAgentScore)/100 * 8}`);
+		$('#currTeamScorePositive').text(`${currHumanScore + currAgentScore} pts`);
+		$('#currTeamNegative').css('width', `0`);
+		$('#currTeamScoreNegative').text(``);
+	} else {
+		$('#currTeamNegative').css('width', `${Math.abs((currHumanScore + currAgentScore)/100 * 8)}`);
+		$('#currTeamScoreNegative').text(`${currHumanScore + currAgentScore} pts`);
+		$('#currTeamPositive').css('width', `0`);
+		$('#currTeamScorePositive').text(``);
+	}
+
+	if (teamScore >= 0) {
+		$('#overallPositive').css('width', `${teamScore/100 * 8}`);
+		$('#overallScorePositive').text(`${teamScore} pts`);
+		$('#overallNegative').css('width', `0`);
+		$('#overallScoreNegative').text(``);
+	} else {
+		$('#overallNegative').css('width', `${Math.abs(teamScore/100 * 8)}`);
+		$('#overallScoreNegative').text(`${teamScore} pts`);
+		$('#overallPositive').css('width', `0`);
+		$('#overallScorePositive').text(``);
+	}
+
+	if (currHumanScore >= 0) {
+		$('#humanPositive').css('width', `${currHumanScore/100 * 8}`);
+		$('#humanScorePositive').text(`${currHumanScore} pts`);
+		$('#humanNegative').css('width', `0`);
+		$('#humanScoreNegative').text(``);
+	} else {
+		$('#humanNegative').css('width', `${Math.abs(currHumanScore/100 * 8)}`);
+		$('#humanScoreNegative').text(`${currHumanScore} pts`);
+		$('#humanPositive').css('width', `0`);
+		$('#humanScorePositive').text(``);
+	}
+
+	if (currAgentScore >= 0) {
+		$('#agentPositive').css('width', `${currAgentScore/100 * 8}`);
+		$('#agentScorePositive').text(`${currAgentScore} pts`);
+		$('#agentNegative').css('width', `0`);
+		$('#agentScoreNegative').text(``);
+	} else {
+		$('#agentNegative').css('width', `${Math.abs(currAgentScore/100 * 8)}`);
+		$('#agentScoreNegative').text(`${currAgentScore} pts`);
+		$('#agentPositive').css('width', `0`);
+		$('#agentScorePositive').text(``);
+	}
 }
 
 function confirmExploration() {
+	finalTimeStamp = performance.now();
 	++intervalCount;
 	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
 	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
 	currAgentScore = fakeAgentScores[fakeAgentNum].score;
-	log[agentNum - 1].push({ interval: intervalCount, trusted: true });
+	log[agentNum - 1].push({ interval: intervalCount, trusted: true, timeTaken: finalTimeStamp - initialTimeStamp });
+	initialTimeStamp = 0, finalTimeStamp = 0;
 
 	$trustConfirmModal.css('visibility', 'hidden');
 	$trustConfirmModal.css('display', 'none');
@@ -626,11 +680,13 @@ function confirmExploration() {
 }
 
 function undoExploration() {
+	finalTimeStamp = performance.now();
 	++intervalCount;
 	human.totalTargetsFound.blue += human.tempTargetsFound.blue;
 	human.totalTargetsFound.yellow += human.tempTargetsFound.yellow;
 	currAgentScore = 0;
-	log[agentNum - 1].push({ interval: intervalCount, trusted: false });
+	log[agentNum - 1].push({ interval: intervalCount, trusted: false, timeTaken: finalTimeStamp - initialTimeStamp });
+	initialTimeStamp = 0, finalTimeStamp = 0;
 	for (const agent of agents) {
 		agent.tempExplored.forEach(cell => {
 			grid[cell.x][cell.y].isTempAgentExplored = false;
