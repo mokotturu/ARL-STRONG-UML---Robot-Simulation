@@ -17,6 +17,10 @@ router.get('/', (req, res) => {
 	);
 });
 
+router.get('/tutorial', (req, res) => {
+	res.render('tutorial', { layout: false });
+});
+
 router.get('/simulation', (req, res) => {
 	res.render('simulation', { layout: false });
 });

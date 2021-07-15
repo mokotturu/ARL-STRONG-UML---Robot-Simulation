@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="Monish Reddy Kotturu">
+	<link rel="stylesheet" type="text/css" href="/css/tutorial.css"/>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
+	<link rel="icon" href="/img/favicon.png" type="image/png">
+	<script src="https://kit.fontawesome.com/4240eddcaa.js" crossorigin="anonymous"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+	<title>ARL STRONG UML | Tutorial</title>
+</head>
+
+<body>
+	<div class="loader"></div>
+	<div class="progressbar"><div class="progress background"><p>0%</p></div></div>
+	<div class="body-container">
+		<div data-id="1" class="popup-modal-container" id="instructions-modal">
+			<div class="popup-modal" id="instructions-modal-content">
+				<h2 id="instructions-heading" style="color: white;font-size: 26px;">Welcome to the tutorial!</h2>
+				<h3 id="instructions-content" style="color: white;font-size: 18px;line-height: 160%;">This brief tutorial will walk you through the understanding the different elements of the interface and how the game works.</h3>
+				<div class="userInputButtons">
+					<button id="instructions-button" onclick="nextInstruction()">Continue</button>
+				</div>
+			</div>
+		</div>
+		<div class="popup-modal-container" id="trust-confirm-modal">
+			<div class="popup-modal" id="trust-confirm-modal-content">
+				<h2 id="trustConfirmQuestion" style="color: white;font-size: 26px;">Do you want to integrate the score of the robot to the overall score?</h2>
+				<h3 style="color: white;font-size: 18px;">You can see the results after making a decision.</h3>
+				<div class="userInputButtons">
+					<button onclick="confirmExploration()">Integrate</button>
+					<button onclick="undoExploration()">Discard</button>
+				</div>
+			</div>
+		</div>
+		<div class="popup-modal-container" id="exploration-details-modal">
+			<div class="popup-modal" id="exploration-details-modal-content">
+				<div class="map-info">
+					<div id="images-container">
+						<div class="explored">
+							<img src="#" id="minimap" alt="Entire Map">
+						</div>
+						<div class="explored">
+							<img src="#" id="bot-image" alt="Agent explored area">
+						</div>
+						<div class="explored">
+							<img src="#" id="human-image" alt="Human explored area">
+						</div>
+					</div>
+					<div class="headings-container">
+						<p>Entire map</p>
+						<p class="agent-text">
+							Agent explored area
+							<i class="fas fa-info-circle tooltip">
+								<span class="tooltiptext">If there is no area highlighted in green/orange, then the agent did not explore any new area.</span>
+							</i>
+						</p>
+						<p>Human explored area (blue)</p>
+					</div>
+				</div>
+				<div class = "scores">
+					<div id = "oScore" class="scoreBlock">
+						<p>Overall score of current round</p>
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="currTeamScoreNegative"></p>
+								<div id="currTeamNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="currTeamPositive" class="positiveScore graph"></div>
+								<p id="currTeamScorePositive"></p>
+							</div>
+						</div>
+						<p>Overall team score</p>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="overallScoreNegative"></p>
+								<div id="overallNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="overallPositive" class="positiveScore graph"></div>
+								<p id="overallScorePositive"></p>
+							</div>
+						</div>
+					</div>
+					<div id = "aScore" class="scoreBlock">
+						<p>Targets collected by agent in this round</p>
+						<div class="resultsBlockItemWrapper">
+							<div class = "aYellowStar resultsBlockItemLeft">
+								<img src = "img/yellow_star.png" id = "star" height = 30>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30 style="padding: 0 5px;">
+							<div class = "aBlueStar resultsBlockItemRight">
+								<img src = "img/blue_star.png" id = "star" height = 30>
+							</div>
+						</div>
+						<p>Agent score in this round</p>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="agentScoreNegative"></p>
+								<div id="agentNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="agentPositive" class="positiveScore graph"></div>
+								<p id="agentScorePositive"></p>
+							</div>
+						</div>
+					</div>
+					<div id = "hScore" class="scoreBlock">
+						<p>Targets collected by human in this round</p>
+						<div class="resultsBlockItemWrapper">
+							<div class = "hYellowStar resultsBlockItemLeft">
+								<img src = "img/yellow_star.png" id = "star" height = 30>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30 style="padding: 0 5px;">
+							<div class = "hBlueStar resultsBlockItemRight">
+								<img src = "img/blue_star.png" id = "star" height = 30>
+							</div>
+						</div>
+						<p>Human score in this round</p>
+						{{!-- <p><b>INSERT GRAPH HERE</b></p> --}}
+						<div class="resultsBlockItemWrapper">
+							<div class="negativeScoreGraph resultsBlockItemLeft">
+								<p id="humanScoreNegative"></p>
+								<div id="humanNegative" class="negativeScore graph"></div>
+							</div>
+							<img src = "img/bar.png" id = "star" height = 30>
+							<div class="positiveScoreGraph resultsBlockItemRight">
+								<div id="humanPositive" class="positiveScore graph"></div>
+								<p id="humanScorePositive"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tableItems"></div>
+				<div class="userInputButtons">
+					<button onclick="hideExploredInfo()">Continue</button>
+				</div>
+			</div>
+		</div>
+		<div id="simulation">
+			<div id="info">
+				<div id="legend">
+					<div class="icon"><span style="width: 40px; height: 20px; background-color: #9999ff; border-radius: 7px;"></span></div>
+					<p>Human explored region</p>
+					<div class="icon"><span style="width: 40px; height: 20px; background-color: #99ffb7; border-radius: 7px;"></span></div>
+					<p>Agent 1 explored region in the current interval</p>
+					<div class="icon"><span style="width: 40px; height: 20px; background-color: #ffbf7f; border-radius: 7px;"></span></div>
+					<p>Agent 2 explored region in the current interval</p>
+					<div class="icon"><span style="width: 40px; height: 20px; background-color: #ff9eae; border-radius: 7px;"></span></div>
+					<p>Trusted agent explored region (both agents)</p>
+					<div class="icon"><span style="width: 40px; height: 20px; background-color: #ffff7f; border-radius: 7px;"></span></div>
+					<p>Region explored by both human and agent</p>
+					<div class="icon"><img src="img/victim.png" style="width: 23px; height: 20px" /></div>
+					<p>Red circle represents a victim</p>
+					<div class="icon"><img src="img/hazard.png" style="width: 23px; height: 20px" /></div>
+					<p>Yellow triangle represents a hazard</p>
+				</div>
+				<div id="gameDetails">
+					<div id="timer">Time elapsed: 0s</div>
+					<div id="teamScoreMain" style="font-size: 22px;">Team Score: 0</div>
+				</div>
+			</div>
+			<div id="map-container">
+				<canvas width="4000" height="4000" id="map" oncontextmenu="return false;"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<!-- Load the CDN first -->
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+	<!-- If CDN fails to load, then serve up the local version -->
+	<script>window.jQuery || document.write('<script src="js/jquery-3.5.1.min.js"><\/script>')</script>
+	<script type="text/javascript" src="/js/jcanvas.min.js"></script>
+	<script type="text/javascript" src="/js/tutorial.js"></script>
+</body>
+</html>
