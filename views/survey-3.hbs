@@ -1,12 +1,3 @@
-<div class="popup-modal-container">
-	<div class="popup-modal">
-		The simulation data has been recorded.<br><br>Please take a few moments to respond to the following surveys.
-		<div id="userInputButtons">
-			<button onclick="disappear()">Continue</button>
-		</div>
-	</div>
-</div>
-
 <div class="survey">
 	<h3>Survey 1</h3>
 
@@ -16,7 +7,7 @@
 		please select the option that says "Does not fit".
 	</h4>
 
-	<form action="/survey-1-submit" method="POST" name="survey-1" id="survey-1">
+	<form action="/survey-3-submit" method="POST" name="survey-3" id="survey-3">
 		<div class="grid-container">
 			<label class="grid-item sticky"></label>
 			<label class="grid-item sticky">Not at all<br><br>1</label>
@@ -187,18 +178,18 @@
 			<label class="grid-item grey"><input type="radio" id="six" name="consistent" value="6"></label>
 			<label class="grid-item grey"><input type="radio" id="seven" name="consistent" value="7"></label>
 			<label class="grid-item grey"><input type="radio" id="zero" name="consistent" value="0"></label>
-
-            <label class="grid-item grey">Meticulous</label>
-			<label class="grid-item grey"><input type="radio" id="one" name="meticulous" value="1"></label>
-			<label class="grid-item grey"><input type="radio" id="two" name="meticulous" value="2"></label>
-			<label class="grid-item grey"><input type="radio" id="three" name="meticulous" value="3"></label>
-			<label class="grid-item grey"><input type="radio" id="four" name="meticulous" value="4"></label>
-			<label class="grid-item grey"><input type="radio" id="five" name="meticulous" value="5"></label>
-			<label class="grid-item grey"><input type="radio" id="six" name="meticulous" value="6"></label>
-			<label class="grid-item grey"><input type="radio" id="seven" name="meticulous" value="7"></label>
-			<label class="grid-item grey"><input type="radio" id="zero" name="meticulous" value="0"></label>
-
-            <label class="grid-item grey">Has integrity</label>
+			
+			<label class="grid-item">Meticulous</label>
+			<label class="grid-item"><input type="radio" id="one" name="meticulous" value="1"></label>
+			<label class="grid-item"><input type="radio" id="two" name="meticulous" value="2"></label>
+			<label class="grid-item"><input type="radio" id="three" name="meticulous" value="3"></label>
+			<label class="grid-item"><input type="radio" id="four" name="meticulous" value="4"></label>
+			<label class="grid-item"><input type="radio" id="five" name="meticulous" value="5"></label>
+			<label class="grid-item"><input type="radio" id="six" name="meticulous" value="6"></label>
+			<label class="grid-item"><input type="radio" id="seven" name="meticulous" value="7"></label>
+			<label class="grid-item"><input type="radio" id="zero" name="meticulous" value="0"></label>
+			
+			<label class="grid-item grey">Has integrity</label>
 			<label class="grid-item grey"><input type="radio" id="one" name="hasintegrity" value="1"></label>
 			<label class="grid-item grey"><input type="radio" id="two" name="hasintegrity" value="2"></label>
 			<label class="grid-item grey"><input type="radio" id="three" name="hasintegrity" value="3"></label>
@@ -208,17 +199,17 @@
 			<label class="grid-item grey"><input type="radio" id="seven" name="hasintegrity" value="7"></label>
 			<label class="grid-item grey"><input type="radio" id="zero" name="hasintegrity" value="0"></label>
 
-            <label class="grid-item grey">Candid</label>
-			<label class="grid-item grey"><input type="radio" id="one" name="candid" value="1"></label>
-			<label class="grid-item grey"><input type="radio" id="two" name="candid" value="2"></label>
-			<label class="grid-item grey"><input type="radio" id="three" name="candid" value="3"></label>
-			<label class="grid-item grey"><input type="radio" id="four" name="candid" value="4"></label>
-			<label class="grid-item grey"><input type="radio" id="five" name="candid" value="5"></label>
-			<label class="grid-item grey"><input type="radio" id="six" name="candid" value="6"></label>
-			<label class="grid-item grey"><input type="radio" id="seven" name="candid" value="7"></label>
-			<label class="grid-item grey"><input type="radio" id="zero" name="candid" value="0"></label>
+			<label class="grid-item">Candid</label>
+			<label class="grid-item"><input type="radio" id="one" name="candid" value="1"></label>
+			<label class="grid-item"><input type="radio" id="two" name="candid" value="2"></label>
+			<label class="grid-item"><input type="radio" id="three" name="candid" value="3"></label>
+			<label class="grid-item"><input type="radio" id="four" name="candid" value="4"></label>
+			<label class="grid-item"><input type="radio" id="five" name="candid" value="5"></label>
+			<label class="grid-item"><input type="radio" id="six" name="candid" value="6"></label>
+			<label class="grid-item"><input type="radio" id="seven" name="candid" value="7"></label>
+			<label class="grid-item"><input type="radio" id="zero" name="candid" value="0"></label>
 
-            <label class="grid-item grey">Has Good Will</label>
+			<label class="grid-item grey">Has Good Will</label>
 			<label class="grid-item grey"><input type="radio" id="one" name="goodwill" value="1"></label>
 			<label class="grid-item grey"><input type="radio" id="two" name="goodwill" value="2"></label>
 			<label class="grid-item grey"><input type="radio" id="three" name="goodwill" value="3"></label>
@@ -229,31 +220,6 @@
 			<label class="grid-item grey"><input type="radio" id="zero" name="goodwill" value="0"></label>
 		</div>
 
-		<button id ="submit" type="submit" form="survey-1" value="Submit">Submit</button>
+		<button id ="submit" type="submit" form="survey-3" value="Submit">Submit</button>
 	</form>
 </div>
-
-<script>
-	const $popupModal = $('.popup-modal-container');
-
-	$(document).ready(() => {
-		$popupModal.css('visibility', 'visible');
-		$popupModal.css('opacity', '1');
-		$('form').addClass('disabled');
-	});
-
-	$(window).on('click', e => {
-		if ($popupModal.is(e.target)) {
-			$popupModal.css('visibility', 'hidden');
-			$popupModal.css('opacity', '0');
-			$('nav').removeClass('disabled');
-			$('form').removeClass('disabled');
-		}
-	});
-
-	function disappear() {
-		$popupModal.css('visibility', 'hidden');
-		$popupModal.css('opacity', '0');
-		$('form').removeClass('disabled');
-	}
-</script>

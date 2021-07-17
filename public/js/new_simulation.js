@@ -106,7 +106,7 @@ var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 7, duration = 1, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 40, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -498,6 +498,9 @@ function showTrustPrompt() {
 }
 
 function showPostIntegratePrompt(){
+	$('#intervalSurvey')[0].reset();
+	$('#q3Option5Text').css('display', 'none');
+	$('#q3Option5Text').val('');
 	$endRoundModal.css('display', 'flex');
 	$endRoundModal.css('visibility', 'visible');
 	$endRoundModal.css('opacity', '1');
@@ -685,9 +688,6 @@ function confirmExploration() {
 	$trustConfirmModal.css('display', 'none');
 	$trustConfirmModal.css('opacity', '0');
 
-	
-	showPostIntegratePrompt();
-
 	showExploredInfo();
 }
 
@@ -709,8 +709,6 @@ function undoExploration() {
 	$trustConfirmModal.css('display', 'none');
 	$trustConfirmModal.css('opacity', '0');
 
-	showPostIntegratePrompt();
-
 	showExploredInfo();
 }
 
@@ -728,6 +726,8 @@ function hideExploredInfo() {
 	// agents[agentNum - 1].tempTargetsFound.yellow = 0;
 	human.tempTargetsFound.blue = 0;
 	human.tempTargetsFound.yellow = 0;
+
+	log[agentNum - 1][log[agentNum - 1].length - 1].surveyResponse = $('#intervalSurvey').serializeArray();
 
 	if (intervalCount == Math.floor(intervals / 2)) {
 		$.ajax({
@@ -764,6 +764,10 @@ function hideExploredInfo() {
 	$(document).on('keydown', e => {
 		eventKeyHandlers(e);
 	});
+
+	$endRoundModal.css('visibility', 'hidden');
+	$endRoundModal.css('display', 'none');
+	$endRoundModal.css('opacity', '0');
 
 	$detailsModal.css('visibility', 'hidden');
 	$detailsModal.css('display', 'none');
@@ -1301,4 +1305,13 @@ function difference(setA, setB) {
 		_difference.delete(elem);
 	}
 	return _difference;
+}
+
+function toggleTextInput() {
+	if ($('input[name="optradioQ3"]:checked').val() == 5) {
+		$('#q3Option5Text').css('display', 'block');
+	} else {
+		$('#q3Option5Text').css('display', 'none');
+		$('#q3Option5Text').val('');
+	}
 }

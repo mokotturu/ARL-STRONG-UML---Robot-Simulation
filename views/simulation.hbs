@@ -171,7 +171,7 @@
 				</table> --}}
 				<div class="tableItems"></div>
 				<div class="userInputButtons">
-					<button onclick="hideExploredInfo()">Continue</button>
+					<button onclick="showPostIntegratePrompt()">Continue</button>
 				</div>
 			</div>
 		</div>
@@ -203,131 +203,48 @@
 			</div>
 		</div>
 
-
-
-		
 		<div class="popup-modal-container" id="endRoundQContainer">
 			<div class="popup-modal" id="endRoundQContent">
-
-				<h1 id = "q3PromptTitle">Please respond to the following questions below:</h1>
-				<form class = "q3Class">
-				<p>1.) Please rate the performance of your robot in this search and rescue task so far (7 being poor performance, 1 being excellent performance).</p>
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio" checked>1
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">2
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">3
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">4
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">5
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">6
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">7
-				 </label>
-				 
+				<h1 id="q3PromptTitle">Please respond to the following questions below:</h1>
+				<form name="intervalSurvey" id="intervalSurvey" onsubmit="return false;">
+					<div class="questionContainer">
+						<h4>Please rate the performance of your robot in this search and rescue task so far (7 being poor performance, 1 being excellent performance).</h4>
+						<div class="optionsContainer">
+							<label for="oneOne" class="radio-inline grid-item"><input id="oneOne" type="radio" name="optradioQ1" value="1">1</label>
+							<label for="oneTwo" class="radio-inline grid-item"><input id="oneTwo" type="radio" name="optradioQ1" value="2">2</label>
+							<label for="oneThree" class="radio-inline grid-item"><input id="oneThree" type="radio" name="optradioQ1" value="3">3</label>
+							<label for="oneFour" class="radio-inline grid-item"><input id="oneFour" type="radio" name="optradioQ1" value="4">4</label>
+							<label for="oneFive" class="radio-inline grid-item"><input id="oneFive" type="radio" name="optradioQ1" value="5">5</label>
+							<label for="oneSix" class="radio-inline grid-item"><input id="oneSix" type="radio" name="optradioQ1" value="6">6</label>
+							<label for="oneSeven" class="radio-inline grid-item"><input id="oneSeven" type="radio" name="optradioQ1" value="7">7</label>
+						</div>
+					</div>
+					<div class="questionContainer">
+						<h4>Please rate the robot as a teammate (7 being poor teammate, 1 being excellent teammate).</h4>
+						<div class="optionsContainer">
+							<label for="twoOne"  class="radio-inline grid-item"><input id="twoOne" type="radio" name="optradioQ2" value="1">1</label>
+							<label for="twoTwo" class="radio-inline grid-item"><input id="twoTwo" type="radio" name="optradioQ2" value="2">2</label>
+							<label for="twoThree" class="radio-inline grid-item"><input id="twoThree" type="radio" name="optradioQ2" value="3">3</label>
+							<label for="twoFour" class="radio-inline grid-item"><input id="twoFour" type="radio" name="optradioQ2" value="4">4</label>
+							<label for="twoFive" class="radio-inline grid-item"><input id="twoFive" type="radio" name="optradioQ2" value="5">5</label>
+							<label for="twoSix" class="radio-inline grid-item"><input id="twoSix" type="radio" name="optradioQ2" value="6">6</label>
+							<label for="twoSeven" class="radio-inline grid-item"><input id="twoSeven" type="radio" name="optradioQ2" value="7">7</label>
+						</div>
+					</div>
+					<div class="questionContainer">
+						<h4>What influenced your decision to integrate/discard the map the most?</h4>
+						<div class="fullWidthOptions">
+							<label for="longOne" class="fullWidthOption grid-item"><input id="longOne" type="radio" name="optradioQ3" value="1" onclick="toggleTextInput()">Good performance of robot in last round</label>
+							<label for="longTwo" class="fullWidthOption grid-item"><input id="longTwo" type="radio" name="optradioQ3" value="2" onclick="toggleTextInput()">Bad performance of the robot in last round</label>
+							<label for="longThree" class="fullWidthOption grid-item"><input id="longThree" type="radio" name="optradioQ3" value="3" onclick="toggleTextInput()">Overall good performance of robot up to this point</label>
+							<label for="longFour" class="fullWidthOption grid-item"><input id="longFour" type="radio" name="optradioQ3" value="4" onclick="toggleTextInput()">Overall bad performance of robot up to this point</label>
+							<label for="longFive" class="fullWidthOption grid-item" id="otherRadioButton"><input id="longFive" type="radio" name="optradioQ3" value="5" onclick="toggleTextInput()">Other<input type="text" name="q3Option5Text" id="q3Option5Text" placeholder="Please mention why"></label>
+						</div>
+					</div>
 				</form>
-
-
-				<form class = "q3Class">
-				<p>2.) Please rate the robot as a teammate (7 being poor teammate, 1 being excellent teammate).</p>
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio" checked>1
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">2
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">3
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">4
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">5
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">6
-				 </label>
-				 
-				 <label class = "radio-inline">
-					 <input type="radio" name="optradio">7
-				 </label>
-				 
-				</form>
-
-				<form id = "q3Checkbox">
-					
-					<p>3.) What influenced your decision to integrate/discard the map the most?</p>
-					
-					<p>
-					    <label>
-							<input type="radio" name="optradio" checked>
-							Good performance of robot in last round
-					    </label>
-				 	</p>
-
-					 <p></p>
-
-					 <p>
-				        <label>
-							<input type="radio" name="optradio" checked>
-							Bad performance of the robot in last round
-					    </label>
-				 	</p>
-
-					 <p></p>
-
-					 <p>
-				        <label>
-							<input type="radio" name="optradio" checked>
-							Overall good performance of robot up to this point
-					    </label>
-				 	</p>
-
-					 <p></p>
-
-					 <p>
-				        <label>
-							<input type="radio" name="optradio" checked>
-							Overall bad performance of robot up to this point
-					    </label>
-				 	</p>
-
-					 <p></p>
-
-					 <p>
-				        <label>
-							<input type="radio" name="optradio" checked>
-							Other
-							<input type = "text" name = "q3Option5Text">
-					    </label>
-				 	</p>
-
-				</form>
-				
-				<button id = "submitendRoundQ">Submit</button> 
-				
-
+				<div class="userInputButtons">
+					<button id="submitendRoundQ" onclick="hideExploredInfo()">Submit</button> 
+				</div>
 			</div>
 		</div>
 

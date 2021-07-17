@@ -47,12 +47,35 @@ const SimulationResultSchema = new mongoose.Schema({
 		question3: [],
 		question4: []
 	},
+	survey3: {
+		reliable: Number,
+		competent: Number,
+		ethical: Number,
+		transparent: Number,
+		benevolent: Number,
+		predictable: Number,
+		skilled: Number,
+		principled: Number,
+		genuine: Number,
+		kind: Number,
+		dependable: Number,
+		capable: Number,
+		moral: Number,
+		sincere: Number,
+		considerate: Number,
+		consistent: Number,
+		meticulous: Number,
+		hasintegrity: Number,
+		candid: Number,
+		goodwill: Number
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now
 	},
 	survey1Modified: Date,
-	survey2Modified: Date
+	survey2Modified: Date,
+	survey3Modified: Date
 });
 
 module.exports = mongoose.model('SimulationResult', SimulationResultSchema);
