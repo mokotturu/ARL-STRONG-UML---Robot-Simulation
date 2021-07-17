@@ -4,6 +4,9 @@ var context = $map[0].getContext('2d', { alpha: false });
 const $timer = $('#timer');
 const $detailsModal = $('#exploration-details-modal');
 const $trustConfirmModal = $('#trust-confirm-modal');
+
+const $endRoundModal = $('#endRoundQContainer');
+
 const $minimapImage = $('#minimap');
 const $humanImage = $('#human-image');
 const $botImage = $('#bot-image');
@@ -103,7 +106,7 @@ var teamScore = 0, tempTeamScore = 0, totalHumanScore = 0, totalAgentScore = 0, 
 var seconds = 0, timeout, startTime;
 var eventListenersAdded = false, fullMapDrawn = false, pause = false;
 var humanLeft, humanRight, humanTop, humanBottom, botLeft, botRight, botTop, botBottom;
-var intervalCount = 0, half = 0, intervals = 7, duration = 40, agentNum = 1;
+var intervalCount = 0, half = 0, intervals = 7, duration = 1, agentNum = 1;
 var log = [[], []];
 
 var victimMarker = new Image();
@@ -494,6 +497,12 @@ function showTrustPrompt() {
 	$trustConfirmModal.css('opacity', '1');
 }
 
+function showPostIntegratePrompt(){
+	$endRoundModal.css('display', 'flex');
+	$endRoundModal.css('visibility', 'visible');
+	$endRoundModal.css('opacity', '1');
+}
+
 function showExploredInfo() {
 	currHumanScore = human.tempTargetsFound.blue * 100 - human.tempTargetsFound.yellow * 100;
 	// currAgentScore = fakeAgentScores[fakeAgentNum].score;
@@ -676,6 +685,9 @@ function confirmExploration() {
 	$trustConfirmModal.css('display', 'none');
 	$trustConfirmModal.css('opacity', '0');
 
+	
+	showPostIntegratePrompt();
+
 	showExploredInfo();
 }
 
@@ -696,6 +708,8 @@ function undoExploration() {
 	$trustConfirmModal.css('visibility', 'hidden');
 	$trustConfirmModal.css('display', 'none');
 	$trustConfirmModal.css('opacity', '0');
+
+	showPostIntegratePrompt();
 
 	showExploredInfo();
 }

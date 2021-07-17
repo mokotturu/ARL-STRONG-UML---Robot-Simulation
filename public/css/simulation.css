@@ -184,6 +184,44 @@ nav {
 	text-align: center;
 }
 
+
+#endRoundQContainer {
+	width: 45em !important;
+	height: 40em !important;
+	padding: 0 50px;
+	visibility: visible;
+	opacity: 1; 
+}
+
+#endRoundQContent {
+	display: flex;
+	justify-content: space-evenly;
+	text-align: left;
+	color: white;
+}
+.q3Class{
+	padding-bottom:1em;
+	text-align: center;
+}
+
+#q3Checkbox{
+	text-align:left;
+	margin-left:1em;
+}
+
+#q3PromptTitle{
+	padding-bottom:10px;
+	text-align:center;
+}
+
+
+#submitendRoundQ{
+text-align:center;
+background-color:grey;
+padding-top:0.1em;
+padding-bottom:0.1em;
+}
+
 .hCenter {
 	width: 100%;
 	display: flex;

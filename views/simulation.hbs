@@ -27,6 +27,7 @@
 				</div>
 			</div>
 		</div>
+		
 		<div class="popup-modal-container" id="exploration-details-modal">
 			<div class="popup-modal" id="exploration-details-modal-content">
 				<div class="map-info">
@@ -201,6 +202,136 @@
 				<canvas width="4000" height="4000" id="map" oncontextmenu="return false;"></canvas>
 			</div>
 		</div>
+
+
+
+		
+		<div class="popup-modal-container" id="endRoundQContainer">
+			<div class="popup-modal" id="endRoundQContent">
+
+				<h1 id = "q3PromptTitle">Please respond to the following questions below:</h1>
+				<form class = "q3Class">
+				<p>1.) Please rate the performance of your robot in this search and rescue task so far (7 being poor performance, 1 being excellent performance).</p>
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio" checked>1
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">2
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">3
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">4
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">5
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">6
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">7
+				 </label>
+				 
+				</form>
+
+
+				<form class = "q3Class">
+				<p>2.) Please rate the robot as a teammate (7 being poor teammate, 1 being excellent teammate).</p>
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio" checked>1
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">2
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">3
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">4
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">5
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">6
+				 </label>
+				 
+				 <label class = "radio-inline">
+					 <input type="radio" name="optradio">7
+				 </label>
+				 
+				</form>
+
+				<form id = "q3Checkbox">
+					
+					<p>3.) What influenced your decision to integrate/discard the map the most?</p>
+					
+					<p>
+					    <label>
+							<input type="radio" name="optradio" checked>
+							Good performance of robot in last round
+					    </label>
+				 	</p>
+
+					 <p></p>
+
+					 <p>
+				        <label>
+							<input type="radio" name="optradio" checked>
+							Bad performance of the robot in last round
+					    </label>
+				 	</p>
+
+					 <p></p>
+
+					 <p>
+				        <label>
+							<input type="radio" name="optradio" checked>
+							Overall good performance of robot up to this point
+					    </label>
+				 	</p>
+
+					 <p></p>
+
+					 <p>
+				        <label>
+							<input type="radio" name="optradio" checked>
+							Overall bad performance of robot up to this point
+					    </label>
+				 	</p>
+
+					 <p></p>
+
+					 <p>
+				        <label>
+							<input type="radio" name="optradio" checked>
+							Other
+							<input type = "text" name = "q3Option5Text">
+					    </label>
+				 	</p>
+
+				</form>
+				
+				<button id = "submitendRoundQ">Submit</button> 
+				
+
+			</div>
+		</div>
+
+
 	</div>
 
 	<!-- Load the CDN first -->
