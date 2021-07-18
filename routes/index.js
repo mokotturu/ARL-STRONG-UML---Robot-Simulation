@@ -94,21 +94,25 @@ router.post('/survey-1-submit', async (req, res) => {
 			{
 				survey1: {
 					reliable: req.body.reliable,
-					sincere: req.body.sincere,
-					capable: req.body.capable,
-					ethical: req.body.ethical,
-					predictable: req.body.predictable,
-					genuine: req.body.genuine,
-					skilled: req.body.skilled,
-					respectable: req.body.respectable,
-					counton: req.body.counton,
-					candid: req.body.candid,
 					competent: req.body.competent,
+					ethical: req.body.ethical,
+					transparent: req.body.transparent,
+					benevolent: req.body.benevolent,
+					predictable: req.body.predictable,
+					skilled: req.body.skilled,
 					principled: req.body.principled,
+					genuine: req.body.genuine,
+					kind: req.body.kind,
+					dependable: req.body.dependable,
+					capable: req.body.capable,
+					moral: req.body.moral,
+					sincere: req.body.sincere,
+					considerate: req.body.considerate,
 					consistent: req.body.consistent,
-					authentic: req.body.authentic,
 					meticulous: req.body.meticulous,
-					hasintegrity: req.body.hasintegrity
+					hasintegrity: req.body.hasintegrity,
+					candid: req.body.candid,
+					goodwill: req.body.goodwill
 				},
 				survey1Modified: new Date()
 			}
@@ -142,14 +146,15 @@ router.post('/survey-2-submit', async (req, res) => {
 				survey2Modified: new Date()
 			}
 		);
-		res.redirect('/survey-3');
+		res.redirect('/thank-you');
 	} catch (err) {
 		console.log(err);
 		res.redirect(500, 'error/500');
 	}
 });
 
-router.get('/survey-3', (req, res) => {
+// survey 3 is now survey 1
+/* router.get('/survey-3', (req, res) => {
 	res.render('survey-3', {
 		title: 'ARL STRONG UML | Survey 3',
 		layout: 'survey.hbs'
@@ -192,12 +197,6 @@ router.post('/survey-3-submit', async (req, res) => {
 		console.log(err);
 		res.redirect(500, 'error/500');
 	}
-});
-
-/* router.get('/error/400', (req, res) => {
-	res.render('error/400', {
-		title: 'ARL STRONG UML | Error 404'
-	});
 }); */
 
 router.get('/error/500', (req, res) => {
