@@ -34,7 +34,7 @@ function showConsentForm() {
 }
 
 function agree() {
-	window.location.href = "/simulation";
+	window.location.href = "/tutorial";
 }
 
 function decline() {
