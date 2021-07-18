@@ -158,13 +158,14 @@ router.post('/survey-2-submit', async (req, res) => {
 });
 
 // survey 3 is now survey 1
-/* router.get('/survey-3', (req, res) => {
+ router.get('/survey-3', (req, res) => {
 	res.render('survey-3', {
 		title: 'ARL STRONG UML | Survey 3',
 		layout: 'survey.hbs'
 	});
 });
 
+/*
 router.post('/survey-3-submit', async (req, res) => {
 	console.log(req.body);
 	try {

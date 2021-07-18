@@ -1,0 +1,72 @@
+<div class="survey">
+	<h3>Survey 2</h3>
+
+	<h4>The following questions are intended to gain an understanding of your background relevant to human-robot interaction.</h4>
+
+	<form action="/survey-2-submit" method="POST" name="survey-2" id="survey-2">
+		<div class="question">
+			<p>What is your gender?</p>
+			<div class="options">
+				<label for="female">Female<input type="radio" id="female" name="question1" value="female"></label>
+				<label for="male">Male<input type="radio" id="male" name="question1" value="male"></label>
+                <label for="nb">Non-binary<input type="radio" id="nb" name="question1" value="nb"></label>
+                <label for="pd">Prefer to self-describe:<input type="radio" id="pd" name="question1" value="pd"></label>
+                <label for="pna">Prefer not to answer<input type="radio" id="pna" name="question1" value="pna"></label>
+			</div>	
+		</div>
+
+		<div class="question">
+			<p>How old are you?</p>
+			<div class="options">
+				<label for="u20">Under 20<input type="radio" id="u20" name="question2" value="u20"></label>
+				<label for="tw1tw5">21-25<input type="radio" id="tw1tw5" name="question2" value="tw1tw5"></label>
+				<label for="tw6thrty">26-30<input type="radio" id="tw6thrty" name="question2" value="tw6thrty"></label>
+				<label for="th1th5">31-35<input type="radio" id="th1th5" name="question2" value="th1th5"></label>
+				<label for="th6frty">36-40<input type="radio" id="th6frty" name="question2" value="th6frty"></label>
+                <label for="frt1frt5">41-45<input type="radio" id="frt1frt5" name="question2" value="frt1frt5"></label>
+                <label for="frt6ffty">46-50<input type="radio" id="frt6ffty" name="question2" value="frt6ffty"></label>
+                <label for="a50">Above 50<input type="radio" id="a50" name="question2" value="a50"></label>
+			</div>
+		</div>
+
+		<div class="question">
+			<p>What is the highest level of education you have completed?</p>
+			<div class="options">
+				<label for="hs">High school<input type="radio" id="hs" name="question3" value="hs"></label>
+				<label for="college">College<input type="radio" id="college" name="question3" value="college"></label>
+				<label for="bd">Bachelor's degree<input type="radio" id="bd" name="question3" value="bd"></label>
+				<label for="md">Master's degree<input type="radio" id="md" name="question3" value="md"></label>
+				<label for="phd">Doctorate<input type="radio" id="phd" name="question3" value="phd"></label>
+                <label for="nla">Not listed above<input type="radio" id="nla" name="question3" value="nla"></label>
+            </div>
+		</div>
+
+		<div class="question">
+			<p>How much of your education and/or occupation is related to technology? Rate from 1-7; 1 meaning not related, 7 meaning highly related. </p>
+			<div class="options">
+				<label for="one">1<input type="radio" id="one" name="question4" value="one"></label>
+				<label for="two">2<input type="radio" id="two" name="question4" value="two"></label>
+				<label for="three">3<input type="radio" id="three" name="question4" value="three"></label>
+				<label for="four">4<input type="radio" id="four" name="question4" value="four"></label>
+				<label for="five">5<input type="radio" id="five" name="question4" value="five"></label>
+                <label for="six">6<input type="radio" id="six" name="question4" value="six"></label>
+                <label for="seven">7<input type="radio" id="seven" name="question4" value="seven"></label>
+			</div>
+		</div>
+
+        	<div class="question">
+			<p>How much experience have you had working with/using robots in the past? Rate from 1-7; 1 meaning never, 7 meaning very often. </p>
+			<div class="options">
+				<label for="one">1<input type="radio" id="one" name="question5" value="one"></label>
+				<label for="two">2<input type="radio" id="two" name="question5" value="two"></label>
+				<label for="three">3<input type="radio" id="three" name="question5" value="three"></label>
+				<label for="four">4<input type="radio" id="four" name="question5" value="four"></label>
+				<label for="five">5<input type="radio" id="five" name="question5" value="five"></label>
+                <label for="six">6<input type="radio" id="six" name="question5" value="six"></label>
+                <label for="seven">7<input type="radio" id="seven" name="question5" value="seven"></label>
+			</div>
+		</div>
+
+		<button id="submit" type="submit" form="survey-2" value="Submit">Submit</button>
+	</form>
+</div>

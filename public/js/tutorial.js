@@ -11,6 +11,7 @@ const $log = $('.tableItems');
 const $dropdown = $('#maps');
 const $progressbar = $('.background');
 const $agentText = $('.agent-text');
+const $endRoundModal = $('#endRoundQContainer');
 $.jCanvas.defaults.fromCenter = false;
 
 var rows, columns, boxWidth, boxHeight;
@@ -642,6 +643,11 @@ function showInstructions12() {
 		$('#instructions-modal').removeClass('animate__animated animate__fadeOutLeft animate__faster');
 		$('#instructions-modal').addClass('animate__animated animate__zoomIn animate__faster');
 	}, 500);
+
+	$endRoundModal.css('display', 'flex');
+	$endRoundModal.css('visibility', 'visible');
+	$endRoundModal.css('opacity', '1');
+	$endRoundModal.css('z-index',1000);
 }
 
 function nextInstruction() {

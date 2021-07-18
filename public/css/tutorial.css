@@ -205,6 +205,53 @@ nav {
 	text-align: center;
 }
 
+#endRoundQContainer {
+	width: 45em !important;
+	height: 40em !important;
+	padding: 35px 50px;
+	visibility: visible;
+	opacity: 1; 
+}
+
+#endRoundQContent {
+	color: white;
+}
+
+.optionsContainer {
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	grid-template-rows: 1fr;
+	grid-column-gap: 0px;
+	grid-row-gap: 0px;
+	font-size: 20px; 
+}
+
+#intervalSurvey {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: center;
+}
+
+#intervalSurvey .questionContainer {
+	margin: 10px 0;
+	width: 100%;
+}
+
+#q3PromptTitle{
+	text-align: center;
+	font-size:30px;
+}
+
+
+.questionContainer h4 {
+	margin: 0.5em 0 1em 0;
+	font-size: 30px;
+	line-height: 160%;
+}
+
+
 .hCenter {
 	width: 100%;
 	display: flex;
